@@ -1,0 +1,6 @@
+@BadmintonBookingSystem_HostAddress = http://localhost:5232
+
+GET {{BadmintonBookingSystem_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
