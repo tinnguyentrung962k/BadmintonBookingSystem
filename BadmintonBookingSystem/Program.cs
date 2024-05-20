@@ -12,11 +12,8 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddDbContext<AppDbContext>(options => {
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnectionStringDB"));
-    options.UseSqlServer(builder => builder.MigrationsAssembly("BadmintonBookingSystem"));
-});
-    
+builder.Services.AddDbContext<AppDbContext>();
+
 
 var app = builder.Build();
 
