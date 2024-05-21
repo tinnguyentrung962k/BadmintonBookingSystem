@@ -1,4 +1,8 @@
 using BadmintonBookingSystem.DataAccessLayer.Context;
+using BadmintonBookingSystem.Repository.Interface;
+using BadmintonBookingSystem.Repository.Repository;
+using BadmintonBookingSystem.Service.Interface;
+using BadmintonBookingSystem.Service.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
@@ -13,7 +17,8 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddDbContext<AppDbContext>();
-
+builder.Services.AddScoped<IBadmintonCenterRepository, BadmintonCenterRepository>();
+builder.Services.AddScoped<IBadmintonCenterService, BadmintonCenterService>();
 
 var app = builder.Build();
 

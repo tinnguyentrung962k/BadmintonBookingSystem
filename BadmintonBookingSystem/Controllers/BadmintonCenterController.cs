@@ -14,12 +14,12 @@ namespace BadmintonBookingSystem.Controllers
         {
             _badmintonCenterService = badmintonCenterService;
         }
-        //[HttpGet]
-        //[Route("/api/v1/club")]
-        //public async Task<IActionResult> GetBadmintonCenters()
-        //{
-        //   var clubs = await _badmintonCenterService.GetAllBadmintonCenters();
-        //   return Ok(clubs);
-        //}
+        [HttpGet]
+        [Route("/api/v1/club")]
+        public async Task<IActionResult> GetBadmintonCenters()
+        {
+            var clubs = _badmintonCenterService.GetAllBadmintonCenters();
+            return Ok(clubs);
+        }
     }
 }
