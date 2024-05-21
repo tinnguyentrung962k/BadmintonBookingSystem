@@ -25,4 +25,8 @@
     <ProjectReference Include="..\BadmintonBookingSystem.Service\BadmintonBookingSystem.Service.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Controllers\" />
+  </ItemGroup>
+
 </Project>

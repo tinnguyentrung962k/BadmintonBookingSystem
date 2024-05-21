@@ -10,11 +10,11 @@ using System.ComponentModel.DataAnnotations;
 
 namespace BadmintonBookingSystem.DataAccessLayer.Entity
 {
-    [Table("Slot")]
-    public class SlotEntity : BaseEntity
+    [Table("Court")]
+    public class CourtEntity : BaseEntity
     {
         [Required]
-        public string SlotName { get; set; }
+        public string CourtName { get; set; }
         [Required]
         public string CenterId { get; set; }
         [Required]
