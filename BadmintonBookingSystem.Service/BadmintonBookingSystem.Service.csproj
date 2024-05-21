@@ -6,4 +6,8 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\BadmintonBookingSystem.Repository\BadmintonBookingSystem.Repository.csproj" />
+  </ItemGroup>
+
 </Project>

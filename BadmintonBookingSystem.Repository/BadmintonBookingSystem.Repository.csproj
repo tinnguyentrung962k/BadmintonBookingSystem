@@ -6,4 +6,8 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\BadmintonBookingSystem.DataAccessLayer\BadmintonBookingSystem.DataAccessLayer.csproj" />
+  </ItemGroup>
+
 </Project>

@@ -14,7 +14,7 @@ namespace BadmintonBookingSystem.DataAccessLayer.Entity
         [Required]
         public string UserId { get; set; }
         [Required]
-        public string SlotId { get; set; }
+        public string CourtId { get; set; }
         [Required]
         public DateOnly BookingDate { get; set; }
         [Required]
@@ -23,7 +23,7 @@ namespace BadmintonBookingSystem.DataAccessLayer.Entity
         public TimeOnly EndTime { get; set; }
         [ForeignKey(nameof(UserId))]
         public virtual UserEntity User { get; set; }
-        [ForeignKey(nameof(SlotId))]
-        public virtual SlotEntity Slot { get; set; }
+        [ForeignKey(nameof(CourtId))]
+        public virtual CourtEntity Court { get; set; }
     }
 }

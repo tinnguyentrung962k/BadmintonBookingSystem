@@ -16,6 +16,11 @@ namespace BadmintonBookingSystem.DataAccessLayer.Context
         {
 
         }
+
+        public AppDbContext()
+        {
+        }
+
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
            
@@ -36,7 +41,7 @@ namespace BadmintonBookingSystem.DataAccessLayer.Context
         public DbSet<BadmintonCenterEntity> BadmintonCenters { get; set; }
         public DbSet<BookingOrderEntity> BookingOrders { get; set; }
         public DbSet<RoleEntity> Roles { get; set; }
-        public DbSet<SlotEntity> Slots { get; set; }
+        public DbSet<CourtEntity> Courts { get; set; }
         public DbSet<UserEntity> Users { get; set; }
 
         //dotnet ef migrations add Init -s .\BadmintonBookingSystem -p .\BadmintonBookingSystem.DataAccessLayer
