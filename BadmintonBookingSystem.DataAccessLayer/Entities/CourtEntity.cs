@@ -7,11 +7,12 @@ using System.Text;
 using System.Threading.Tasks;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
+using BadmintonBookingSystem.DataAccessLayer.Entities.BaseEntities;
 
-namespace BadmintonBookingSystem.DataAccessLayer.Entity
+namespace BadmintonBookingSystem.DataAccessLayer.Entities
 {
     [Table("Court")]
-    public class CourtEntity : BaseEntity
+    public class CourtEntity : BaseAuditEntity<string>
     {
         [Required]
         public string CourtName { get; set; }

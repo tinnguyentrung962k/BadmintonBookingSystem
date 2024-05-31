@@ -17,11 +17,13 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="Serilog.AspNetCore" Version="8.0.1" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
+    <PackageReference Include="Swashbuckle.AspNetCore.Filters" Version="8.0.2" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\BadmintonBookingSystem.DataAccessLayer\BadmintonBookingSystem.DataAccessLayer.csproj" />
+    <ProjectReference Include="..\BadmintonBookingSystem.BusinessObject\BadmintonBookingSystem.BusinessObject.csproj" />
     <ProjectReference Include="..\BadmintonBookingSystem.Service\BadmintonBookingSystem.Service.csproj" />
   </ItemGroup>
 

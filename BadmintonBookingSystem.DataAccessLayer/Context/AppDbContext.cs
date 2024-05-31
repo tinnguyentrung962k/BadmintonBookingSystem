@@ -1,48 +1,63 @@
-﻿using BadmintonBookingSystem.DataAccessLayer.Entity;
+﻿using BadmintonBookingSystem.DataAccessLayer.Entities;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Options;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BadmintonBookingSystem.DataAccessLayer.Context
 {
-    public class AppDbContext : DbContext
+    public class AppDbContext : IdentityDbContext<UserEntity, RoleEntity, string,
+        IdentityUserClaim<string>,
+        UserRoleEntity,
+        IdentityUserLogin<string>,
+        IdentityRoleClaim<string>,
+        IdentityUserToken<string>>
     {
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
         {
 
         }
-
-        public AppDbContext()
-        {
-        }
-
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-           
-            optionsBuilder.UseSqlServer(GetConnectionString());
-            base.OnConfiguring(optionsBuilder);
-
-        }
-        private string GetConnectionString()
-        {
-            IConfiguration config = new ConfigurationBuilder()
-                .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile("appsettings.json", true, true).Build();
-            var strConn = config["ConnectionString:DefaultConnectionStringDB"];
-            return strConn;
-        }
-
-
         public DbSet<BadmintonCenterEntity> BadmintonCenters { get; set; }
         public DbSet<BookingOrderEntity> BookingOrders { get; set; }
-        public DbSet<RoleEntity> Roles { get; set; }
         public DbSet<CourtEntity> Courts { get; set; }
-        public DbSet<UserEntity> Users { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<UserRoleEntity>(userRole =>
+            {
+                userRole.HasKey(ur => new { ur.UserId, ur.RoleId });
+
+                userRole.HasOne(ur => ur.Role)
+                    .WithMany(r => r.UserRoles)
+                    .HasForeignKey(ur => ur.RoleId)
+                    .IsRequired();
+
+                userRole.HasOne(ur => ur.User)
+                    .WithMany(r => r.UserRoles)
+                    .HasForeignKey(ur => ur.UserId)
+                    .IsRequired();
+            });
+
+            modelBuilder.Entity<UserEntity>(entity =>
+            {
+                entity.ToTable("User");
+            });
+
+            modelBuilder.Entity<RoleEntity>(entity =>
+            {
+                entity.ToTable("Role");
+            });
+
+            foreach (var entityType in modelBuilder.Model.GetEntityTypes())
+            {
+                var tableName = entityType.GetTableName();
+                if (tableName!.StartsWith("AspNet"))
+                {
+                    entityType.SetTableName(tableName.Substring(6));
+                }
+            }
+        }
 
         //dotnet ef migrations add Init -s .\BadmintonBookingSystem -p .\BadmintonBookingSystem.DataAccessLayer
         //BadmintonBookingSystem.DataAccessLayer

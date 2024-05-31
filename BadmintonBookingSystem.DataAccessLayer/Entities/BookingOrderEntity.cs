@@ -1,4 +1,5 @@
-﻿using System;
+﻿using BadmintonBookingSystem.DataAccessLayer.Entities.BaseEntities;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -6,10 +7,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BadmintonBookingSystem.DataAccessLayer.Entity
+namespace BadmintonBookingSystem.DataAccessLayer.Entities
 {
     [Table("BookingOrder")]
-    public class BookingOrderEntity : BaseEntity
+    public class BookingOrderEntity : BaseAuditEntity<string>
     {
         [Required]
         public string UserId { get; set; }
