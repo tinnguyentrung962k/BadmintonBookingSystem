@@ -8,6 +8,7 @@ namespace BadmintonBookingSystem.Configurations
         public static IServiceCollection AddRepositoryConfiguration(this IServiceCollection services)
         {
             services.AddScoped<IUnitOfWork, UnitOfWork>();
+            services.AddScoped<IBadmintonCenterRepository, BadmintonCenterRepository>();
 
             return services;
         }

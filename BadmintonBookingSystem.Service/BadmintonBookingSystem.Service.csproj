@@ -7,12 +7,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\BadmintonBookingSystem.BusinessObject\BadmintonBookingSystem.BusinessObject.csproj" />
     <ProjectReference Include="..\BadmintonBookingSystem.Repository\BadmintonBookingSystem.Repository.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Services\Interface\" />
-    <Folder Include="Services\" />
   </ItemGroup>
 
 </Project>
