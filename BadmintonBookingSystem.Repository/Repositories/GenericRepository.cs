@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace BadmintonBookingSystem.Repository.Repositories
 {
@@ -71,9 +72,12 @@ namespace BadmintonBookingSystem.Repository.Repositories
             _context.Dispose();
         }
 
-        public async Task<IEnumerable<TEntity>> GetPagingAsync(int position, int size)
+        public async Task<IEnumerable<TEntity>> GetPagingAsync(int pageIndex = 1,
+            int pageSize = 1)
         {
-            return await _dbSet.Skip(position).Take(size).ToListAsync();
+            pageIndex = pageIndex < 1 ? 0 : pageIndex - 1;
+            pageSize = pageSize < 1 ? 10 : pageSize;
+            return _dbSet.Skip(pageIndex * pageSize).Take(pageSize).ToList();
         }
     }
 }
