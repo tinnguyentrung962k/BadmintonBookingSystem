@@ -7,6 +7,8 @@ namespace BadmintonBookingSystem.Configurations
     {
         public static IServiceCollection AddServiceConfiguration(this IServiceCollection services, IConfiguration configuration)
         {
+            services.AddScoped<IUserService, UserService>();
+            services.AddScoped<ITokenService, TokenService>();
             services.AddScoped<IBadmintonCenterService, BadmintonCenterService>();
             return services;
         }
