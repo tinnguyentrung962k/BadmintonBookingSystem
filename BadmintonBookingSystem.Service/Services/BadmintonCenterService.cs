@@ -59,15 +59,15 @@ namespace BadmintonBookingSystem.Service.Services
             return chosenCenter;
         }
 
-        public virtual async Task<BadmintonCenterEntity> UpdateBadmintonInfo(BadmintonCenterEntity badmintonCenterEntity, string centerId)
+        public async Task<BadmintonCenterEntity> UpdateBadmintonInfo(BadmintonCenterEntity badmintonCenterEntity, string centerId)
         {
+
             var badmintonCenter = await GetBadmintonCenterByIdAsync(centerId) ;
             badmintonCenter.Name = badmintonCenterEntity.Name;
             badmintonCenter.Location = badmintonCenterEntity.Location;
             badmintonCenter.LastUpdatedTime = DateTimeOffset.UtcNow;
              _badmintonCenterRepository.Update(badmintonCenter);
             await _unitOfWork.SaveChangesAsync();
-            await _unitOfWork.CommitAsync();
             return badmintonCenter;
         }
     }

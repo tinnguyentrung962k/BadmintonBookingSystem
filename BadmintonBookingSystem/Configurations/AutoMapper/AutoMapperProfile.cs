@@ -21,6 +21,7 @@ namespace BadmintonBookingSystem.Configurations.AutoMapper
         private void UserMappingProfile()
         {
             CreateMap<UserEntity, RegisterDTO>().ReverseMap();
+            CreateMap<UserEntity, ResponseUserDTO>().ReverseMap();
         }
     }
 }
