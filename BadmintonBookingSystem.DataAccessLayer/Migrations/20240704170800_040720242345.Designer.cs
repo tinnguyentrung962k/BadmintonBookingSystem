@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BadmintonBookingSystem.DataAccessLayer.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20240704161018_040720242303")]
-    partial class _040720242303
+    [Migration("20240704170800_040720242345")]
+    partial class _040720242345
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -47,11 +47,21 @@ namespace BadmintonBookingSystem.DataAccessLayer.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("ManagerId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("OperatingTime")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("ManagerId");
 
                     b.ToTable("BadmintonCenter");
                 });
@@ -65,8 +75,9 @@ namespace BadmintonBookingSystem.DataAccessLayer.Migrations
                     b.Property<DateOnly>("BookingDate")
                         .HasColumnType("date");
 
-                    b.Property<TimeOnly>("BookingTime")
-                        .HasColumnType("time");
+                    b.Property<string>("BookingType")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("CourtId")
                         .IsRequired()
@@ -78,8 +89,15 @@ namespace BadmintonBookingSystem.DataAccessLayer.Migrations
                     b.Property<DateTimeOffset>("CreatedTime")
                         .HasColumnType("datetimeoffset");
 
-                    b.Property<TimeOnly>("EndTime")
-                        .HasColumnType("time");
+                    b.Property<string>("CustomerId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<bool>("IsCheckIn")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsPaid")
+                        .HasColumnType("bit");
 
                     b.Property<string>("LastUpdatedBy")
                         .HasColumnType("nvarchar(max)");
@@ -87,7 +105,7 @@ namespace BadmintonBookingSystem.DataAccessLayer.Migrations
                     b.Property<DateTimeOffset>("LastUpdatedTime")
                         .HasColumnType("datetimeoffset");
 
-                    b.Property<string>("UserId")
+                    b.Property<string>("TimeSlotId")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
@@ -95,7 +113,9 @@ namespace BadmintonBookingSystem.DataAccessLayer.Migrations
 
                     b.HasIndex("CourtId");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("CustomerId");
+
+                    b.HasIndex("TimeSlotId");
 
                     b.ToTable("BookingOrder");
                 });
@@ -125,9 +145,6 @@ namespace BadmintonBookingSystem.DataAccessLayer.Migrations
 
                     b.Property<DateTimeOffset>("LastUpdatedTime")
                         .HasColumnType("datetimeoffset");
-
-                    b.Property<double>("Price")
-                        .HasColumnType("float");
 
                     b.HasKey("Id");
 
@@ -161,6 +178,48 @@ namespace BadmintonBookingSystem.DataAccessLayer.Migrations
                         .HasFilter("[NormalizedName] IS NOT NULL");
 
                     b.ToTable("Role", (string)null);
+                });
+
+            modelBuilder.Entity("BadmintonBookingSystem.DataAccessLayer.Entities.TimeSlotEntity", b =>
+                {
+                    b.Property<string>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("BookingType")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("CourtId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTimeOffset>("CreatedTime")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<TimeSpan>("EndTime")
+                        .HasColumnType("time");
+
+                    b.Property<string>("LastUpdatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTimeOffset>("LastUpdatedTime")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<decimal>("Price")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<TimeSpan>("StartTime")
+                        .HasColumnType("time");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CourtId");
+
+                    b.ToTable("TimeSlot");
                 });
 
             modelBuilder.Entity("BadmintonBookingSystem.DataAccessLayer.Entities.UserEntity", b =>
@@ -346,23 +405,42 @@ namespace BadmintonBookingSystem.DataAccessLayer.Migrations
                     b.ToTable("UserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("BadmintonBookingSystem.DataAccessLayer.Entities.BadmintonCenterEntity", b =>
+                {
+                    b.HasOne("BadmintonBookingSystem.DataAccessLayer.Entities.UserEntity", "Manager")
+                        .WithMany()
+                        .HasForeignKey("ManagerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Manager");
+                });
+
             modelBuilder.Entity("BadmintonBookingSystem.DataAccessLayer.Entities.BookingOrderEntity", b =>
                 {
                     b.HasOne("BadmintonBookingSystem.DataAccessLayer.Entities.CourtEntity", "Court")
-                        .WithMany("BookingOrderEntities")
+                        .WithMany("BookingOrders")
                         .HasForeignKey("CourtId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("BadmintonBookingSystem.DataAccessLayer.Entities.UserEntity", "User")
+                    b.HasOne("BadmintonBookingSystem.DataAccessLayer.Entities.UserEntity", "Customer")
+                        .WithMany("BookingOrders")
+                        .HasForeignKey("CustomerId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("BadmintonBookingSystem.DataAccessLayer.Entities.TimeSlotEntity", "TimeSlot")
                         .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .HasForeignKey("TimeSlotId")
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Court");
 
-                    b.Navigation("User");
+                    b.Navigation("Customer");
+
+                    b.Navigation("TimeSlot");
                 });
 
             modelBuilder.Entity("BadmintonBookingSystem.DataAccessLayer.Entities.CourtEntity", b =>
@@ -374,6 +452,17 @@ namespace BadmintonBookingSystem.DataAccessLayer.Migrations
                         .IsRequired();
 
                     b.Navigation("BadmintonCenter");
+                });
+
+            modelBuilder.Entity("BadmintonBookingSystem.DataAccessLayer.Entities.TimeSlotEntity", b =>
+                {
+                    b.HasOne("BadmintonBookingSystem.DataAccessLayer.Entities.CourtEntity", "Court")
+                        .WithMany()
+                        .HasForeignKey("CourtId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Court");
                 });
 
             modelBuilder.Entity("BadmintonBookingSystem.DataAccessLayer.Entities.UserRoleEntity", b =>
@@ -433,7 +522,7 @@ namespace BadmintonBookingSystem.DataAccessLayer.Migrations
 
             modelBuilder.Entity("BadmintonBookingSystem.DataAccessLayer.Entities.CourtEntity", b =>
                 {
-                    b.Navigation("BookingOrderEntities");
+                    b.Navigation("BookingOrders");
                 });
 
             modelBuilder.Entity("BadmintonBookingSystem.DataAccessLayer.Entities.RoleEntity", b =>
@@ -443,6 +532,8 @@ namespace BadmintonBookingSystem.DataAccessLayer.Migrations
 
             modelBuilder.Entity("BadmintonBookingSystem.DataAccessLayer.Entities.UserEntity", b =>
                 {
+                    b.Navigation("BookingOrders");
+
                     b.Navigation("UserRoles");
                 });
 #pragma warning restore 612, 618

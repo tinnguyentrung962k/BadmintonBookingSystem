@@ -18,12 +18,10 @@ namespace BadmintonBookingSystem.DataAccessLayer.Entities
         public string CourtName { get; set; }
         [Required]
         public string CenterId { get; set; }
-        [Required]
-        public double Price { get; set; }
         
         [ForeignKey(nameof(CenterId))]
         public virtual BadmintonCenterEntity BadmintonCenter { get; set; }
-        public IEnumerable<BookingOrderEntity> BookingOrderEntities { get; set; } 
+        public IEnumerable<BookingOrderEntity> BookingOrders { get; set; } 
 
 
     }

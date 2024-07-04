@@ -4,11 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BadmintonBookingSystem.DataAccessLayer.Enum
+namespace BadmintonBookingSystem.BusinessObject.Enum
 {
-    public enum Sex : int
+    public enum BookingType
     {
-        Male,
-        Female
+        Fix,
+        Single,
+        Flexible
     }
 }

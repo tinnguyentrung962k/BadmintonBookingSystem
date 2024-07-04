@@ -6,28 +6,11 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace BadmintonBookingSystem.DataAccessLayer.Migrations
 {
     /// <inheritdoc />
-    public partial class Init : Migration
+    public partial class _040720242345 : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.CreateTable(
-                name: "BadmintonCenter",
-                columns: table => new
-                {
-                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Location = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    CreatedTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
-                    LastUpdatedTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
-                    CreatedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    LastUpdatedBy = table.Column<string>(type: "nvarchar(max)", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_BadmintonCenter", x => x.Id);
-                });
-
             migrationBuilder.CreateTable(
                 name: "Role",
                 columns: table => new
@@ -72,30 +55,6 @@ namespace BadmintonBookingSystem.DataAccessLayer.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Court",
-                columns: table => new
-                {
-                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    CourtName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    CenterId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    Price = table.Column<double>(type: "float", nullable: false),
-                    CreatedTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
-                    LastUpdatedTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
-                    CreatedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    LastUpdatedBy = table.Column<string>(type: "nvarchar(max)", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Court", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Court_BadmintonCenter_CenterId",
-                        column: x => x.CenterId,
-                        principalTable: "BadmintonCenter",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "RoleClaims",
                 columns: table => new
                 {
@@ -112,6 +71,31 @@ namespace BadmintonBookingSystem.DataAccessLayer.Migrations
                         name: "FK_RoleClaims_Role_RoleId",
                         column: x => x.RoleId,
                         principalTable: "Role",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "BadmintonCenter",
+                columns: table => new
+                {
+                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Location = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    OperatingTime = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ManagerId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    CreatedTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
+                    LastUpdatedTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
+                    CreatedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    LastUpdatedBy = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_BadmintonCenter", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_BadmintonCenter_User_ManagerId",
+                        column: x => x.ManagerId,
+                        principalTable: "User",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -202,15 +186,66 @@ namespace BadmintonBookingSystem.DataAccessLayer.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Court",
+                columns: table => new
+                {
+                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    CourtName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    CenterId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    CreatedTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
+                    LastUpdatedTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
+                    CreatedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    LastUpdatedBy = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Court", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Court_BadmintonCenter_CenterId",
+                        column: x => x.CenterId,
+                        principalTable: "BadmintonCenter",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "TimeSlot",
+                columns: table => new
+                {
+                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    CourtId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    StartTime = table.Column<TimeSpan>(type: "time", nullable: false),
+                    EndTime = table.Column<TimeSpan>(type: "time", nullable: false),
+                    BookingType = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Price = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    CreatedTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
+                    LastUpdatedTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
+                    CreatedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    LastUpdatedBy = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_TimeSlot", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_TimeSlot_Court_CourtId",
+                        column: x => x.CourtId,
+                        principalTable: "Court",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "BookingOrder",
                 columns: table => new
                 {
                     Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    CustomerId = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     CourtId = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     BookingDate = table.Column<DateOnly>(type: "date", nullable: false),
-                    BookingTime = table.Column<TimeOnly>(type: "time", nullable: false),
-                    EndTime = table.Column<TimeOnly>(type: "time", nullable: false),
+                    TimeSlotId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    IsCheckIn = table.Column<bool>(type: "bit", nullable: false),
+                    IsPaid = table.Column<bool>(type: "bit", nullable: false),
+                    BookingType = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     CreatedTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
                     LastUpdatedTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
                     CreatedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
@@ -226,12 +261,23 @@ namespace BadmintonBookingSystem.DataAccessLayer.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_BookingOrder_User_UserId",
-                        column: x => x.UserId,
+                        name: "FK_BookingOrder_TimeSlot_TimeSlotId",
+                        column: x => x.TimeSlotId,
+                        principalTable: "TimeSlot",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_BookingOrder_User_CustomerId",
+                        column: x => x.CustomerId,
                         principalTable: "User",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                 });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_BadmintonCenter_ManagerId",
+                table: "BadmintonCenter",
+                column: "ManagerId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_BookingOrder_CourtId",
@@ -239,9 +285,14 @@ namespace BadmintonBookingSystem.DataAccessLayer.Migrations
                 column: "CourtId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_BookingOrder_UserId",
+                name: "IX_BookingOrder_CustomerId",
                 table: "BookingOrder",
-                column: "UserId");
+                column: "CustomerId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_BookingOrder_TimeSlotId",
+                table: "BookingOrder",
+                column: "TimeSlotId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Court_CenterId",
@@ -259,6 +310,11 @@ namespace BadmintonBookingSystem.DataAccessLayer.Migrations
                 name: "IX_RoleClaims_RoleId",
                 table: "RoleClaims",
                 column: "RoleId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_TimeSlot_CourtId",
+                table: "TimeSlot",
+                column: "CourtId");
 
             migrationBuilder.CreateIndex(
                 name: "EmailIndex",
@@ -310,16 +366,19 @@ namespace BadmintonBookingSystem.DataAccessLayer.Migrations
                 name: "UserTokens");
 
             migrationBuilder.DropTable(
-                name: "Court");
+                name: "TimeSlot");
 
             migrationBuilder.DropTable(
                 name: "Role");
 
             migrationBuilder.DropTable(
-                name: "User");
+                name: "Court");
 
             migrationBuilder.DropTable(
                 name: "BadmintonCenter");
+
+            migrationBuilder.DropTable(
+                name: "User");
         }
     }
 }

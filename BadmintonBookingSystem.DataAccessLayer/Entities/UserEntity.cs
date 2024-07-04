@@ -17,5 +17,6 @@ namespace BadmintonBookingSystem.DataAccessLayer.Entities
         public DateTimeOffset LastUpdatedTime { get; set; } = DateTimeOffset.UtcNow;
         public string? RefreshToken { get; set; }
         [JsonIgnore] public virtual IEnumerable<UserRoleEntity> UserRoles { get; }
+        [JsonIgnore] public virtual IEnumerable<BookingOrderEntity> BookingOrders { get; }
     }
 }

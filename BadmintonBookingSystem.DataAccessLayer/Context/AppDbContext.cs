@@ -2,6 +2,9 @@
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
+using System.Data;
+using BadmintonBookingSystem.BusinessObject.Enum;
 
 namespace BadmintonBookingSystem.DataAccessLayer.Context
 {
@@ -19,10 +22,34 @@ namespace BadmintonBookingSystem.DataAccessLayer.Context
         public DbSet<BadmintonCenterEntity> BadmintonCenters { get; set; }
         public DbSet<BookingOrderEntity> BookingOrders { get; set; }
         public DbSet<CourtEntity> Courts { get; set; }
+        public DbSet<TimeSlotEntity> TimeSlots { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<BookingOrderEntity>()
+            .Property(u => u.BookingType)
+            .HasConversion(
+            v => v.ToString(),
+                v => (BookingType)Enum.Parse(typeof(BookingType), v));
+
+            modelBuilder.Entity<TimeSlotEntity>()
+            .Property(u => u.BookingType)
+            .HasConversion(
+            v => v.ToString(),
+                v => (BookingType)Enum.Parse(typeof(BookingType), v));
+
+            modelBuilder.Entity<BookingOrderEntity>()
+            .HasOne(b => b.TimeSlot)
+            .WithMany()
+            .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<BookingOrderEntity>()
+            .HasOne(b => b.Customer)
+            .WithMany(u => u.BookingOrders)
+            .OnDelete(DeleteBehavior.Restrict);
+
 
             modelBuilder.Entity<UserRoleEntity>(userRole =>
             {
@@ -38,6 +65,7 @@ namespace BadmintonBookingSystem.DataAccessLayer.Context
                     .HasForeignKey(ur => ur.UserId)
                     .IsRequired();
             });
+             
 
             modelBuilder.Entity<UserEntity>(entity =>
             {
