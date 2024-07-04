@@ -5,7 +5,7 @@ using System.Data;
 using System.Security.Claims;
 using BadmintonBookingSystem.DataAccessLayer.Entities;
 
-namespace BadmintonBookingSystem.Configurations
+namespace BadmintonBookingSystem.Configuration
 {
     public static class SecurityConfiguration
     {

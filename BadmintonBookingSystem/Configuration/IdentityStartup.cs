@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using Serilog;
 using System.Data;
 
-namespace BadmintonBookingSystem.Configurations
+namespace BadmintonBookingSystem.Configuration
 {
     public static class IdentityStartup
     {

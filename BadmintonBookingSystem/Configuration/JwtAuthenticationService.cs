@@ -6,7 +6,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Text;
 
-namespace BadmintonBookingSystem.Configurations
+namespace BadmintonBookingSystem.Configuration
 {
     public static class JwtAuthenticationService
     {

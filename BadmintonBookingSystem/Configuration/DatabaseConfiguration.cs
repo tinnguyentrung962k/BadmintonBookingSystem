@@ -1,7 +1,7 @@
 ﻿using BadmintonBookingSystem.DataAccessLayer.Context;
 using Microsoft.EntityFrameworkCore;
 
-namespace BadmintonBookingSystem.Configurations
+namespace BadmintonBookingSystem.Configuration
 {
     public static class DatabaseConfiguration
     {

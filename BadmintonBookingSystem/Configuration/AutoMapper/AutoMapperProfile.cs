@@ -4,7 +4,7 @@ using BadmintonBookingSystem.BusinessObject.DTOs.ResponseDTOs;
 using BadmintonBookingSystem.DataAccessLayer.Entities;
 using System.Data;
 
-namespace BadmintonBookingSystem.Configurations.AutoMapper
+namespace BadmintonBookingSystem.Configuration.AutoMapper
 {
     public class AutoMapperProfile : Profile
     {

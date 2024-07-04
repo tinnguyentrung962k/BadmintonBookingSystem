@@ -1,7 +1,7 @@
 ﻿using BadmintonBookingSystem.Service.Services;
 using BadmintonBookingSystem.Service.Services.Interface;
 
-namespace BadmintonBookingSystem.Configurations
+namespace BadmintonBookingSystem.Configuration
 {
     public static class ServiceConfiguration
     {

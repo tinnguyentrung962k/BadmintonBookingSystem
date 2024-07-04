@@ -1,7 +1,7 @@
 ﻿using BadmintonBookingSystem.Repository.Repositories;
 using BadmintonBookingSystem.Repository.Repositories.Interface;
 
-namespace BadmintonBookingSystem.Configurations
+namespace BadmintonBookingSystem.Configuration
 {
     public static class RepositoryConfiguration
     {

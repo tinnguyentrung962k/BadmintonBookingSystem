@@ -1,6 +1,6 @@
 ﻿using Serilog;
 
-namespace BadmintonBookingSystem.Configurations
+namespace BadmintonBookingSystem.Configuration
 {
     public static class SerilogConfiguration
     {

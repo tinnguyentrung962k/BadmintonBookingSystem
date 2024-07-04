@@ -1,10 +1,9 @@
-using BadmintonBookingSystem.Configurations;
+using BadmintonBookingSystem.Configuration;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 var config = builder.Configuration;
 builder.Logging.AddSerilog();
-
 
 // Add services to the container.
 builder.Services.AddSecurityConfiguration(config);
@@ -12,10 +11,12 @@ builder.Services.AddDatabaseConfiguration(config);
 builder.Services.AddRepositoryConfiguration();
 builder.Services.AddServiceConfiguration(config);
 builder.Services.AddAutoMapper(typeof(Program));
+
 builder.Services.AddControllers(options =>
 {
     options.SuppressAsyncSuffixInActionNames = false;
 });
+builder.Services.AddJwtAuthenticationService(config);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerService();
 
