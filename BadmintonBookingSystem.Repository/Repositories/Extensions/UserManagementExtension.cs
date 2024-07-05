@@ -17,7 +17,7 @@ namespace BadmintonBookingSystem.Repository.Repositories.Extensions
         {
             return await userManager?.Users?.FirstOrDefaultAsync(u => u.RefreshToken.Equals(refreshToken));
         }
-        public static async Task<IEnumerable<UserEntity>> GetUsersAsync(this UserManager<UserEntity> userManager, int pageIndex = 1, int pageSize = 1, string roleName = RoleConstants.USER)
+        public static async Task<IEnumerable<UserEntity>> GetUsersAsync(this UserManager<UserEntity> userManager, int pageIndex = 1, int pageSize = 1, string roleName = RoleConstants.CUSTOMER)
         {
             var userList = await userManager?.GetUsersInRoleAsync(roleName);
             pageIndex = pageIndex < 1 ? 0 : pageIndex - 1;
