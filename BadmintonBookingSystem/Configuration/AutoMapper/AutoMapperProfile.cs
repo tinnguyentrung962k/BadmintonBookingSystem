@@ -12,6 +12,7 @@ namespace BadmintonBookingSystem.Configuration.AutoMapper
         {
             BadmintonCenterProfile();
             UserMappingProfile();
+            CourtProfile();
         }
         private void BadmintonCenterProfile() {
             CreateMap<BadmintonCenterEntity, ResponseBadmintonCenterDTO>()
@@ -24,6 +25,13 @@ namespace BadmintonBookingSystem.Configuration.AutoMapper
         {
             CreateMap<UserEntity, RegisterDTO>().ReverseMap();
             CreateMap<UserEntity, ResponseUserDTO>().ReverseMap();
+        }
+        private void CourtProfile()
+        {
+            CreateMap<CourtEntity,ResponseCourtDTO>()
+                .ForMember(rcourt => rcourt.CenterName, opt => opt.MapFrom(court => court.BadmintonCenter.Name))
+                .ReverseMap();
+            CreateMap<CourtEntity,CourtCreateDTO>().ReverseMap();
         }
     }
 }

@@ -25,7 +25,7 @@ namespace BadmintonBookingSystem.Controllers
         }
         [HttpGet]
         [Route("api/[controller]/badminton-centers")]
-        public async Task<ActionResult<List<ResponseBadmintonCenterDTO>>> GetAllBadmintonCenters(int pageIndex, int size) 
+        public async Task<ActionResult<List<ResponseBadmintonCenterDTO>>> GetAllBadmintonCenters([FromQuery]int pageIndex, int size) 
         {
             try 
             {

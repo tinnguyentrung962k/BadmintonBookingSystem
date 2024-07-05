@@ -9,6 +9,7 @@ namespace BadmintonBookingSystem.Configuration
         {
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped<IBadmintonCenterRepository, BadmintonCenterRepository>();
+            services.AddScoped<ICourtRepository, CourtRepository>();
 
             return services;
         }
