@@ -65,5 +65,20 @@ namespace BadmintonBookingSystem.Controllers
                 return BadRequest("Created Failed !");
             }
         }
+        [HttpPut("api/[controller]/court/{id}")]
+        public async Task<IActionResult> EditCourt([FromBody] CourtUpdateDTO courtUpdateDTO, [FromRoute] string id)
+        {
+            try
+            {
+                var court = await _courtService.GetCourtById(id);
+                var courtToUpdate = await _courtService.UpdateCourt(_mapper.Map<CourtEntity>(courtUpdateDTO), id);
+                var updatedCourt = _mapper.Map<ResponseCourtDTO>(courtToUpdate);
+                return Ok(updatedCourt);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest("Update Failed !");
+            }
+        }
     }
 }

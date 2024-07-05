@@ -96,7 +96,7 @@ namespace BadmintonBookingSystem.Service.Services
                 {
                     throw new InvalidRegisterException("Đăng ký thất bại");
                 }
-                await _userManager.AddToRoleAsync(registerUser, RoleConstants.USER);
+                await _userManager.AddToRoleAsync(registerUser, RoleConstants.CUSTOMER);
                 await _unitOfWork.SaveChangesAsync();
                 await _unitOfWork.CommitAsync();
             }

@@ -32,6 +32,7 @@ namespace BadmintonBookingSystem.Configuration.AutoMapper
                 .ForMember(rcourt => rcourt.CenterName, opt => opt.MapFrom(court => court.BadmintonCenter.Name))
                 .ReverseMap();
             CreateMap<CourtEntity,CourtCreateDTO>().ReverseMap();
+            CreateMap<CourtEntity,CourtUpdateDTO>().ReverseMap();
         }
     }
 }

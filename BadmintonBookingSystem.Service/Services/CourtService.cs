@@ -76,9 +76,14 @@ namespace BadmintonBookingSystem.Service.Services
             return chosenCourt;
         }
 
-        public Task UpdateCourt(CourtEntity entity)
+        public async Task<CourtEntity> UpdateCourt(CourtEntity entity, string courtId)
         {
-            throw new NotImplementedException();
+            var chosenCourt = await GetCourtById(courtId);
+            chosenCourt.CourtName = entity.CourtName;
+            chosenCourt.LastUpdatedTime = DateTimeOffset.UtcNow;
+            _courtRepository.Update(chosenCourt);
+            await _unitOfWork.SaveChangesAsync();
+            return chosenCourt;
         }
     }
 }
