@@ -4,6 +4,7 @@ using BadmintonBookingSystem.DataAccessLayer.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BadmintonBookingSystem.DataAccessLayer.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240707194355_080720240245")]
+    partial class _080720240245
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -93,7 +96,40 @@ namespace BadmintonBookingSystem.DataAccessLayer.Migrations
 
                     b.HasIndex("BadmintonCenterId");
 
-                    b.ToTable("BadmintonCenterImage");
+                    b.ToTable("BadmintonCenterImages");
+                });
+
+            modelBuilder.Entity("BadmintonBookingSystem.DataAccessLayer.Entities.BaseEntities.CourtImage", b =>
+                {
+                    b.Property<string>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("CourtId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTimeOffset>("CreatedTime")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("ImageLink")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("LastUpdatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTimeOffset>("LastUpdatedTime")
+                        .HasColumnType("datetimeoffset");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CourtId");
+
+                    b.ToTable("CourtImages");
                 });
 
             modelBuilder.Entity("BadmintonBookingSystem.DataAccessLayer.Entities.BookingOrderEntity", b =>
@@ -181,39 +217,6 @@ namespace BadmintonBookingSystem.DataAccessLayer.Migrations
                     b.HasIndex("CenterId");
 
                     b.ToTable("Court");
-                });
-
-            modelBuilder.Entity("BadmintonBookingSystem.DataAccessLayer.Entities.CourtImage", b =>
-                {
-                    b.Property<string>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("CourtId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("CreatedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTimeOffset>("CreatedTime")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("ImageLink")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("LastUpdatedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTimeOffset>("LastUpdatedTime")
-                        .HasColumnType("datetimeoffset");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CourtId");
-
-                    b.ToTable("CourtImage");
                 });
 
             modelBuilder.Entity("BadmintonBookingSystem.DataAccessLayer.Entities.RoleEntity", b =>
@@ -490,6 +493,17 @@ namespace BadmintonBookingSystem.DataAccessLayer.Migrations
                     b.Navigation("BadmintonCenterEntity");
                 });
 
+            modelBuilder.Entity("BadmintonBookingSystem.DataAccessLayer.Entities.BaseEntities.CourtImage", b =>
+                {
+                    b.HasOne("BadmintonBookingSystem.DataAccessLayer.Entities.CourtEntity", "CourtEntity")
+                        .WithMany("CourtImages")
+                        .HasForeignKey("CourtId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("CourtEntity");
+                });
+
             modelBuilder.Entity("BadmintonBookingSystem.DataAccessLayer.Entities.BookingOrderEntity", b =>
                 {
                     b.HasOne("BadmintonBookingSystem.DataAccessLayer.Entities.CourtEntity", "Court")
@@ -526,17 +540,6 @@ namespace BadmintonBookingSystem.DataAccessLayer.Migrations
                         .IsRequired();
 
                     b.Navigation("BadmintonCenter");
-                });
-
-            modelBuilder.Entity("BadmintonBookingSystem.DataAccessLayer.Entities.CourtImage", b =>
-                {
-                    b.HasOne("BadmintonBookingSystem.DataAccessLayer.Entities.CourtEntity", "CourtEntity")
-                        .WithMany("CourtImages")
-                        .HasForeignKey("CourtId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("CourtEntity");
                 });
 
             modelBuilder.Entity("BadmintonBookingSystem.DataAccessLayer.Entities.TimeSlotEntity", b =>

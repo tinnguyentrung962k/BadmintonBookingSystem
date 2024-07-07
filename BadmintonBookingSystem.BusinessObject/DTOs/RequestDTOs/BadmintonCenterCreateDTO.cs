@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Http;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -20,5 +21,7 @@ namespace BadmintonBookingSystem.BusinessObject.DTOs.RequestDTOs
 
         [Required(ErrorMessage = "ManagerId is required.")]
         public string ManagerId { get; set; }
+
+        public List<IFormFile>? ImageFiles { get; set; }
     }
 }

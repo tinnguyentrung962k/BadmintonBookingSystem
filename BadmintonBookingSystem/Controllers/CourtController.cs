@@ -51,12 +51,12 @@ namespace BadmintonBookingSystem.Controllers
             }
         }
         [HttpPost("api/[controller]/court")]
-        public async Task<ActionResult<ResponseCourtDTO>> CreateCourt(CourtCreateDTO courtCreateDTO)
+        public async Task<ActionResult<ResponseCourtDTO>> CreateCourt([FromForm] CourtCreateDTO courtCreateDTO)
         {
             try
             {
                 var newCourtEntity = _mapper.Map<CourtEntity>(courtCreateDTO);
-                await _courtService.CreateNewCourt(newCourtEntity);
+                await _courtService.CreateNewCourt(newCourtEntity,courtCreateDTO.ImageFiles);
                 var responseNewCourt = _mapper.Map<ResponseCourtDTO>(newCourtEntity);
                 return CreatedAtAction(nameof(GetCourtById), new { id = responseNewCourt.Id }, responseNewCourt);
             }

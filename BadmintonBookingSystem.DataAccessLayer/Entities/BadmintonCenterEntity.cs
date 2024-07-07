@@ -18,5 +18,7 @@ namespace BadmintonBookingSystem.DataAccessLayer.Entities
 
         [ForeignKey(nameof(ManagerId))]
         public UserEntity Manager { get; set; }
+
+        public IEnumerable<BadmintonCenterImage>? BadmintonCenterImages { get; set; }
     }
 }

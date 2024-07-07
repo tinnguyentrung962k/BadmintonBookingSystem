@@ -39,12 +39,12 @@ namespace BadmintonBookingSystem.Controllers
         }
         [HttpPost]
         [Route("api/[controller]/badminton-centers")]
-        public async Task<ActionResult<ResponseBadmintonCenterDTO>> CreateBadmintonCenter(BadmintonCenterCreateDTO badmintonCenterCreateDTO)
+        public async Task<ActionResult<ResponseBadmintonCenterDTO>> CreateBadmintonCenter([FromForm]BadmintonCenterCreateDTO badmintonCenterCreateDTO)
         {
             try
             {
                 var newBcEntity = _mapper.Map<BadmintonCenterEntity>(badmintonCenterCreateDTO);
-                await _badmintonCenterService.CreateBadmintonCenter(newBcEntity);
+                await _badmintonCenterService.CreateBadmintonCenter(newBcEntity,badmintonCenterCreateDTO.ImageFiles);
                 var responseNewBc = _mapper.Map<ResponseBadmintonCenterDTO>(newBcEntity);
                 return CreatedAtAction(nameof(GetBadmintonCenterById), new { id = responseNewBc.Id }, responseNewBc);
             }

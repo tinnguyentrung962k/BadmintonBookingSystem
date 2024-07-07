@@ -1,4 +1,5 @@
 ﻿using BadmintonBookingSystem.DataAccessLayer.Entities;
+using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,7 +12,7 @@ namespace BadmintonBookingSystem.Service.Services.Interface
     {
         Task<IEnumerable<CourtEntity>> GetAllCourtByCenterId(string centerId,int pageIndex, int size);
         Task<CourtEntity> GetCourtById(string courtId);
-        Task CreateNewCourt(CourtEntity entity);
+        Task CreateNewCourt(CourtEntity entity, List<IFormFile> picList);
         Task<CourtEntity> UpdateCourt (CourtEntity entity,string courtId);
     }
 }
