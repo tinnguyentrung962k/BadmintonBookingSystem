@@ -11,6 +11,7 @@ namespace BadmintonBookingSystem.Configuration
             services.AddScoped<ITokenService, TokenService>();
             services.AddScoped<IBadmintonCenterService, BadmintonCenterService>();
             services.AddScoped<ICourtService, CourtService>();
+            services.AddScoped<IAWSS3Service, AWSS3Service>();
             return services;
         }
     }

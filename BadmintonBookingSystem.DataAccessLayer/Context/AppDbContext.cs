@@ -23,6 +23,8 @@ namespace BadmintonBookingSystem.DataAccessLayer.Context
         public DbSet<BookingOrderEntity> BookingOrders { get; set; }
         public DbSet<CourtEntity> Courts { get; set; }
         public DbSet<TimeSlotEntity> TimeSlots { get; set; }
+        public DbSet<BadmintonCenterImage> BadmintonCenterImages { get; set; }
+        public DbSet<CourtImage> CourtImages { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

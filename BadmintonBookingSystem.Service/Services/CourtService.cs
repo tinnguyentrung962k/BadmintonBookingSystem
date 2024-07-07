@@ -1,7 +1,9 @@
-﻿using BadmintonBookingSystem.BusinessObject.Exceptions;
+﻿using BadmintonBookingSystem.BusinessObject.DTOs.S3;
+using BadmintonBookingSystem.BusinessObject.Exceptions;
 using BadmintonBookingSystem.DataAccessLayer.Entities;
 using BadmintonBookingSystem.Repository.Repositories.Interface;
 using BadmintonBookingSystem.Service.Services.Interface;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using System;
 using System.Collections.Generic;
@@ -16,14 +18,16 @@ namespace BadmintonBookingSystem.Service.Services
         private readonly ICourtRepository _courtRepository;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IBadmintonCenterRepository _badmintonCenterRepository;
+        private readonly IAWSS3Service _awsS3Service;
 
-        public CourtService(IUnitOfWork unitOfWork, ICourtRepository courtRepository,IBadmintonCenterRepository badmintonCenterRepository) 
+        public CourtService(IUnitOfWork unitOfWork, ICourtRepository courtRepository,IBadmintonCenterRepository badmintonCenterRepository, IAWSS3Service awsS3Service) 
         {
             _unitOfWork = unitOfWork;
             _courtRepository = courtRepository;
             _badmintonCenterRepository = badmintonCenterRepository;
+            _awsS3Service = awsS3Service;
         }
-        public async Task CreateNewCourt(CourtEntity courtEntity)
+        public async Task CreateNewCourt(CourtEntity courtEntity, List<IFormFile> picList)
         {
             try
             {
@@ -34,7 +38,30 @@ namespace BadmintonBookingSystem.Service.Services
                     throw new NotFoundException("Chosen Center not found");
                 }
                 // Add the badminton center entity to the repository
-                var bcEntity = _courtRepository.Add(courtEntity);
+                var cEntity = _courtRepository.Add(courtEntity);
+
+                // Convert IFormFile to S3Object
+                var s3Objects = new List<S3Object>();
+                foreach (var file in picList)
+                {
+                    var memoryStream = new MemoryStream();
+                    await file.CopyToAsync(memoryStream);
+                    memoryStream.Position = 0; // Reset stream position to the beginning
+
+                    s3Objects.Add(new S3Object
+                    {
+                        InputStream = memoryStream,
+                        Name = file.FileName,
+                        BucketName = "badminton-system"
+                    });
+                }
+
+                // Upload images to S3
+                var imageURLs = await _awsS3Service.UpLoadManyFilesAsync(s3Objects);
+
+                // Map the uploaded image URLs to BadmintonCenterImage entities
+                courtEntity.CourtImages = imageURLs.Select(url => new CourtImage { ImageLink = url }).ToList();
+
                 // Save changes and commit transaction
                 await _unitOfWork.SaveChangesAsync();
                 await _unitOfWork.CommitAsync();

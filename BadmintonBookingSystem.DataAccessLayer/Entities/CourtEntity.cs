@@ -21,7 +21,8 @@ namespace BadmintonBookingSystem.DataAccessLayer.Entities
         
         [ForeignKey(nameof(CenterId))]
         public virtual BadmintonCenterEntity BadmintonCenter { get; set; }
-        public IEnumerable<BookingOrderEntity> BookingOrders { get; set; } 
+        public IEnumerable<BookingOrderEntity> BookingOrders { get; set; }
+        public IEnumerable<CourtImage>? CourtImages { get; set; }
 
 
     }

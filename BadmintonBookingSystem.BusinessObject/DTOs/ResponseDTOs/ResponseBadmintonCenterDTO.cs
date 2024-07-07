@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace BadmintonBookingSystem.BusinessObject.DTOs.ResponseDTOs
 {
@@ -13,5 +10,9 @@ namespace BadmintonBookingSystem.BusinessObject.DTOs.ResponseDTOs
         public string Location { get; set; }
         public string OperatingTime { get; set; }
         public string ManagerName { get; set; }
+
+        [JsonProperty(PropertyName = "centerImgUrls")]
+        [JsonPropertyName("centerImgUrls")]
+        public IEnumerable<string> ImgUrls { get; set; }
     }
 }

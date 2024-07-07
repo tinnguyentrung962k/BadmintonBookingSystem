@@ -17,6 +17,8 @@ namespace BadmintonBookingSystem.Configuration.AutoMapper
         private void BadmintonCenterProfile() {
             CreateMap<BadmintonCenterEntity, ResponseBadmintonCenterDTO>()
                 .ForMember(rc=>rc.ManagerName, opt => opt.MapFrom(c=>c.Manager.FullName))
+                .ForMember(rc => rc.ImgUrls,
+                opt => opt.MapFrom(c => c.BadmintonCenterImages.Select(pi => pi.ImageLink).ToHashSet()))
                 .ReverseMap();
             CreateMap<BadmintonCenterEntity, BadmintonCenterCreateDTO>().ReverseMap();
             CreateMap<BadmintonCenterEntity, BadmintonUpdateDTO>().ReverseMap();
@@ -30,6 +32,8 @@ namespace BadmintonBookingSystem.Configuration.AutoMapper
         {
             CreateMap<CourtEntity,ResponseCourtDTO>()
                 .ForMember(rcourt => rcourt.CenterName, opt => opt.MapFrom(court => court.BadmintonCenter.Name))
+                .ForMember(rc => rc.ImgUrls,
+                opt => opt.MapFrom(c => c.CourtImages.Select(pi => pi.ImageLink).ToHashSet()))
                 .ReverseMap();
             CreateMap<CourtEntity,CourtCreateDTO>().ReverseMap();
             CreateMap<CourtEntity,CourtUpdateDTO>().ReverseMap();

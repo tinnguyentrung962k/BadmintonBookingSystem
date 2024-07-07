@@ -1,10 +1,13 @@
-﻿using BadmintonBookingSystem.BusinessObject.Exceptions;
+﻿using BadmintonBookingSystem.BusinessObject.DTOs.S3;
+using BadmintonBookingSystem.BusinessObject.Exceptions;
 using BadmintonBookingSystem.DataAccessLayer.Entities;
-using BadmintonBookingSystem.Repository.Repositories;
 using BadmintonBookingSystem.Repository.Repositories.Interface;
 using BadmintonBookingSystem.Service.Services.Interface;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Hosting;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -17,14 +20,16 @@ namespace BadmintonBookingSystem.Service.Services
         private readonly IBadmintonCenterRepository _badmintonCenterRepository;
         private readonly IUnitOfWork _unitOfWork;
         private UserManager<UserEntity> _userManager;
-        public BadmintonCenterService(IBadmintonCenterRepository badmintonCenterRepository, IUnitOfWork unitOfWork, UserManager<UserEntity> userManager)
+        private readonly IAWSS3Service _awsS3Service;
+        public BadmintonCenterService(IBadmintonCenterRepository badmintonCenterRepository, IUnitOfWork unitOfWork, UserManager<UserEntity> userManager, IAWSS3Service awsS3Service)
         {
             _badmintonCenterRepository = badmintonCenterRepository;
             _unitOfWork = unitOfWork;
             _userManager = userManager;
+            _awsS3Service = awsS3Service;
         }
 
-        public async Task CreateBadmintonCenter(BadmintonCenterEntity badmintonCenterEntity)
+        public async Task CreateBadmintonCenter(BadmintonCenterEntity badmintonCenterEntity, List<IFormFile> picList)
         {
             try
             {
@@ -44,6 +49,28 @@ namespace BadmintonBookingSystem.Service.Services
                 // Add the badminton center entity to the repository
                 var bcEntity = _badmintonCenterRepository.Add(badmintonCenterEntity);
 
+                // Convert IFormFile to S3Object
+                var s3Objects = new List<S3Object>();
+                foreach (var file in picList)
+                {
+                    var memoryStream = new MemoryStream();
+                    await file.CopyToAsync(memoryStream);
+                    memoryStream.Position = 0; // Reset stream position to the beginning
+
+                    s3Objects.Add(new S3Object
+                    {
+                        InputStream = memoryStream,
+                        Name = file.FileName,
+                        BucketName = "badminton-system"
+                    });
+                }
+
+                // Upload images to S3
+                var imageURLs = await _awsS3Service.UpLoadManyFilesAsync(s3Objects);
+
+                // Map the uploaded image URLs to BadmintonCenterImage entities
+                badmintonCenterEntity.BadmintonCenterImages = imageURLs.Select(url => new BadmintonCenterImage { ImageLink = url }).ToList();
+
                 // Save changes and commit transaction
                 await _unitOfWork.SaveChangesAsync();
                 await _unitOfWork.CommitAsync();
@@ -59,6 +86,7 @@ namespace BadmintonBookingSystem.Service.Services
         {
             var badmintonCenter = await _badmintonCenterRepository.QueryHelper()
                 .Include(x => x.Manager)
+                .Include(x => x.BadmintonCenterImages)
                 .GetPagingAsync(pageIndex, size);
             if (!badmintonCenter.Any()) 
             {

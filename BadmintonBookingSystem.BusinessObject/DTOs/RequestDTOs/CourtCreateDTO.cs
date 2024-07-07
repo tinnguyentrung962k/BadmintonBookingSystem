@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Http;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -13,5 +14,6 @@ namespace BadmintonBookingSystem.BusinessObject.DTOs.RequestDTOs
         public string CourtName { get; set; }
         [Required]
         public string CenterId { get; set; }
+        public List<IFormFile>? ImageFiles { get; set; }
     }
 }
