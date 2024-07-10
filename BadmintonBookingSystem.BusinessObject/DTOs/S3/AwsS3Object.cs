@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace BadmintonBookingSystem.BusinessObject.DTOs.S3
 {
-    public class S3Object
+    public class AwsS3Object
     {
         public string Name { get; set; } = null!;
         public MemoryStream InputStream { get; set; } = null!;

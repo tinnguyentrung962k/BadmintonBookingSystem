@@ -10,8 +10,9 @@ namespace BadmintonBookingSystem.Service.Services.Interface
 {
     public interface IAWSS3Service
     {
-        Task<string> UploadFileAsync(S3Object s3Object);
-        Task<IList<string>> UpLoadManyFilesAsync(List<S3Object> s3Objects);
+        Task<string> UploadFileAsync(AwsS3Object s3Object);
+        Task<IList<string>> UpLoadManyFilesAsync(List<AwsS3Object> s3Objects);
+        Task DeleteManyFilesAsync(List<string> fileUrls);
     }
 
 }

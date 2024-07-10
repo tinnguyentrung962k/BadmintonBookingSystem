@@ -1,14 +1,12 @@
 ﻿using Amazon.Runtime;
 using Amazon.S3;
+using Amazon.S3.Model;
 using Amazon.S3.Transfer;
 using BadmintonBookingSystem.BusinessObject.DTOs.S3;
 using BadmintonBookingSystem.Service.Services.Interface;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Formats;
-using SixLabors.ImageSharp.Formats.Jpeg;
-using SixLabors.ImageSharp.Processing;
+
 
 namespace BadmintonBookingSystem.Service.Services
 {
@@ -25,7 +23,7 @@ namespace BadmintonBookingSystem.Service.Services
             _awsSecretKey = _configuration.GetValue<string>("AwsConfiguration:AWSSecretKey");
         }
 
-        public async Task<string> UploadFileAsync(S3Object s3Object)
+        public async Task<string> UploadFileAsync(AwsS3Object s3Object)
         {
             // Validate image type before proceeding
             if (!IsImage(s3Object.InputStream))
@@ -61,7 +59,7 @@ namespace BadmintonBookingSystem.Service.Services
             }
         }
 
-        public async Task<IList<string>> UpLoadManyFilesAsync(List<S3Object> s3Objects)
+        public async Task<IList<string>> UpLoadManyFilesAsync(List<AwsS3Object> s3Objects)
         {
             var credentials = new BasicAWSCredentials(_awsAccessKey, _awsSecretKey);
             var config = new AmazonS3Config()
@@ -103,6 +101,36 @@ namespace BadmintonBookingSystem.Service.Services
 
             return uploadedFileUrls;
         }
+        public async Task DeleteManyFilesAsync(List<string> fileUrls)
+        {
+            var credentials = new BasicAWSCredentials(_awsAccessKey, _awsSecretKey);
+            var config = new AmazonS3Config()
+            {
+                RegionEndpoint = Amazon.RegionEndpoint.APSoutheast1
+            };
+
+            using var client = new AmazonS3Client(credentials, config);
+
+            try
+            {
+                foreach (var fileUrl in fileUrls)
+                {
+                    var key = fileUrl.Split(new[] { ".amazonaws.com/" }, StringSplitOptions.None)[1];
+                    var deleteObjectRequest = new DeleteObjectRequest
+                    {
+                        BucketName = "badminton-system", // Your bucket name
+                        Key = key
+                    };
+
+                    await client.DeleteObjectAsync(deleteObjectRequest);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error deleting files from S3", ex);
+            }
+        }
+
 
         private bool IsImage(Stream stream)
         {

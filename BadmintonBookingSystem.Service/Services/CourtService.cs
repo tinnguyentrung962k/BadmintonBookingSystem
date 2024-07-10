@@ -41,14 +41,14 @@ namespace BadmintonBookingSystem.Service.Services
                 var cEntity = _courtRepository.Add(courtEntity);
 
                 // Convert IFormFile to S3Object
-                var s3Objects = new List<S3Object>();
+                var s3Objects = new List<AwsS3Object>();
                 foreach (var file in picList)
                 {
                     var memoryStream = new MemoryStream();
                     await file.CopyToAsync(memoryStream);
                     memoryStream.Position = 0; // Reset stream position to the beginning
 
-                    s3Objects.Add(new S3Object
+                    s3Objects.Add(new AwsS3Object
                     {
                         InputStream = memoryStream,
                         Name = file.FileName,
@@ -80,7 +80,9 @@ namespace BadmintonBookingSystem.Service.Services
             {
                 throw new NotFoundException("Chosen Badminton Center is not found");
             }
-            var courtList = await _courtRepository.QueryHelper().Include(c => c.BadmintonCenter)
+            var courtList = await _courtRepository.QueryHelper()
+                .Include(c => c.BadmintonCenter)
+                .Include(c => c.CourtImages)
                 .Filter(c => c.CenterId.Equals(centerId))
                 .GetPagingAsync(pageIndex, size);
             if (!courtList.Any())
@@ -95,6 +97,7 @@ namespace BadmintonBookingSystem.Service.Services
             var chosenCourt = await _courtRepository.QueryHelper()
                 .Filter(c => c.Id == courtId)
                 .Include(x => x.BadmintonCenter)
+                .Include(x=>x.CourtImages)
                 .GetOneAsync();
             if (chosenCourt == null)
             {
@@ -103,11 +106,38 @@ namespace BadmintonBookingSystem.Service.Services
             return chosenCourt;
         }
 
-        public async Task<CourtEntity> UpdateCourt(CourtEntity entity, string courtId)
+        public async Task<CourtEntity> UpdateCourt(CourtEntity entity, string courtId, List<IFormFile> newPicList)
         {
             var chosenCourt = await GetCourtById(courtId);
             chosenCourt.CourtName = entity.CourtName;
             chosenCourt.LastUpdatedTime = DateTimeOffset.UtcNow;
+            if (newPicList != null && newPicList.Count > 0)
+            {
+                // Delete existing images from S3
+                var existingImages = chosenCourt.CourtImages.Select(img => img.ImageLink).ToList();
+                await _awsS3Service.DeleteManyFilesAsync(existingImages);
+
+                // Convert IFormFile to S3Object and upload new images
+                var s3Objects = new List<AwsS3Object>();
+                foreach (var file in newPicList)
+                {
+                    var memoryStream = new MemoryStream();
+                    await file.CopyToAsync(memoryStream);
+                    memoryStream.Position = 0; // Reset stream position to the beginning
+
+                    s3Objects.Add(new AwsS3Object
+                    {
+                        InputStream = memoryStream,
+                        Name = file.FileName,
+                        BucketName = "badminton-system"
+                    });
+                }
+
+                var newImageURLs = await _awsS3Service.UpLoadManyFilesAsync(s3Objects);
+
+                // Map the uploaded image URLs to BadmintonCenterImage entities
+                chosenCourt.CourtImages = newImageURLs.Select(url => new CourtImage { ImageLink = url }).ToList();
+            }
             _courtRepository.Update(chosenCourt);
             await _unitOfWork.SaveChangesAsync();
             return chosenCourt;

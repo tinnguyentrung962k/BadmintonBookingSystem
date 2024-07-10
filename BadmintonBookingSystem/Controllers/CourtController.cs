@@ -66,12 +66,12 @@ namespace BadmintonBookingSystem.Controllers
             }
         }
         [HttpPut("api/[controller]/court/{id}")]
-        public async Task<IActionResult> EditCourt([FromBody] CourtUpdateDTO courtUpdateDTO, [FromRoute] string id)
+        public async Task<IActionResult> EditCourt([FromForm] CourtUpdateDTO courtUpdateDTO, [FromRoute] string id)
         {
             try
             {
                 var court = await _courtService.GetCourtById(id);
-                var courtToUpdate = await _courtService.UpdateCourt(_mapper.Map<CourtEntity>(courtUpdateDTO), id);
+                var courtToUpdate = await _courtService.UpdateCourt(_mapper.Map<CourtEntity>(courtUpdateDTO), id, courtUpdateDTO.ImageFiles);
                 var updatedCourt = _mapper.Map<ResponseCourtDTO>(courtToUpdate);
                 return Ok(updatedCourt);
             }

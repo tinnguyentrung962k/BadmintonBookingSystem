@@ -50,14 +50,14 @@ namespace BadmintonBookingSystem.Service.Services
                 var bcEntity = _badmintonCenterRepository.Add(badmintonCenterEntity);
 
                 // Convert IFormFile to S3Object
-                var s3Objects = new List<S3Object>();
+                var s3Objects = new List<AwsS3Object>();
                 foreach (var file in picList)
                 {
                     var memoryStream = new MemoryStream();
                     await file.CopyToAsync(memoryStream);
                     memoryStream.Position = 0; // Reset stream position to the beginning
 
-                    s3Objects.Add(new S3Object
+                    s3Objects.Add(new AwsS3Object
                     {
                         InputStream = memoryStream,
                         Name = file.FileName,
@@ -98,9 +98,10 @@ namespace BadmintonBookingSystem.Service.Services
         public async Task<BadmintonCenterEntity> GetBadmintonCenterByIdAsync(string centerId)
         {
             var chosenCenter = await _badmintonCenterRepository
-                .QueryHelper().
-                Filter(c => c.Id == centerId)
+                .QueryHelper()
+                .Filter(c => c.Id == centerId)
                 .Include(x=>x.Manager)
+                .Include(x=>x.BadmintonCenterImages)
                 .GetOneAsync();
             if (chosenCenter == null)
             {
@@ -109,10 +110,10 @@ namespace BadmintonBookingSystem.Service.Services
             return chosenCenter;
         }
 
-        public async Task<BadmintonCenterEntity> UpdateBadmintonInfo(BadmintonCenterEntity badmintonCenterEntity, string centerId)
+        public async Task<BadmintonCenterEntity> UpdateBadmintonInfo(BadmintonCenterEntity badmintonCenterEntity, string centerId, List<IFormFile> newPicList)
         {
-
-            var badmintonCenter = await GetBadmintonCenterByIdAsync(centerId) ;
+            // Retrieve the existing badminton center
+            var badmintonCenter = await GetBadmintonCenterByIdAsync(centerId);
             if (!string.IsNullOrEmpty(badmintonCenterEntity.ManagerId))
             {
                 // Check if the manager exists in the database
@@ -122,13 +123,47 @@ namespace BadmintonBookingSystem.Service.Services
                     throw new Exception("Manager not found"); // Handle appropriately
                 }
             }
+
+            // Update basic details
             badmintonCenter.Name = badmintonCenterEntity.Name;
             badmintonCenter.Location = badmintonCenterEntity.Location;
             badmintonCenter.ManagerId = badmintonCenterEntity.ManagerId;
             badmintonCenter.OperatingTime = badmintonCenterEntity.OperatingTime;
             badmintonCenter.LastUpdatedTime = DateTimeOffset.UtcNow;
-             _badmintonCenterRepository.Update(badmintonCenter);
+
+            // If new images are provided, update the images
+            if (newPicList != null && newPicList.Count > 0)
+            {
+                // Delete existing images from S3
+                var existingImages = badmintonCenter.BadmintonCenterImages.Select(img => img.ImageLink).ToList();
+                await _awsS3Service.DeleteManyFilesAsync(existingImages);
+
+                // Convert IFormFile to S3Object and upload new images
+                var s3Objects = new List<AwsS3Object>();
+                foreach (var file in newPicList)
+                {
+                    var memoryStream = new MemoryStream();
+                    await file.CopyToAsync(memoryStream);
+                    memoryStream.Position = 0; // Reset stream position to the beginning
+
+                    s3Objects.Add(new AwsS3Object
+                    {
+                        InputStream = memoryStream,
+                        Name = file.FileName,
+                        BucketName = "badminton-system"
+                    });
+                }
+
+                var newImageURLs = await _awsS3Service.UpLoadManyFilesAsync(s3Objects);
+
+                // Map the uploaded image URLs to BadmintonCenterImage entities
+                badmintonCenter.BadmintonCenterImages = newImageURLs.Select(url => new BadmintonCenterImage { ImageLink = url }).ToList();
+            }
+
+            // Update the badminton center entity in the repository
+            _badmintonCenterRepository.Update(badmintonCenter);
             await _unitOfWork.SaveChangesAsync();
+
             return badmintonCenter;
         }
     }
