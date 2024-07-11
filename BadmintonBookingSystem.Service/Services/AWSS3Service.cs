@@ -19,8 +19,8 @@ namespace BadmintonBookingSystem.Service.Services
         public AWSS3Service(IConfiguration configuration)
         {
             _configuration = configuration;
-            _awsAccessKey = _configuration.GetValue<string>("AwsConfiguration:AWSAccessKey");
-            _awsSecretKey = _configuration.GetValue<string>("AwsConfiguration:AWSSecretKey");
+            _awsAccessKey = _configuration.GetValue<string>("AWSAccessKey");
+            _awsSecretKey = _configuration.GetValue<string>("AWSSecretKey");
         }
 
         public async Task<string> UploadFileAsync(AwsS3Object s3Object)
