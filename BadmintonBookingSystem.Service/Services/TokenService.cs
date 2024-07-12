@@ -27,7 +27,8 @@ namespace BadmintonBookingSystem.Service.Services
             var claims = new List<Claim>
             {
                 new Claim(JwtRegisteredClaimNames.NameId, user.Id),
-                new Claim(JwtRegisteredClaimNames.UniqueName, user.UserName)
+                new Claim(JwtRegisteredClaimNames.UniqueName, user.UserName),
+                new Claim(JwtRegisteredClaimNames.Name,user.FullName)
             };
 
             var roles = _userManager.GetRolesAsync(user);
