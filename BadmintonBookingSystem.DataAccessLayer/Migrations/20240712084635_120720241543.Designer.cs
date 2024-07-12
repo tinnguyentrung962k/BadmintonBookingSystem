@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace BadmintonBookingSystem.DataAccessLayer.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20240711040505_110720241104")]
-    partial class _110720241104
+    [Migration("20240712084635_120720241543")]
+    partial class _120720241543
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -30,6 +30,9 @@ namespace BadmintonBookingSystem.DataAccessLayer.Migrations
                     b.Property<string>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("text");
+
+                    b.Property<TimeOnly>("ClosingTime")
+                        .HasColumnType("time without time zone");
 
                     b.Property<string>("CreatedBy")
                         .HasColumnType("text");
@@ -55,9 +58,8 @@ namespace BadmintonBookingSystem.DataAccessLayer.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("OperatingTime")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<TimeOnly>("OperatingTime")
+                        .HasColumnType("time without time zone");
 
                     b.HasKey("Id");
 

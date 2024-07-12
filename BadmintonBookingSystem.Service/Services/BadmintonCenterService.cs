@@ -29,7 +29,7 @@ namespace BadmintonBookingSystem.Service.Services
             _awsS3Service = awsS3Service;
         }
 
-        public async Task CreateBadmintonCenter(BadmintonCenterEntity badmintonCenterEntity, List<IFormFile> picList)
+        public async Task CreateBadmintonCenter(BadmintonCenterEntity badmintonCenterEntity, List<IFormFile>? picList)
         {
             try
             {
@@ -49,27 +49,29 @@ namespace BadmintonBookingSystem.Service.Services
                 // Add the badminton center entity to the repository
                 var bcEntity = _badmintonCenterRepository.Add(badmintonCenterEntity);
 
-                // Convert IFormFile to S3Object
-                var s3Objects = new List<AwsS3Object>();
-                foreach (var file in picList)
+                if (picList is not null)
                 {
-                    var memoryStream = new MemoryStream();
-                    await file.CopyToAsync(memoryStream);
-                    memoryStream.Position = 0; // Reset stream position to the beginning
-
-                    s3Objects.Add(new AwsS3Object
+                    var s3Objects = new List<AwsS3Object>();
+                    foreach (var file in picList)
                     {
-                        InputStream = memoryStream,
-                        Name = file.FileName,
-                        BucketName = "badminton-system"
-                    });
+                        var memoryStream = new MemoryStream();
+                        await file.CopyToAsync(memoryStream);
+                        memoryStream.Position = 0; // Reset stream position to the beginning
+
+                        s3Objects.Add(new AwsS3Object
+                        {
+                            InputStream = memoryStream,
+                            Name = file.FileName,
+                            BucketName = "badminton-system"
+                        });
+                    }
+
+                    var imageURLs = await _awsS3Service.UpLoadManyFilesAsync(s3Objects);
+
+                    badmintonCenterEntity.BadmintonCenterImages = imageURLs.Select(url => new BadmintonCenterImage { ImageLink = url }).ToList();
                 }
-
-                // Upload images to S3
-                var imageURLs = await _awsS3Service.UpLoadManyFilesAsync(s3Objects);
-
-                // Map the uploaded image URLs to BadmintonCenterImage entities
-                badmintonCenterEntity.BadmintonCenterImages = imageURLs.Select(url => new BadmintonCenterImage { ImageLink = url }).ToList();
+                // Convert IFormFile to S3Object
+                
 
                 // Save changes and commit transaction
                 await _unitOfWork.SaveChangesAsync();
@@ -110,7 +112,7 @@ namespace BadmintonBookingSystem.Service.Services
             return chosenCenter;
         }
 
-        public async Task<BadmintonCenterEntity> UpdateBadmintonInfo(BadmintonCenterEntity badmintonCenterEntity, string centerId, List<IFormFile> newPicList)
+        public async Task<BadmintonCenterEntity> UpdateBadmintonInfo(BadmintonCenterEntity badmintonCenterEntity, string centerId, List<IFormFile>? newPicList)
         {
             // Retrieve the existing badminton center
             var badmintonCenter = await GetBadmintonCenterByIdAsync(centerId);

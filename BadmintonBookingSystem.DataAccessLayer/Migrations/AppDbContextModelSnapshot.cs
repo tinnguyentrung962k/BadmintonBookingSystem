@@ -28,6 +28,9 @@ namespace BadmintonBookingSystem.DataAccessLayer.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("text");
 
+                    b.Property<TimeOnly>("ClosingTime")
+                        .HasColumnType("time without time zone");
+
                     b.Property<string>("CreatedBy")
                         .HasColumnType("text");
 
@@ -52,9 +55,8 @@ namespace BadmintonBookingSystem.DataAccessLayer.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("OperatingTime")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<TimeOnly>("OperatingTime")
+                        .HasColumnType("time without time zone");
 
                     b.HasKey("Id");
 
