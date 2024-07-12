@@ -11,8 +11,8 @@ namespace BadmintonBookingSystem.Service.Services.Interface
     public interface IBadmintonCenterService
     {
         Task<IEnumerable<BadmintonCenterEntity>> GetAllBadmintonCenterAsync(int pageIndex, int size);
-        Task CreateBadmintonCenter(BadmintonCenterEntity badmintonCenterEntity, List<IFormFile> picList);
+        Task CreateBadmintonCenter(BadmintonCenterEntity badmintonCenterEntity, List<IFormFile>? picList);
         Task<BadmintonCenterEntity> GetBadmintonCenterByIdAsync(string centerId);
-        Task<BadmintonCenterEntity> UpdateBadmintonInfo(BadmintonCenterEntity badmintonCenterEntity, string centerId, List<IFormFile> newPicList);
+        Task<BadmintonCenterEntity> UpdateBadmintonInfo(BadmintonCenterEntity badmintonCenterEntity, string centerId, List<IFormFile>? newPicList);
     }
 }

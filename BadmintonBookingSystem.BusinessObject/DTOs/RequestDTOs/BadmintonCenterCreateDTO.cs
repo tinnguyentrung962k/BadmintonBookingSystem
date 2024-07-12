@@ -19,6 +19,9 @@ namespace BadmintonBookingSystem.BusinessObject.DTOs.RequestDTOs
         [Required(ErrorMessage = "OperatingTime is required.")]
         public string OperatingTime { get; set; }
 
+        [Required(ErrorMessage = "ClosingTime is required.")]
+        public string ClosingTime { get; set; }
+
         [Required(ErrorMessage = "ManagerId is required.")]
         public string ManagerId { get; set; }
 

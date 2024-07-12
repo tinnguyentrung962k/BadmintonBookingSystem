@@ -19,9 +19,15 @@ namespace BadmintonBookingSystem.Configuration.AutoMapper
                 .ForMember(rc=>rc.ManagerName, opt => opt.MapFrom(c=>c.Manager.FullName))
                 .ForMember(rc => rc.ImgUrls,
                 opt => opt.MapFrom(c => c.BadmintonCenterImages.Select(pi => pi.ImageLink).ToHashSet()))
+                .ForMember(rc => rc.OperatingTime, opt => opt.MapFrom(src => src.OperatingTime.ToString("HH:mm")))
+                .ForMember(rc => rc.ClosingTime, opt => opt.MapFrom(src => src.ClosingTime.ToString("HH:mm")))
                 .ReverseMap();
-            CreateMap<BadmintonCenterEntity, BadmintonCenterCreateDTO>().ReverseMap();
-            CreateMap<BadmintonCenterEntity, BadmintonUpdateDTO>().ReverseMap();
+            CreateMap<BadmintonCenterCreateDTO, BadmintonCenterEntity>()
+                .ForMember(ce => ce.OperatingTime, opt => opt.MapFrom(src => TimeOnly.Parse(src.OperatingTime)))
+                .ForMember(ce => ce.ClosingTime, opt => opt.MapFrom(src => TimeOnly.Parse(src.ClosingTime)));
+            CreateMap<BadmintonUpdateDTO,BadmintonCenterEntity>()
+                .ForMember(ce => ce.OperatingTime, opt => opt.MapFrom(src => TimeOnly.Parse(src.OperatingTime)))
+                .ForMember(ce => ce.ClosingTime, opt => opt.MapFrom(src => TimeOnly.Parse(src.ClosingTime)));
         }
         private void UserMappingProfile()
         {
