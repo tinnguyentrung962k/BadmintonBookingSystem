@@ -21,5 +21,6 @@ namespace BadmintonBookingSystem.DataAccessLayer.Entities
         public UserEntity Manager { get; set; }
 
         public IEnumerable<BadmintonCenterImage>? BadmintonCenterImages { get; set; }
+        public IEnumerable<CourtEntity>? Courts { get; set; }
     }
 }

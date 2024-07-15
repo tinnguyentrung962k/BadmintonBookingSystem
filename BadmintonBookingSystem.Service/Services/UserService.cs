@@ -27,7 +27,6 @@ namespace BadmintonBookingSystem.Service.Services
         private readonly IUnitOfWork _unitOfWork;
         //private readonly IEmailService _emailService;
         private readonly ILogger<UserService> _logger;
-        //private readonly IAzureBlobService _azureBlobService;
         private readonly RoleManager<RoleEntity> _roleManager;
         public UserService(ITokenService tokenService,
             UserManager<UserEntity> userManager, IUnitOfWork unitOfWork,

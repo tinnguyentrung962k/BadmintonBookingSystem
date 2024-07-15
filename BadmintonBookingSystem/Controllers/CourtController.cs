@@ -20,7 +20,7 @@ namespace BadmintonBookingSystem.Controllers
             _courtService = courtService;
             _mapper = mapper;
         }
-        [HttpGet("api/[controller]/courts/{centerId}")]
+        [HttpGet("api/courts/center/{centerId}")]
         public async Task<ActionResult<List<ResponseCourtDTO>>> GetAllCourtsByCenterId([FromRoute] string centerId,[FromQuery] int pageIndex, int size)
         {
             try
@@ -32,9 +32,13 @@ namespace BadmintonBookingSystem.Controllers
             {
                 return NotFound(ex.Message);
             }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Server Error.");
+            }
         }
-        [HttpGet("api/[controller]/court/{id}")]
-        public async Task<IActionResult> GetCourtById([FromRoute]string id)
+        [HttpGet("api/courts/{id}")]
+        public async Task<ActionResult<ResponseCourtDTO>> GetCourtById([FromRoute]string id)
         {
             try
             {
@@ -50,7 +54,7 @@ namespace BadmintonBookingSystem.Controllers
                 return StatusCode(500, "Server Error.");
             }
         }
-        [HttpPost("api/[controller]/court")]
+        [HttpPost("api/courts")]
         public async Task<ActionResult<ResponseCourtDTO>> CreateCourt([FromForm] CourtCreateDTO courtCreateDTO)
         {
             try
@@ -65,8 +69,8 @@ namespace BadmintonBookingSystem.Controllers
                 return BadRequest("Created Failed !");
             }
         }
-        [HttpPut("api/[controller]/court/{id}")]
-        public async Task<IActionResult> EditCourt([FromForm] CourtUpdateDTO courtUpdateDTO, [FromRoute] string id)
+        [HttpPut("api/courts/{id}")]
+        public async Task<ActionResult<ResponseCourtDTO>> EditCourt([FromForm] CourtUpdateDTO courtUpdateDTO, [FromRoute] string id)
         {
             try
             {

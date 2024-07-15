@@ -3,6 +3,7 @@ using System;
 using BadmintonBookingSystem.DataAccessLayer.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace BadmintonBookingSystem.DataAccessLayer.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240715000533_150720240705")]
+    partial class _150720240705
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -188,45 +191,6 @@ namespace BadmintonBookingSystem.DataAccessLayer.Migrations
                         .HasDatabaseName("RoleNameIndex");
 
                     b.ToTable("Role", (string)null);
-                });
-
-            modelBuilder.Entity("BadmintonBookingSystem.DataAccessLayer.Entities.TimeSlotEntity", b =>
-                {
-                    b.Property<string>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("text");
-
-                    b.Property<string>("CourtId")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("CreatedBy")
-                        .HasColumnType("text");
-
-                    b.Property<DateTimeOffset>("CreatedTime")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("DayOfAWeek")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<TimeOnly>("EndTime")
-                        .HasColumnType("time without time zone");
-
-                    b.Property<string>("LastUpdatedBy")
-                        .HasColumnType("text");
-
-                    b.Property<DateTimeOffset>("LastUpdatedTime")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<TimeOnly>("StartTime")
-                        .HasColumnType("time without time zone");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CourtId");
-
-                    b.ToTable("TimeSlots");
                 });
 
             modelBuilder.Entity("BadmintonBookingSystem.DataAccessLayer.Entities.UserEntity", b =>
@@ -455,17 +419,6 @@ namespace BadmintonBookingSystem.DataAccessLayer.Migrations
                     b.Navigation("CourtEntity");
                 });
 
-            modelBuilder.Entity("BadmintonBookingSystem.DataAccessLayer.Entities.TimeSlotEntity", b =>
-                {
-                    b.HasOne("BadmintonBookingSystem.DataAccessLayer.Entities.CourtEntity", "Court")
-                        .WithMany("TimeSlots")
-                        .HasForeignKey("CourtId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Court");
-                });
-
             modelBuilder.Entity("BadmintonBookingSystem.DataAccessLayer.Entities.UserRoleEntity", b =>
                 {
                     b.HasOne("BadmintonBookingSystem.DataAccessLayer.Entities.RoleEntity", "Role")
@@ -531,8 +484,6 @@ namespace BadmintonBookingSystem.DataAccessLayer.Migrations
             modelBuilder.Entity("BadmintonBookingSystem.DataAccessLayer.Entities.CourtEntity", b =>
                 {
                     b.Navigation("CourtImages");
-
-                    b.Navigation("TimeSlots");
                 });
 
             modelBuilder.Entity("BadmintonBookingSystem.DataAccessLayer.Entities.RoleEntity", b =>

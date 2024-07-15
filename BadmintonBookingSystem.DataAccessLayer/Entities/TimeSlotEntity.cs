@@ -13,14 +13,12 @@ namespace BadmintonBookingSystem.DataAccessLayer.Entities
     public class TimeSlotEntity : BaseAuditEntity<string>
     {
         public string CourtId { get; set; }
-        public TimeSpan StartTime { get; set; }
-        public TimeSpan EndTime { get; set; }
-        public BookingType BookingType { get; set; }
-        public decimal Price { get; set; }
+        public TimeOnly StartTime { get; set; }
+        public TimeOnly EndTime { get; set; }
+        public DayOfAWeek DayOfAWeek { get; set; }
 
         [ForeignKey(nameof(CourtId))]
         public CourtEntity Court { get; set; }
-
-
+        public IEnumerable<BookingEntity>? Bookings { get; set; } 
     }
 }

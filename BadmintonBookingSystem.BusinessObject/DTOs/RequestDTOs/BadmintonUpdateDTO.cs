@@ -17,10 +17,10 @@ namespace BadmintonBookingSystem.BusinessObject.DTOs.RequestDTOs
         public string Location { get; set; }
 
         [Required(ErrorMessage = "OperatingTime is required.")]
-        public string OperatingTime { get; set; }
+        public TimeOnly OperatingTime { get; set; }
 
         [Required(ErrorMessage = "ClosingTime is required.")]
-        public string ClosingTime { get; set; }
+        public TimeOnly ClosingTime { get; set; }
 
         [Required(ErrorMessage = "ManagerId is required.")]
         public string ManagerId { get; set; }
