@@ -5,7 +5,7 @@
 namespace BadmintonBookingSystem.DataAccessLayer.Migrations
 {
     /// <inheritdoc />
-    public partial class _130720242014 : Migration
+    public partial class _160720240606 : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

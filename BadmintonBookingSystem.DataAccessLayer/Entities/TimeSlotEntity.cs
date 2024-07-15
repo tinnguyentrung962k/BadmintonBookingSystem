@@ -15,7 +15,7 @@ namespace BadmintonBookingSystem.DataAccessLayer.Entities
         public string CourtId { get; set; }
         public TimeOnly StartTime { get; set; }
         public TimeOnly EndTime { get; set; }
-        public DayOfAWeek DayOfAWeek { get; set; }
+        public decimal Price { get; set; } 
 
         [ForeignKey(nameof(CourtId))]
         public CourtEntity Court { get; set; }

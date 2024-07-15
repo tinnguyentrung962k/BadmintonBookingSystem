@@ -24,5 +24,6 @@ namespace BadmintonBookingSystem.DataAccessLayer.Entities
         public BookingType BookingType { get; set; }
         public DateOnly? FromDate { get; set; }
         public DateOnly? ToDate { get; set; }
+        public string? DayOfAWeek { get; set; }
     }
 }

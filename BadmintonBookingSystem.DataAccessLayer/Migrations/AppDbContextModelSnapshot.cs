@@ -37,6 +37,9 @@ namespace BadmintonBookingSystem.DataAccessLayer.Migrations
                     b.Property<DateTimeOffset>("CreatedTime")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<DateTimeOffset?>("DeletedTime")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("LastUpdatedBy")
                         .HasColumnType("text");
 
@@ -81,6 +84,9 @@ namespace BadmintonBookingSystem.DataAccessLayer.Migrations
                     b.Property<DateTimeOffset>("CreatedTime")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<DateTimeOffset?>("DeletedTime")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("ImageLink")
                         .IsRequired()
                         .HasColumnType("text");
@@ -120,6 +126,12 @@ namespace BadmintonBookingSystem.DataAccessLayer.Migrations
                     b.Property<string>("CustomerId")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<string>("DayOfAWeek")
+                        .HasColumnType("text");
+
+                    b.Property<DateTimeOffset?>("DeletedTime")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<DateOnly?>("FromDate")
                         .HasColumnType("date");
@@ -166,6 +178,9 @@ namespace BadmintonBookingSystem.DataAccessLayer.Migrations
                     b.Property<DateTimeOffset>("CreatedTime")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<DateTimeOffset?>("DeletedTime")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("LastUpdatedBy")
                         .HasColumnType("text");
 
@@ -193,6 +208,9 @@ namespace BadmintonBookingSystem.DataAccessLayer.Migrations
                         .HasColumnType("text");
 
                     b.Property<DateTimeOffset>("CreatedTime")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTimeOffset?>("DeletedTime")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("ImageLink")
@@ -254,9 +272,8 @@ namespace BadmintonBookingSystem.DataAccessLayer.Migrations
                     b.Property<DateTimeOffset>("CreatedTime")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<string>("DayOfAWeek")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<DateTimeOffset?>("DeletedTime")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<TimeOnly>("EndTime")
                         .HasColumnType("time without time zone");
@@ -266,6 +283,9 @@ namespace BadmintonBookingSystem.DataAccessLayer.Migrations
 
                     b.Property<DateTimeOffset>("LastUpdatedTime")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<decimal>("Price")
+                        .HasColumnType("numeric");
 
                     b.Property<TimeOnly>("StartTime")
                         .HasColumnType("time without time zone");

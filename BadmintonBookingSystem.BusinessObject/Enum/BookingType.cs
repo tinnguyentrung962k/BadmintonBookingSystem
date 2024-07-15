@@ -8,7 +8,7 @@ namespace BadmintonBookingSystem.BusinessObject.Enum
 {
     public enum BookingType
     {
-        Fix,
+        Fixed,
         Single,
         Flexible
     }
