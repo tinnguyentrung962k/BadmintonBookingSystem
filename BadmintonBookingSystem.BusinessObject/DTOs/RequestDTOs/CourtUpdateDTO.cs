@@ -10,7 +10,7 @@ namespace BadmintonBookingSystem.BusinessObject.DTOs.RequestDTOs
 {
     public class CourtUpdateDTO
     {
-        [Required]
+        [Required(ErrorMessage = "Please fill court name")]
         public string CourtName { get; set; }
         public List<IFormFile>? ImageFiles { get; set; }
     }

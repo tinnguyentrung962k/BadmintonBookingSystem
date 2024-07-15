@@ -13,6 +13,7 @@ namespace BadmintonBookingSystem.Configuration.AutoMapper
             BadmintonCenterProfile();
             UserMappingProfile();
             CourtProfile();
+            TimeSlotProfile();
         }
         private void BadmintonCenterProfile() {
             CreateMap<BadmintonCenterEntity, ResponseBadmintonCenterDTO>()
@@ -22,12 +23,8 @@ namespace BadmintonBookingSystem.Configuration.AutoMapper
                 .ForMember(rc => rc.OperatingTime, opt => opt.MapFrom(src => src.OperatingTime.ToString("HH:mm")))
                 .ForMember(rc => rc.ClosingTime, opt => opt.MapFrom(src => src.ClosingTime.ToString("HH:mm")))
                 .ReverseMap();
-            CreateMap<BadmintonCenterCreateDTO, BadmintonCenterEntity>()
-                .ForMember(ce => ce.OperatingTime, opt => opt.MapFrom(src => TimeOnly.Parse(src.OperatingTime)))
-                .ForMember(ce => ce.ClosingTime, opt => opt.MapFrom(src => TimeOnly.Parse(src.ClosingTime)));
-            CreateMap<BadmintonUpdateDTO,BadmintonCenterEntity>()
-                .ForMember(ce => ce.OperatingTime, opt => opt.MapFrom(src => TimeOnly.Parse(src.OperatingTime)))
-                .ForMember(ce => ce.ClosingTime, opt => opt.MapFrom(src => TimeOnly.Parse(src.ClosingTime)));
+            CreateMap<BadmintonCenterCreateDTO, BadmintonCenterEntity>();
+            CreateMap<BadmintonUpdateDTO,BadmintonCenterEntity>();
         }
         private void UserMappingProfile()
         {
@@ -38,11 +35,20 @@ namespace BadmintonBookingSystem.Configuration.AutoMapper
         {
             CreateMap<CourtEntity,ResponseCourtDTO>()
                 .ForMember(rcourt => rcourt.CenterName, opt => opt.MapFrom(court => court.BadmintonCenter.Name))
+                .ForMember(rcourt => rcourt.CenterId, opt => opt.MapFrom(court => court.BadmintonCenter.Id))
                 .ForMember(rc => rc.ImgUrls,
                 opt => opt.MapFrom(c => c.CourtImages.Select(pi => pi.ImageLink).ToHashSet()))
                 .ReverseMap();
             CreateMap<CourtEntity,CourtCreateDTO>().ReverseMap();
             CreateMap<CourtEntity,CourtUpdateDTO>().ReverseMap();
+        }
+        private void TimeSlotProfile()
+        {
+            CreateMap<TimeSlotCreateDTO, TimeSlotEntity>();
+            CreateMap<TimeSlotEntity, ResponseTimeSlotDTO>()
+                .ForMember(rts => rts.StartTime, opt => opt.MapFrom(ts => ts.StartTime.ToString("HH:mm")))
+                .ForMember(rts => rts.EndTime, opt => opt.MapFrom(ts => ts.EndTime.ToString("HH:mm")))
+                .ForMember(rts => rts.CourtName, opt => opt.MapFrom(ts => ts.Court.CourtName));
         }
     }
 }

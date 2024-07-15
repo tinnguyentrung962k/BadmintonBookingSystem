@@ -24,7 +24,7 @@ namespace BadmintonBookingSystem.Controllers
             _mapper = mapper;
         }
         [HttpGet]
-        [Route("api/[controller]/badminton-centers")]
+        [Route("api/badminton-centers")]
         public async Task<ActionResult<List<ResponseBadmintonCenterDTO>>> GetAllBadmintonCenters([FromQuery]int pageIndex, int size) 
         {
             try 
@@ -36,9 +36,13 @@ namespace BadmintonBookingSystem.Controllers
             {
                 return NotFound(ex.Message);
             }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Server Error.");
+            }
         }
         [HttpPost]
-        [Route("api/[controller]/badminton-centers")]
+        [Route("api/badminton-centers")]
         public async Task<ActionResult<ResponseBadmintonCenterDTO>> CreateBadmintonCenter([FromForm]BadmintonCenterCreateDTO badmintonCenterCreateDTO)
         {
             try
@@ -53,8 +57,8 @@ namespace BadmintonBookingSystem.Controllers
                 return BadRequest("Created Failed !");
             }
         }
-        [HttpGet("api/[controller]/badminton-centers/{id}")]
-        public async Task<IActionResult> GetBadmintonCenterById([FromRoute] string id)
+        [HttpGet("api/badminton-centers/{id}")]
+        public async Task<ActionResult<ResponseBadmintonCenterDTO>> GetBadmintonCenterById([FromRoute] string id)
         {
             try
             {
@@ -70,8 +74,8 @@ namespace BadmintonBookingSystem.Controllers
                 return StatusCode(500, "Server Error.");
             }
         }
-        [HttpPut("api/[controller]/badminton-centers/{id}")]
-        public async Task<IActionResult> EditBadmintonCenter([FromForm] BadmintonUpdateDTO badmintonUpdateDTO, [FromRoute] string id)
+        [HttpPut("api/badminton-centers/{id}")]
+        public async Task<ActionResult<ResponseBadmintonCenterDTO>> EditBadmintonCenter([FromForm] BadmintonUpdateDTO badmintonUpdateDTO, [FromRoute] string id)
         {
             try
             {

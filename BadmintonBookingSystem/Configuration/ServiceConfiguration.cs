@@ -12,6 +12,7 @@ namespace BadmintonBookingSystem.Configuration
             services.AddScoped<IBadmintonCenterService, BadmintonCenterService>();
             services.AddScoped<ICourtService, CourtService>();
             services.AddScoped<IAWSS3Service, AWSS3Service>();
+            services.AddScoped<ITimeSlotService, TimeSlotService>();
             return services;
         }
     }

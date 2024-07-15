@@ -3,6 +3,7 @@ using System;
 using BadmintonBookingSystem.DataAccessLayer.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace BadmintonBookingSystem.DataAccessLayer.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240713182606_140720240125")]
+    partial class _140720240125
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -98,16 +101,20 @@ namespace BadmintonBookingSystem.DataAccessLayer.Migrations
                     b.ToTable("BadmintonCenterImage");
                 });
 
-            modelBuilder.Entity("BadmintonBookingSystem.DataAccessLayer.Entities.BookingEntity", b =>
+            modelBuilder.Entity("BadmintonBookingSystem.DataAccessLayer.Entities.BookingOrderEntity", b =>
                 {
                     b.Property<string>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("text");
 
-                    b.Property<DateOnly?>("BookingDate")
+                    b.Property<DateOnly>("BookingDate")
                         .HasColumnType("date");
 
                     b.Property<string>("BookingType")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("CourtId")
                         .IsRequired()
                         .HasColumnType("text");
 
@@ -121,8 +128,11 @@ namespace BadmintonBookingSystem.DataAccessLayer.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<DateOnly?>("FromDate")
-                        .HasColumnType("date");
+                    b.Property<bool>("IsCheckIn")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsPaid")
+                        .HasColumnType("boolean");
 
                     b.Property<string>("LastUpdatedBy")
                         .HasColumnType("text");
@@ -130,20 +140,17 @@ namespace BadmintonBookingSystem.DataAccessLayer.Migrations
                     b.Property<DateTimeOffset>("LastUpdatedTime")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<string>("TimeSlotId")
+                    b.Property<string>("TimeSlot")
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<DateOnly?>("ToDate")
-                        .HasColumnType("date");
-
                     b.HasKey("Id");
+
+                    b.HasIndex("CourtId");
 
                     b.HasIndex("CustomerId");
 
-                    b.HasIndex("TimeSlotId");
-
-                    b.ToTable("Booking");
+                    b.ToTable("BookingOrder");
                 });
 
             modelBuilder.Entity("BadmintonBookingSystem.DataAccessLayer.Entities.CourtEntity", b =>
@@ -244,6 +251,10 @@ namespace BadmintonBookingSystem.DataAccessLayer.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("text");
 
+                    b.Property<string>("BookingType")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<string>("CourtId")
                         .IsRequired()
                         .HasColumnType("text");
@@ -254,21 +265,18 @@ namespace BadmintonBookingSystem.DataAccessLayer.Migrations
                     b.Property<DateTimeOffset>("CreatedTime")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<string>("DayOfAWeek")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<TimeOnly>("EndTime")
-                        .HasColumnType("time without time zone");
-
                     b.Property<string>("LastUpdatedBy")
                         .HasColumnType("text");
 
                     b.Property<DateTimeOffset>("LastUpdatedTime")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<TimeOnly>("StartTime")
-                        .HasColumnType("time without time zone");
+                    b.Property<decimal>("Price")
+                        .HasColumnType("numeric");
+
+                    b.Property<string>("TimeFrame")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 
@@ -481,29 +489,29 @@ namespace BadmintonBookingSystem.DataAccessLayer.Migrations
                     b.Navigation("BadmintonCenterEntity");
                 });
 
-            modelBuilder.Entity("BadmintonBookingSystem.DataAccessLayer.Entities.BookingEntity", b =>
+            modelBuilder.Entity("BadmintonBookingSystem.DataAccessLayer.Entities.BookingOrderEntity", b =>
                 {
-                    b.HasOne("BadmintonBookingSystem.DataAccessLayer.Entities.UserEntity", "Customer")
-                        .WithMany()
-                        .HasForeignKey("CustomerId")
+                    b.HasOne("BadmintonBookingSystem.DataAccessLayer.Entities.CourtEntity", "Court")
+                        .WithMany("BookingOrders")
+                        .HasForeignKey("CourtId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("BadmintonBookingSystem.DataAccessLayer.Entities.TimeSlotEntity", "TimeSlot")
-                        .WithMany("Bookings")
-                        .HasForeignKey("TimeSlotId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                    b.HasOne("BadmintonBookingSystem.DataAccessLayer.Entities.UserEntity", "Customer")
+                        .WithMany("BookingOrders")
+                        .HasForeignKey("CustomerId")
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.Navigation("Court");
 
                     b.Navigation("Customer");
-
-                    b.Navigation("TimeSlot");
                 });
 
             modelBuilder.Entity("BadmintonBookingSystem.DataAccessLayer.Entities.CourtEntity", b =>
                 {
                     b.HasOne("BadmintonBookingSystem.DataAccessLayer.Entities.BadmintonCenterEntity", "BadmintonCenter")
-                        .WithMany("Courts")
+                        .WithMany()
                         .HasForeignKey("CenterId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -591,12 +599,12 @@ namespace BadmintonBookingSystem.DataAccessLayer.Migrations
             modelBuilder.Entity("BadmintonBookingSystem.DataAccessLayer.Entities.BadmintonCenterEntity", b =>
                 {
                     b.Navigation("BadmintonCenterImages");
-
-                    b.Navigation("Courts");
                 });
 
             modelBuilder.Entity("BadmintonBookingSystem.DataAccessLayer.Entities.CourtEntity", b =>
                 {
+                    b.Navigation("BookingOrders");
+
                     b.Navigation("CourtImages");
 
                     b.Navigation("TimeSlots");
@@ -607,13 +615,10 @@ namespace BadmintonBookingSystem.DataAccessLayer.Migrations
                     b.Navigation("UserRoles");
                 });
 
-            modelBuilder.Entity("BadmintonBookingSystem.DataAccessLayer.Entities.TimeSlotEntity", b =>
-                {
-                    b.Navigation("Bookings");
-                });
-
             modelBuilder.Entity("BadmintonBookingSystem.DataAccessLayer.Entities.UserEntity", b =>
                 {
+                    b.Navigation("BookingOrders");
+
                     b.Navigation("UserRoles");
                 });
 #pragma warning restore 612, 618

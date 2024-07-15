@@ -23,7 +23,7 @@ namespace BadmintonBookingSystem.Controllers
         }
 
         [HttpGet]
-        [Route("api/[controller]/users")]
+        [Route("api/users")]
         public async Task<ActionResult<List<ResponseUserDTO>>> GetAllUsers(int pageIndex, int pageSize) 
         {
             try
@@ -34,6 +34,10 @@ namespace BadmintonBookingSystem.Controllers
             catch (NotFoundException ex)
             {
                 return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Server Error.");
             }
         }
     }
