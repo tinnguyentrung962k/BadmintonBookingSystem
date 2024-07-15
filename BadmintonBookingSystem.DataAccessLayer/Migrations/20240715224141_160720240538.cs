@@ -7,7 +7,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace BadmintonBookingSystem.DataAccessLayer.Migrations
 {
     /// <inheritdoc />
-    public partial class _120720241543 : Migration
+    public partial class _160720240538 : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -88,6 +88,7 @@ namespace BadmintonBookingSystem.DataAccessLayer.Migrations
                     ManagerId = table.Column<string>(type: "text", nullable: false),
                     CreatedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
                     LastUpdatedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    DeletedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
                     CreatedBy = table.Column<string>(type: "text", nullable: true),
                     LastUpdatedBy = table.Column<string>(type: "text", nullable: true)
                 },
@@ -196,6 +197,7 @@ namespace BadmintonBookingSystem.DataAccessLayer.Migrations
                     ImageLink = table.Column<string>(type: "text", nullable: false),
                     CreatedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
                     LastUpdatedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    DeletedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
                     CreatedBy = table.Column<string>(type: "text", nullable: true),
                     LastUpdatedBy = table.Column<string>(type: "text", nullable: true)
                 },
@@ -219,6 +221,7 @@ namespace BadmintonBookingSystem.DataAccessLayer.Migrations
                     CenterId = table.Column<string>(type: "text", nullable: false),
                     CreatedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
                     LastUpdatedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    DeletedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
                     CreatedBy = table.Column<string>(type: "text", nullable: true),
                     LastUpdatedBy = table.Column<string>(type: "text", nullable: true)
                 },
@@ -242,6 +245,7 @@ namespace BadmintonBookingSystem.DataAccessLayer.Migrations
                     ImageLink = table.Column<string>(type: "text", nullable: false),
                     CreatedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
                     LastUpdatedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    DeletedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
                     CreatedBy = table.Column<string>(type: "text", nullable: true),
                     LastUpdatedBy = table.Column<string>(type: "text", nullable: true)
                 },
@@ -262,12 +266,12 @@ namespace BadmintonBookingSystem.DataAccessLayer.Migrations
                 {
                     Id = table.Column<string>(type: "text", nullable: false),
                     CourtId = table.Column<string>(type: "text", nullable: false),
-                    StartTime = table.Column<TimeSpan>(type: "interval", nullable: false),
-                    EndTime = table.Column<TimeSpan>(type: "interval", nullable: false),
-                    BookingType = table.Column<string>(type: "text", nullable: false),
+                    StartTime = table.Column<TimeOnly>(type: "time without time zone", nullable: false),
+                    EndTime = table.Column<TimeOnly>(type: "time without time zone", nullable: false),
                     Price = table.Column<decimal>(type: "numeric", nullable: false),
                     CreatedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
                     LastUpdatedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    DeletedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
                     CreatedBy = table.Column<string>(type: "text", nullable: true),
                     LastUpdatedBy = table.Column<string>(type: "text", nullable: true)
                 },
@@ -283,43 +287,38 @@ namespace BadmintonBookingSystem.DataAccessLayer.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "BookingOrder",
+                name: "Booking",
                 columns: table => new
                 {
                     Id = table.Column<string>(type: "text", nullable: false),
                     CustomerId = table.Column<string>(type: "text", nullable: false),
-                    CourtId = table.Column<string>(type: "text", nullable: false),
-                    BookingDate = table.Column<DateOnly>(type: "date", nullable: false),
                     TimeSlotId = table.Column<string>(type: "text", nullable: false),
-                    IsCheckIn = table.Column<bool>(type: "boolean", nullable: false),
-                    IsPaid = table.Column<bool>(type: "boolean", nullable: false),
+                    BookingDate = table.Column<DateOnly>(type: "date", nullable: true),
                     BookingType = table.Column<string>(type: "text", nullable: false),
+                    FromDate = table.Column<DateOnly>(type: "date", nullable: true),
+                    ToDate = table.Column<DateOnly>(type: "date", nullable: true),
+                    DayOfAWeek = table.Column<string>(type: "text", nullable: true),
                     CreatedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
                     LastUpdatedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    DeletedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
                     CreatedBy = table.Column<string>(type: "text", nullable: true),
                     LastUpdatedBy = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_BookingOrder", x => x.Id);
+                    table.PrimaryKey("PK_Booking", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_BookingOrder_Court_CourtId",
-                        column: x => x.CourtId,
-                        principalTable: "Court",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_BookingOrder_TimeSlot_TimeSlotId",
+                        name: "FK_Booking_TimeSlot_TimeSlotId",
                         column: x => x.TimeSlotId,
                         principalTable: "TimeSlot",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_BookingOrder_User_CustomerId",
+                        name: "FK_Booking_User_CustomerId",
                         column: x => x.CustomerId,
                         principalTable: "User",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
@@ -333,18 +332,13 @@ namespace BadmintonBookingSystem.DataAccessLayer.Migrations
                 column: "BadmintonCenterId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_BookingOrder_CourtId",
-                table: "BookingOrder",
-                column: "CourtId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_BookingOrder_CustomerId",
-                table: "BookingOrder",
+                name: "IX_Booking_CustomerId",
+                table: "Booking",
                 column: "CustomerId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_BookingOrder_TimeSlotId",
-                table: "BookingOrder",
+                name: "IX_Booking_TimeSlotId",
+                table: "Booking",
                 column: "TimeSlotId");
 
             migrationBuilder.CreateIndex(
@@ -407,7 +401,7 @@ namespace BadmintonBookingSystem.DataAccessLayer.Migrations
                 name: "BadmintonCenterImage");
 
             migrationBuilder.DropTable(
-                name: "BookingOrder");
+                name: "Booking");
 
             migrationBuilder.DropTable(
                 name: "CourtImage");

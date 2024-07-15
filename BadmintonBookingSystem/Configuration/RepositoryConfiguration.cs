@@ -1,5 +1,7 @@
 ﻿using BadmintonBookingSystem.Repository.Repositories;
 using BadmintonBookingSystem.Repository.Repositories.Interface;
+using BadmintonBookingSystem.Service.Services.Interface;
+using BadmintonBookingSystem.Service.Services;
 
 namespace BadmintonBookingSystem.Configuration
 {
@@ -11,6 +13,7 @@ namespace BadmintonBookingSystem.Configuration
             services.AddScoped<IBadmintonCenterRepository, BadmintonCenterRepository>();
             services.AddScoped<ICourtRepository, CourtRepository>();
             services.AddScoped<ITimeSlotRepository, TimeSlotRepository>();
+            services.AddScoped<IBookingRepository, BookingRepository>();
 
             return services;
         }

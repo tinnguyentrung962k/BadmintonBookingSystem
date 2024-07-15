@@ -19,7 +19,7 @@ namespace BadmintonBookingSystem.BusinessObject.DTOs.RequestDTOs
         [Required(ErrorMessage = "EndTime is required")]
         public TimeOnly EndTime { get; set; }
 
-        [Required(ErrorMessage = "DayOfWeek is required")]
-        public DayOfAWeek DayOfAWeek { get; set; }
+        [Required(ErrorMessage = "Price is required")]
+        public decimal Price { get; set; }
     }
 }
