@@ -15,6 +15,7 @@ namespace BadmintonBookingSystem.BusinessObject.DTOs.ResponseDTOs
         public string CourtName { get; set; }
         public string CenterId { get; set; }
         public string CenterName { get; set; }
+        public bool IsActive { get; set; }
 
         [JsonProperty(PropertyName = "courtImgUrls")]
         [JsonPropertyName("courtImgUrls")]

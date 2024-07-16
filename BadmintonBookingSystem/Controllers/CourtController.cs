@@ -37,6 +37,24 @@ namespace BadmintonBookingSystem.Controllers
                 return StatusCode(500, "Server Error.");
             }
         }
+        [HttpGet("api/courts-active/center/{centerId}")]
+        public async Task<ActionResult<List<ResponseCourtDTO>>> GetAllActiveCourtsByCenterId([FromRoute] string centerId, [FromQuery] int pageIndex, int size)
+        {
+            try
+            {
+                var courtList = _mapper.Map<List<ResponseCourtDTO>>(await _courtService.GetAllActiveCourtsByCenterId(centerId, pageIndex, size));
+                return Ok(courtList);
+            }
+            catch (NotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Server Error.");
+            }
+        }
+
         [HttpGet("api/courts/{id}")]
         public async Task<ActionResult<ResponseCourtDTO>> GetCourtById([FromRoute]string id)
         {

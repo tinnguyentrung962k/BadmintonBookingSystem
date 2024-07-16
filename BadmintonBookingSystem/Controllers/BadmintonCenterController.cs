@@ -41,6 +41,42 @@ namespace BadmintonBookingSystem.Controllers
                 return StatusCode(500, "Server Error.");
             }
         }
+        [HttpGet]
+        [Route("api/badminton-centers-active")]
+        public async Task<ActionResult<List<ResponseBadmintonCenterDTO>>> GetAllActiveBadmintonCenters([FromQuery] int pageIndex, int size)
+        {
+            try
+            {
+                var badmintonCenter = _mapper.Map<List<ResponseBadmintonCenterDTO>>(await _badmintonCenterService.GetAllActiveBadmintonCentersAsync(pageIndex, size));
+                return Ok(badmintonCenter);
+            }
+            catch (NotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Server Error.");
+            }
+        }
+
+        [HttpGet]
+        [Route("api/search-badminton-centers")]
+        public async Task<ActionResult<List<ResponseSearchBadmintonCenterDTO>>> Search([FromQuery] SearchBadmintonCenterDTO searchBadmintonCenterDTO)
+        {
+            try
+            {
+                var newBcEntity = _mapper.Map<BadmintonCenterEntity>(searchBadmintonCenterDTO);
+                var searchResult = await _badmintonCenterService.SearchBadmintonCentersAsync(newBcEntity);
+                var responseNewBc = _mapper.Map<List<ResponseSearchBadmintonCenterDTO>>(searchResult);
+                return Ok(responseNewBc);
+            }
+            catch (NotFoundException ex)
+            {
+                return BadRequest("Something wrong");
+            }
+        }
+
         [HttpPost]
         [Route("api/badminton-centers")]
         public async Task<ActionResult<ResponseBadmintonCenterDTO>> CreateBadmintonCenter([FromForm]BadmintonCenterCreateDTO badmintonCenterCreateDTO)
@@ -48,7 +84,7 @@ namespace BadmintonBookingSystem.Controllers
             try
             {
                 var newBcEntity = _mapper.Map<BadmintonCenterEntity>(badmintonCenterCreateDTO);
-                await _badmintonCenterService.CreateBadmintonCenter(newBcEntity,badmintonCenterCreateDTO.ImageFiles);
+                await _badmintonCenterService.CreateBadmintonCenter(newBcEntity,badmintonCenterCreateDTO.ImageFiles,badmintonCenterCreateDTO.ImgAvatar);
                 var responseNewBc = _mapper.Map<ResponseBadmintonCenterDTO>(newBcEntity);
                 return CreatedAtAction(nameof(GetBadmintonCenterById), new { id = responseNewBc.Id }, responseNewBc);
             }
@@ -80,9 +116,24 @@ namespace BadmintonBookingSystem.Controllers
             try
             {
                 var badmintonCenter = await _badmintonCenterService.GetBadmintonCenterByIdAsync(id);
-                var badmintonToUpdate = await _badmintonCenterService.UpdateBadmintonInfo(_mapper.Map<BadmintonCenterEntity>(badmintonUpdateDTO), id,badmintonUpdateDTO.ImageFiles);
+                var badmintonToUpdate = await _badmintonCenterService.UpdateBadmintonInfo(_mapper.Map<BadmintonCenterEntity>(badmintonUpdateDTO), id,badmintonUpdateDTO.ImageFiles,badmintonUpdateDTO.ImgAvatar);
                 var updatedCenter = _mapper.Map<ResponseBadmintonCenterDTO>(badmintonToUpdate);
                 return Ok(updatedCenter);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest("Update Failed !");
+            }
+        }
+        [HttpDelete("api/badminton-centers/{id}")]
+        public async Task<ActionResult<ResponseBadmintonCenterDTO>> DeactiveCenter([FromRoute] string id)
+        {
+            try
+            {
+                await _badmintonCenterService.DeactiveBadmintonCenter(id);
+                var deactCenter = await _badmintonCenterService.GetBadmintonCenterByIdAsync(id);
+                var deactCenterResponse = _mapper.Map<ResponseBadmintonCenterDTO>(deactCenter);
+                return Ok(deactCenterResponse);
             }
             catch (Exception ex)
             {
