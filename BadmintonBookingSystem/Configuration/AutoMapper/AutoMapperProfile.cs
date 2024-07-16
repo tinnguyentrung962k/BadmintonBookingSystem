@@ -32,6 +32,9 @@ namespace BadmintonBookingSystem.Configuration.AutoMapper
             CreateMap<UserEntity, RegisterDTO>().ReverseMap();
             CreateMap<UserEntity, ResponseUserDTO>()
                 .ForMember(ru => ru.IsActive, opt => opt.MapFrom(u => u.EmailConfirmed))
+                .ForMember(userDto => userDto.UserRoles,
+                    opt => opt.MapFrom(user
+                        => user.UserRoles.Select(iur => iur.Role.Name).ToHashSet()))
                 .ReverseMap();
         }
         private void CourtProfile()

@@ -25,5 +25,17 @@ namespace BadmintonBookingSystem.Repository.Repositories.Extensions
             var pagedUsers = userList.Skip(pageIndex * pageSize).Take(pageSize);
             return pagedUsers;
         }
+        public static async Task<IEnumerable<UserEntity>> GetUsersWithRoleAsync(this UserManager<UserEntity> userManager, int pageIndex = 1, int pageSize = 1)
+        {
+            var userList = await userManager?.Users?
+                .Include(it => it.UserRoles)
+                .ThenInclude(r => r.Role)
+                .ToListAsync();
+            pageIndex = pageIndex < 1 ? 0 : pageIndex - 1;
+            pageSize = pageSize < 1 ? 10 : pageSize;
+            var pagedUsers = userList.Skip(pageIndex * pageSize).Take(pageSize);
+            return pagedUsers;
+
+        }
     }
 }

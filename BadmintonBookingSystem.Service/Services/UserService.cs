@@ -151,7 +151,7 @@ namespace BadmintonBookingSystem.Service.Services
 
         public async Task<IEnumerable<UserEntity>> GetUsersList(int pageIndex, int pageSize)
         {
-            var userList = await _userManager.GetUsersAsync(pageIndex, pageSize);
+            var userList = await _userManager.GetUsersWithRoleAsync(pageIndex, pageSize);
             if (!userList.Any())
             {
                 throw new NotFoundException("Không có người dùng nào trong danh sách");
