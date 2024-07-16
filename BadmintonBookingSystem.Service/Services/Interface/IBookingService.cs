@@ -1,4 +1,5 @@
-﻿using BadmintonBookingSystem.DataAccessLayer.Entities;
+﻿using BadmintonBookingSystem.BusinessObject.DTOs.RequestDTOs;
+using BadmintonBookingSystem.DataAccessLayer.Entities;
 using BadmintonBookingSystem.Repository.Repositories.Interface;
 using System;
 using System.Collections.Generic;
@@ -10,6 +11,6 @@ namespace BadmintonBookingSystem.Service.Services.Interface
 {
     public interface IBookingService
     {
-        Task CreateBookingInSingleDay(string userId, BookingEntity bookingEntity);
+        Task CreateBookingInSingleDay(string userId, SingleBookingCreateDTO singleBookingCreateDTO);
     }
 }

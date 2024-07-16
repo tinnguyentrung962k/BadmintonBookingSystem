@@ -19,6 +19,6 @@ namespace BadmintonBookingSystem.DataAccessLayer.Entities
 
         [ForeignKey(nameof(CourtId))]
         public CourtEntity Court { get; set; }
-        public IEnumerable<BookingEntity>? Bookings { get; set; } 
+        public IEnumerable<BookingDetailEntity> BookingDetails { get; set; }
     }
 }

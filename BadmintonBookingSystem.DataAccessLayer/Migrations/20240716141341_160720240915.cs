@@ -7,7 +7,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace BadmintonBookingSystem.DataAccessLayer.Migrations
 {
     /// <inheritdoc />
-    public partial class _160720240538 : Migration
+    public partial class _160720240915 : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -98,6 +98,32 @@ namespace BadmintonBookingSystem.DataAccessLayer.Migrations
                     table.ForeignKey(
                         name: "FK_BadmintonCenter_User_ManagerId",
                         column: x => x.ManagerId,
+                        principalTable: "User",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Booking",
+                columns: table => new
+                {
+                    Id = table.Column<string>(type: "text", nullable: false),
+                    CustomerId = table.Column<string>(type: "text", nullable: false),
+                    BookingType = table.Column<string>(type: "text", nullable: false),
+                    FromDate = table.Column<DateOnly>(type: "date", nullable: false),
+                    ToDate = table.Column<DateOnly>(type: "date", nullable: false),
+                    CreatedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    LastUpdatedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    DeletedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
+                    CreatedBy = table.Column<string>(type: "text", nullable: true),
+                    LastUpdatedBy = table.Column<string>(type: "text", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Booking", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Booking_User_CustomerId",
+                        column: x => x.CustomerId,
                         principalTable: "User",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -287,17 +313,14 @@ namespace BadmintonBookingSystem.DataAccessLayer.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Booking",
+                name: "BookingDetail",
                 columns: table => new
                 {
                     Id = table.Column<string>(type: "text", nullable: false),
-                    CustomerId = table.Column<string>(type: "text", nullable: false),
                     TimeSlotId = table.Column<string>(type: "text", nullable: false),
-                    BookingDate = table.Column<DateOnly>(type: "date", nullable: true),
-                    BookingType = table.Column<string>(type: "text", nullable: false),
-                    FromDate = table.Column<DateOnly>(type: "date", nullable: true),
-                    ToDate = table.Column<DateOnly>(type: "date", nullable: true),
-                    DayOfAWeek = table.Column<string>(type: "text", nullable: true),
+                    BookingId = table.Column<string>(type: "text", nullable: false),
+                    BookingDate = table.Column<DateOnly>(type: "date", nullable: false),
+                    DateOfWeek = table.Column<string>(type: "text", nullable: false),
                     CreatedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
                     LastUpdatedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
                     DeletedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
@@ -306,17 +329,17 @@ namespace BadmintonBookingSystem.DataAccessLayer.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Booking", x => x.Id);
+                    table.PrimaryKey("PK_BookingDetail", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Booking_TimeSlot_TimeSlotId",
-                        column: x => x.TimeSlotId,
-                        principalTable: "TimeSlot",
+                        name: "FK_BookingDetail_Booking_BookingId",
+                        column: x => x.BookingId,
+                        principalTable: "Booking",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_Booking_User_CustomerId",
-                        column: x => x.CustomerId,
-                        principalTable: "User",
+                        name: "FK_BookingDetail_TimeSlot_TimeSlotId",
+                        column: x => x.TimeSlotId,
+                        principalTable: "TimeSlot",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -337,8 +360,13 @@ namespace BadmintonBookingSystem.DataAccessLayer.Migrations
                 column: "CustomerId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Booking_TimeSlotId",
-                table: "Booking",
+                name: "IX_BookingDetail_BookingId",
+                table: "BookingDetail",
+                column: "BookingId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_BookingDetail_TimeSlotId",
+                table: "BookingDetail",
                 column: "TimeSlotId");
 
             migrationBuilder.CreateIndex(
@@ -401,7 +429,7 @@ namespace BadmintonBookingSystem.DataAccessLayer.Migrations
                 name: "BadmintonCenterImage");
 
             migrationBuilder.DropTable(
-                name: "Booking");
+                name: "BookingDetail");
 
             migrationBuilder.DropTable(
                 name: "CourtImage");
@@ -420,6 +448,9 @@ namespace BadmintonBookingSystem.DataAccessLayer.Migrations
 
             migrationBuilder.DropTable(
                 name: "UserTokens");
+
+            migrationBuilder.DropTable(
+                name: "Booking");
 
             migrationBuilder.DropTable(
                 name: "TimeSlot");
