@@ -15,6 +15,7 @@ namespace BadmintonBookingSystem.DataAccessLayer.Entities
         public string Location { get; set; }
         public TimeOnly OperatingTime { get; set; }
         public TimeOnly ClosingTime { get; set; }
+        public string imgAvatar { get; set; }
         public string ManagerId { get; set; }
 
         [ForeignKey(nameof(ManagerId))]

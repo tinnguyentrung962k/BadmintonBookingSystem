@@ -1,4 +1,5 @@
-﻿using BadmintonBookingSystem.DataAccessLayer.Entities;
+﻿using BadmintonBookingSystem.BusinessObject.DTOs.RequestDTOs;
+using BadmintonBookingSystem.DataAccessLayer.Entities;
 using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
@@ -11,8 +12,9 @@ namespace BadmintonBookingSystem.Service.Services.Interface
     public interface IBadmintonCenterService
     {
         Task<IEnumerable<BadmintonCenterEntity>> GetAllBadmintonCenterAsync(int pageIndex, int size);
-        Task CreateBadmintonCenter(BadmintonCenterEntity badmintonCenterEntity, List<IFormFile>? picList);
+        Task CreateBadmintonCenter(BadmintonCenterEntity badmintonCenterEntity, List<IFormFile>? picList, IFormFile avatar);
         Task<BadmintonCenterEntity> GetBadmintonCenterByIdAsync(string centerId);
+        Task<IEnumerable<BadmintonCenterEntity>> SearchBadmintonCentersAsync(BadmintonCenterEntity searchBadmintonCenter);
         Task<BadmintonCenterEntity> UpdateBadmintonInfo(BadmintonCenterEntity badmintonCenterEntity, string centerId, List<IFormFile>? newPicList);
     }
 }
