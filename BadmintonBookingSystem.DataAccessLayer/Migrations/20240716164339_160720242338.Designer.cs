@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace BadmintonBookingSystem.DataAccessLayer.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20240716141341_160720240915")]
-    partial class _160720240915
+    [Migration("20240716164339_160720242338")]
+    partial class _160720242338
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -42,6 +42,10 @@ namespace BadmintonBookingSystem.DataAccessLayer.Migrations
 
                     b.Property<DateTimeOffset?>("DeletedTime")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("ImgAvatar")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<string>("LastUpdatedBy")
                         .HasColumnType("text");

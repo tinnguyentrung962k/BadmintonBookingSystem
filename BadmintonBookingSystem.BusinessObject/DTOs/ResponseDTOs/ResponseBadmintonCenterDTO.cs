@@ -11,6 +11,8 @@ namespace BadmintonBookingSystem.BusinessObject.DTOs.ResponseDTOs
         public string OperatingTime { get; set; }
         public string ClosingTime { get; set; }
         public string ManagerName { get; set; }
+        public string ImgAvatar { get; set; }
+        public bool IsActive { get; set; }
 
         [JsonProperty(PropertyName = "centerImgUrls")]
         [JsonPropertyName("centerImgUrls")]

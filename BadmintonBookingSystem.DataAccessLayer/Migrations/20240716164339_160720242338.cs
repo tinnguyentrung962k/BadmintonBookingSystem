@@ -7,7 +7,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace BadmintonBookingSystem.DataAccessLayer.Migrations
 {
     /// <inheritdoc />
-    public partial class _160720240915 : Migration
+    public partial class _160720242338 : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -85,6 +85,7 @@ namespace BadmintonBookingSystem.DataAccessLayer.Migrations
                     Location = table.Column<string>(type: "text", nullable: false),
                     OperatingTime = table.Column<TimeOnly>(type: "time without time zone", nullable: false),
                     ClosingTime = table.Column<TimeOnly>(type: "time without time zone", nullable: false),
+                    ImgAvatar = table.Column<string>(type: "text", nullable: false),
                     ManagerId = table.Column<string>(type: "text", nullable: false),
                     CreatedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
                     LastUpdatedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),

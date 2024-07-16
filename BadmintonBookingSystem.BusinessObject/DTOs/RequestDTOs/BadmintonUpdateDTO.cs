@@ -25,5 +25,6 @@ namespace BadmintonBookingSystem.BusinessObject.DTOs.RequestDTOs
         [Required(ErrorMessage = "ManagerId is required.")]
         public string ManagerId { get; set; }
         public List<IFormFile>? ImageFiles { get; set; }
+        public IFormFile? ImgAvatar { get; set; }
     }
 }
