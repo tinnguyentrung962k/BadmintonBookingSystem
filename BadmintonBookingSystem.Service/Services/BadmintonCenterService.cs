@@ -1,10 +1,13 @@
-﻿using BadmintonBookingSystem.BusinessObject.DTOs.S3;
+﻿using Amazon.S3.Model;
+using BadmintonBookingSystem.BusinessObject.DTOs.RequestDTOs;
+using BadmintonBookingSystem.BusinessObject.DTOs.S3;
 using BadmintonBookingSystem.BusinessObject.Exceptions;
 using BadmintonBookingSystem.DataAccessLayer.Entities;
 using BadmintonBookingSystem.Repository.Repositories.Interface;
 using BadmintonBookingSystem.Service.Services.Interface;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
 using System;
 using System.Collections;
@@ -29,7 +32,7 @@ namespace BadmintonBookingSystem.Service.Services
             _awsS3Service = awsS3Service;
         }
 
-        public async Task CreateBadmintonCenter(BadmintonCenterEntity badmintonCenterEntity, List<IFormFile>? picList)
+        public async Task CreateBadmintonCenter(BadmintonCenterEntity badmintonCenterEntity, List<IFormFile>? picList, IFormFile avatar)
         {
             try
             {
@@ -44,6 +47,22 @@ namespace BadmintonBookingSystem.Service.Services
                     {
                         throw new Exception("Manager not found"); // Handle appropriately
                     }
+                }
+                if (avatar != null)
+                {
+                    var s3Object = new AwsS3Object();
+                    var memoryStream = new MemoryStream();
+                    await avatar.CopyToAsync(memoryStream);
+                    memoryStream.Position = 0; // Reset stream position to the beginning
+
+                    s3Object = new AwsS3Object
+                    {
+                        InputStream = memoryStream,
+                        Name = avatar.FileName,
+                        BucketName = "badminton-system"
+                    };
+                    var imageURL = await _awsS3Service.UploadFileAsync(s3Object);
+
                 }
 
                 // Add the badminton center entity to the repository
@@ -110,6 +129,27 @@ namespace BadmintonBookingSystem.Service.Services
                 throw new NotFoundException("Not Found!");
             }
             return chosenCenter;
+        }
+
+        public async Task<IEnumerable<BadmintonCenterEntity>> SearchBadmintonCentersAsync(BadmintonCenterEntity searchBadmintonCenter)
+        {
+            var search =  _badmintonCenterRepository.QueryHelper();
+
+            if (!string.IsNullOrEmpty(searchBadmintonCenter.Name))
+            {
+                search = search.Filter(bc => bc.Name.Contains(searchBadmintonCenter.Name));
+            }
+
+            if (!string.IsNullOrEmpty(searchBadmintonCenter.Location))
+            {
+                search = search.Filter(bc => bc.Location.Contains(searchBadmintonCenter.Location));
+            }
+
+            if (searchBadmintonCenter.OperatingTime != default && searchBadmintonCenter.ClosingTime != default)
+            {
+                search = search.Filter(bc => bc.OperatingTime == searchBadmintonCenter.OperatingTime);
+            }
+            return await search.GetAllAsync();
         }
 
         public async Task<BadmintonCenterEntity> UpdateBadmintonInfo(BadmintonCenterEntity badmintonCenterEntity, string centerId, List<IFormFile>? newPicList)

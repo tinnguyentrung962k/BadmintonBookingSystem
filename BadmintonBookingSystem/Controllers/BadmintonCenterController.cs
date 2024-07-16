@@ -41,6 +41,24 @@ namespace BadmintonBookingSystem.Controllers
                 return StatusCode(500, "Server Error.");
             }
         }
+
+        [HttpGet]
+        [Route("api/search-badminton-centers")]
+        public async Task<IActionResult> Search([FromQuery] SearchBadmintonCenterDTO searchBadmintonCenterDTO)
+        {
+            try
+            {
+                var newBcEntity = _mapper.Map<BadmintonCenterEntity>(searchBadmintonCenterDTO);
+                var searchResult = await _badmintonCenterService.SearchBadmintonCentersAsync(newBcEntity);
+                var responseNewBc = _mapper.Map<List<ResponseSearchBadmintonCenterDTO>>(searchResult);
+                return Ok(responseNewBc);
+            }
+            catch (NotFoundException ex)
+            {
+                return BadRequest("Something wrong");
+            }
+        }
+
         [HttpPost]
         [Route("api/badminton-centers")]
         public async Task<ActionResult<ResponseBadmintonCenterDTO>> CreateBadmintonCenter([FromForm]BadmintonCenterCreateDTO badmintonCenterCreateDTO)
