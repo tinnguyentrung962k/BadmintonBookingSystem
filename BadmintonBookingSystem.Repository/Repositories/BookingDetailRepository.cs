@@ -1,4 +1,4 @@
-﻿ using BadmintonBookingSystem.DataAccessLayer.Context;
+﻿using BadmintonBookingSystem.DataAccessLayer.Context;
 using BadmintonBookingSystem.DataAccessLayer.Entities;
 using BadmintonBookingSystem.Repository.Repositories.Interface;
 using System;
@@ -9,9 +9,9 @@ using System.Threading.Tasks;
 
 namespace BadmintonBookingSystem.Repository.Repositories
 {
-    public class BadmintonCenterRepository : GenericRepository<BadmintonCenterEntity, string>, IBadmintonCenterRepository
+    public class BookingDetailRepository : GenericRepository<BookingDetailEntity, string>, IBookingDetailRepository
     {
-        public BadmintonCenterRepository(AppDbContext context) : base(context)
+        public BookingDetailRepository(AppDbContext context) : base(context)
         {
         }
     }

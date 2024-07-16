@@ -9,8 +9,7 @@ namespace BadmintonBookingSystem.BusinessObject.DTOs.RequestDTOs
 {
     public class SingleBookingCreateDTO
     {
-        public string TimeSlotId { get; set; }
+        public List<string> ListTimeSlotId { get; set; }
         public DateOnly BookingDate { get; set; }
-        public BookingType BookingType { get; set; }
     }
 }

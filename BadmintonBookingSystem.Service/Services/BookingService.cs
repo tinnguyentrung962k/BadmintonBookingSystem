@@ -1,4 +1,5 @@
-﻿using BadmintonBookingSystem.BusinessObject.Enum;
+﻿using BadmintonBookingSystem.BusinessObject.DTOs.RequestDTOs;
+using BadmintonBookingSystem.BusinessObject.Enum;
 using BadmintonBookingSystem.BusinessObject.Exceptions;
 using BadmintonBookingSystem.DataAccessLayer.Entities;
 using BadmintonBookingSystem.Repository.Repositories.Interface;
@@ -15,57 +16,70 @@ namespace BadmintonBookingSystem.Service.Services
         private readonly IBookingRepository _bookingRepository;
         private readonly UserManager<UserEntity> _userManager;
         private readonly IUnitOfWork _unitOfWork;
-        public BookingService(IBookingRepository bookingRepository, UserManager<UserEntity> userManager, IUnitOfWork unitOfWork)
+        private readonly IBookingDetailRepository _bookDetailRepository;
+        public BookingService(IBookingRepository bookingRepository, UserManager<UserEntity> userManager, IUnitOfWork unitOfWork, IBookingDetailRepository bookingDetailRepository)
         {
             _bookingRepository = bookingRepository;
             _userManager = userManager;
             _unitOfWork = unitOfWork;
+            _bookDetailRepository = bookingDetailRepository;    
         }
 
-        public async Task CreateBookingInSingleDay(string userId, BookingEntity bookingEntity)
+        public async Task CreateBookingInSingleDay(string userId, SingleBookingCreateDTO singleBookingCreateDTO)
         {
             var user = await _userManager.FindByIdAsync(userId);
             if (user == null)
             {
-                throw new NotFoundException("User Not Found");
+                throw new NotFoundException("User Not Found!");
             }
-            var conflictSingleBooking = await _bookingRepository.QueryHelper()
-                    .Filter(b => b.TimeSlotId.Equals(bookingEntity.TimeSlotId)
-                    && b.BookingDate.Equals(bookingEntity.BookingDate))
-                    .GetAllAsync();
-            if (conflictSingleBooking.Any())
+            foreach (var timeSlotId in singleBookingCreateDTO.ListTimeSlotId)
             {
-                throw new ConflictException("Your chosen time slot has been booked!");
-            }
-            var conflictFixedBooking = await _bookingRepository.QueryHelper()
-                .Filter(b => b.TimeSlotId.Equals(bookingEntity.TimeSlotId)
-                && b.FromDate.HasValue && b.ToDate.HasValue
-                && b.FromDate <= bookingEntity.BookingDate
-                && bookingEntity.BookingDate <= b.ToDate
-                && bookingEntity.BookingDate.Value.DayOfWeek.ToString().Equals(b.DayOfAWeek)
-                && b.BookingType == BookingType.Fixed).GetAllAsync();
+                var existedBookingDetail = await _bookDetailRepository.QueryHelper()
+                .Filter(bd => bd.TimeSlotId.Equals(timeSlotId)
+                && bd.BookingDate.Equals(singleBookingCreateDTO.BookingDate))
+                .Include(bd => bd.TimeSlot)
+                .GetOneAsync();
 
-               
-            if (conflictFixedBooking.Any())
-            {
-                throw new ConflictException("Your chosen time slot has fixed booking before!");
+                if (existedBookingDetail != null)
+                {
+                    var formatDate = singleBookingCreateDTO.BookingDate.ToString("dd/MM/yyyy");
+                    throw new ConflictException($"Time slot from {existedBookingDetail.TimeSlot.StartTime} to {existedBookingDetail.TimeSlot.EndTime} on {formatDate} is booked !");
+                }
+                break;
             }
-
             try
             {
                 _unitOfWork.BeginTransaction();
-                
-                bookingEntity.CustomerId = userId;
-                bookingEntity.DayOfAWeek = bookingEntity.BookingDate.Value.DayOfWeek.ToString();
-                _bookingRepository.Add(bookingEntity);
+                BookingEntity booking = new BookingEntity
+                {
+                    BookingType = BookingType.Single,
+                    CustomerId = user.Id,
+                    FromDate = singleBookingCreateDTO.BookingDate,
+                    ToDate = singleBookingCreateDTO.BookingDate
+                };
+
+                _bookingRepository.Add(booking);
+
+                foreach (var timeSlotId in singleBookingCreateDTO.ListTimeSlotId)
+                {
+                    var bookingDetail = new BookingDetailEntity
+                    {
+                        BookingId = booking.Id,
+                        DateOfWeek = singleBookingCreateDTO.BookingDate.DayOfWeek.ToString(),
+                        TimeSlotId = timeSlotId,
+                        BookingDate = singleBookingCreateDTO.BookingDate
+                    };
+                    _bookDetailRepository.Add(bookingDetail);
+                }
                 await _unitOfWork.SaveChangesAsync();
                 await _unitOfWork.CommitAsync();
             }
             catch (Exception ex)
             {
                 await _unitOfWork.RollbackAsync();
-                throw new Exception("Error while handling booking");
+                throw ex;
             }
         }
     }
+    
 }

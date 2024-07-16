@@ -30,7 +30,7 @@ namespace BadmintonBookingSystem.Controllers
             {
                 var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
                 var booking = _mapper.Map<BookingEntity>(singleBookingCreateDTO);
-                await _bookingService.CreateBookingInSingleDay(userId, booking);
+                await _bookingService.CreateBookingInSingleDay(userId, singleBookingCreateDTO);
                 return StatusCode(201, "Booking Successfully!");
 
             }
@@ -46,7 +46,7 @@ namespace BadmintonBookingSystem.Controllers
             {
                 return StatusCode(500, "Server Error");
             }
-            
+
 
         }
     }

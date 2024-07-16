@@ -16,14 +16,11 @@ namespace BadmintonBookingSystem.DataAccessLayer.Entities
         
         [ForeignKey(nameof(CustomerId))]
         public UserEntity Customer { get; set; }
-        public string TimeSlotId { get; set; }
-
-        [ForeignKey(nameof(TimeSlotId))]
-        public TimeSlotEntity TimeSlot { get; set; }
-        public DateOnly? BookingDate { get; set; }
         public BookingType BookingType { get; set; }
-        public DateOnly? FromDate { get; set; }
-        public DateOnly? ToDate { get; set; }
-        public string? DayOfAWeek { get; set; }
+        public DateOnly FromDate { get; set; }
+        public DateOnly ToDate { get; set; }
+        public IEnumerable<BookingDetailEntity> BookingDetails { get; set; }
+        
+
     }
 }

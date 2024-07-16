@@ -14,6 +14,7 @@ namespace BadmintonBookingSystem.Configuration
             services.AddScoped<ICourtRepository, CourtRepository>();
             services.AddScoped<ITimeSlotRepository, TimeSlotRepository>();
             services.AddScoped<IBookingRepository, BookingRepository>();
+            services.AddScoped<IBookingDetailRepository, BookingDetailRepository>();
 
             return services;
         }
