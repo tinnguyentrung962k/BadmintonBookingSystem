@@ -15,6 +15,7 @@ namespace BadmintonBookingSystem.Configuration.AutoMapper
             CourtProfile();
             TimeSlotProfile();
             BookingProfile();
+            RoleProfile();
         }
         private void BadmintonCenterProfile() {
             CreateMap<BadmintonCenterEntity, ResponseBadmintonCenterDTO>()
@@ -72,7 +73,11 @@ namespace BadmintonBookingSystem.Configuration.AutoMapper
             CreateMap<BookingEntity, ResponseBookingHeaderAndBookingDetail>()
                 .ForMember(c=>c.BookingHeader, opt => opt.MapFrom(c => c))
                 .ForMember(c=>c.BookingDetails,opt => opt.MapFrom(c => c.BookingDetails));
-
+        }
+        private void RoleProfile()
+        {
+            CreateMap<RoleEntity,RoleResponseDTO>()
+                .ForMember(c => c.RoleName, opt => opt.MapFrom(c=>c.Name));
         }
     }
 }
