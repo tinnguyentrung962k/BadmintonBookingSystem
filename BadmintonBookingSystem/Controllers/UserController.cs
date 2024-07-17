@@ -46,6 +46,24 @@ namespace BadmintonBookingSystem.Controllers
                 return StatusCode(500, "Server Error.");
             }
         }
+        [HttpGet]
+        [Route("api/users/managers")]
+        public async Task<ActionResult<List<ResponseUserDTO>>> GetAllUsersManager(int pageIndex, int pageSize)
+        {
+            try
+            {
+                var userList = _mapper.Map<List<ResponseUserDTO>>(await _userService.GetUsersManager(pageIndex, pageSize));
+                return Ok(userList);
+            }
+            catch (NotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Server Error.");
+            }
+        }
         [HttpPut]
         [Route("api/users/update/{userId}")]
         public async Task<ActionResult> UpdateUser(string userId, [FromBody] ResponseUpdateUserDTO updateUserDto)

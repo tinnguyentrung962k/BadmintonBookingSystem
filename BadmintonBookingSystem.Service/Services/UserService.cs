@@ -255,5 +255,14 @@ namespace BadmintonBookingSystem.Service.Services
                 throw;
             }
         }
+        public async Task<IEnumerable<UserEntity>> GetUsersManager(int pageIndex, int pageSize)
+        {
+            var userManagers = await _userManager.GetUsersAsyncInASpecificRole(RoleConstants.MANAGER,pageIndex, pageSize);
+            if (!userManagers.Any())
+            {
+                throw new NotFoundException("Empty List!");
+            }
+            return userManagers;
+        }
     }
 }
