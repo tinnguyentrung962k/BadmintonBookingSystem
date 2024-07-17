@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using BadmintonBookingSystem.BusinessObject.DTOs.RequestDTOs;
 using BadmintonBookingSystem.BusinessObject.DTOs.ResponseDTOs;
 using BadmintonBookingSystem.BusinessObject.Exceptions;
 using BadmintonBookingSystem.Service.Services;
@@ -42,7 +43,7 @@ namespace BadmintonBookingSystem.Controllers
             }
         }
         [HttpPut]
-        [Route("api/users/{userId}")]
+        [Route("api/users/Update/{userId}")]
         public async Task<ActionResult> UpdateUser(string userId, [FromBody] ResponseUpdateUserDTO updateUserDto)
         {
             try
@@ -61,11 +62,11 @@ namespace BadmintonBookingSystem.Controllers
         }
         [HttpPut]
         [Route("api/users/Deactive/{userId}")]
-        public async Task<ActionResult> DeactiveUser(string userId, bool status)
+        public async Task<ActionResult> DeactiveUser(string userId )
         {
             try
             {
-                await _userService.DeactiveUser(userId, status);
+                await _userService.DeactiveUser(userId);
                 return Ok();
             }
             catch (NotFoundException ex)
@@ -77,13 +78,18 @@ namespace BadmintonBookingSystem.Controllers
                 return StatusCode(500, "Server Error.");
             }
         }
-        [HttpPut]
+        [HttpGet]
         [Route("api/users/Search")]
-        public async Task<ActionResult> SearchUser(int pageSize, int pageIndex, string? name, string? email, string? phoneNumber)
+        public async Task<ActionResult> SearchUser([FromQuery]int pageSize, [FromQuery] int pageIndex, [FromQuery] SearchUserDTO searchUser)
         {
             try
             {
-                var result = _mapper.Map<List<ResponseUserDTO>>(await _userService.SearchGetUsersList (pageSize, pageIndex, name, email, phoneNumber));
+                if (searchUser == null)
+                {
+                    return BadRequest("Search criteria is required.");
+                }
+                var users = await _userService.SearchGetUsersList(pageSize, pageIndex, searchUser.FullName, searchUser.Email, searchUser.PhoneNumber);
+                var result = _mapper.Map<List<ResponseUserDTO>>(users);
                 return Ok(result);
             }
             catch (NotFoundException ex)
@@ -92,7 +98,7 @@ namespace BadmintonBookingSystem.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, "Server Error.");
+                return StatusCode(500, ex);
             }
         }
     }

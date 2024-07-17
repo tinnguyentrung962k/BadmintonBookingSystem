@@ -1,4 +1,5 @@
 ﻿using BadmintonBookingSystem.BusinessObject.Constants;
+using BadmintonBookingSystem.BusinessObject.DTOs.RequestDTOs;
 using BadmintonBookingSystem.BusinessObject.DTOs.ResponseDTOs;
 using BadmintonBookingSystem.BusinessObject.Exceptions;
 using BadmintonBookingSystem.DataAccessLayer.Entities;
@@ -176,14 +177,22 @@ namespace BadmintonBookingSystem.Service.Services
             }
         }
 
-        public async Task DeactiveUser(string userId, bool status)
+        public async Task DeactiveUser(string userId)
         {
             var user = await _userManager.FindByIdAsync(userId);
             if (user == null)
             {
                 throw new NotFoundException("Không tìm thấy người dùng!");
             }
-            user.EmailConfirmed = status;
+            var status = user.EmailConfirmed;
+            if (status == true)
+            {
+                user.EmailConfirmed = false;
+            }
+            else
+            {
+                user.EmailConfirmed = true;
+            }
             var result = await _userManager.UpdateAsync(user);
             if (!result.Succeeded)
             {
@@ -213,7 +222,7 @@ namespace BadmintonBookingSystem.Service.Services
             if (phoneNumber != null)
             {
                 var getUserByPhoneNumber = allUser
-                    .Where(s => s.PhoneNumber.Contains(phoneNumber, StringComparison.OrdinalIgnoreCase)).ToList();
+                    .Where(s => s.PhoneNumber != null && s.PhoneNumber.Contains(phoneNumber, StringComparison.OrdinalIgnoreCase)).ToList();
                 result.AddRange(getUserByPhoneNumber);
             }
             if (pageSize < 0 || pageIndex < 0)
@@ -221,9 +230,9 @@ namespace BadmintonBookingSystem.Service.Services
                 pageIndex = 0;
                 pageSize = 0;
             }
-            if(pageIndex != 0 || pageSize != 0)
+            if (pageIndex != 0 || pageSize != 0)
             {
-                return result.Skip(pageIndex-1*pageSize).Take(pageSize);
+                return result.Skip(pageIndex - 1 * pageSize).Take(pageSize);
             }
             return result;
         }
