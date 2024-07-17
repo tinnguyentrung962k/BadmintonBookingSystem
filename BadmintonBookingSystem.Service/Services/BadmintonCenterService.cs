@@ -253,7 +253,7 @@ namespace BadmintonBookingSystem.Service.Services
             return badmintonCenter;
         }
 
-        public async Task DeactiveBadmintonCenter(string centerId)
+        public async Task ToggleStatusBadmintonCenter(string centerId)
         {
             var center = await _badmintonCenterRepository.QueryHelper()
                 .Filter(c=>c.Id.Equals(centerId))
@@ -262,17 +262,24 @@ namespace BadmintonBookingSystem.Service.Services
             if (center == null) {
                 throw new NotFoundException("Badminton center not found !");
             }
-            center.IsActive = false;
-            center.LastUpdatedTime = DateTime.UtcNow;
-            _badmintonCenterRepository.Update(center);
-            if (center.Courts.Any())
+            if (center.IsActive == true)
             {
-                foreach (var court in center.Courts)
+                center.IsActive = false;
+                if (center.Courts.Any())
                 {
-                    court.IsActive = false;
-                    _courtRepository.Update(court);
+                    foreach (var court in center.Courts)
+                    {
+                        court.IsActive = false;
+                        _courtRepository.Update(court);
+                    }
                 }
             }
+            if (center.IsActive == false)
+            {
+                center.IsActive = true;
+            }
+            center.LastUpdatedTime = DateTime.UtcNow;
+            _badmintonCenterRepository.Update(center);
             await _unitOfWork.SaveChangesAsync();
         }
     }

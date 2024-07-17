@@ -125,12 +125,12 @@ namespace BadmintonBookingSystem.Controllers
                 return BadRequest("Update Failed !");
             }
         }
-        [HttpDelete("api/badminton-centers/{id}")]
-        public async Task<ActionResult<ResponseBadmintonCenterDTO>> DeactiveCenter([FromRoute] string id)
+        [HttpPut("api/badminton-centers-toggle/{id}")]
+        public async Task<ActionResult<ResponseBadmintonCenterDTO>> ToggleStatusCenter([FromRoute] string id)
         {
             try
             {
-                await _badmintonCenterService.DeactiveBadmintonCenter(id);
+                await _badmintonCenterService.ToggleStatusBadmintonCenter(id);
                 var deactCenter = await _badmintonCenterService.GetBadmintonCenterByIdAsync(id);
                 var deactCenterResponse = _mapper.Map<ResponseBadmintonCenterDTO>(deactCenter);
                 return Ok(deactCenterResponse);
