@@ -29,11 +29,11 @@ namespace BadmintonBookingSystem.Configuration
             }
 
             // Create scope to migrate database
-            using (var scope = services.BuildServiceProvider().CreateScope())
+/*            using (var scope = services.BuildServiceProvider().CreateScope())
             {
                 var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
                 context.Database.Migrate();
-            }
+            }*/
 
             return services;
         }
