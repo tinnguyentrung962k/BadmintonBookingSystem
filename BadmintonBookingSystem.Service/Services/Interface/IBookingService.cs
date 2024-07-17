@@ -11,6 +11,6 @@ namespace BadmintonBookingSystem.Service.Services.Interface
 {
     public interface IBookingService
     {
-        Task CreateBookingInSingleDay(string userId, SingleBookingCreateDTO singleBookingCreateDTO);
+        Task<BookingEntity>CreateBookingInSingleDay(string userId, SingleBookingCreateDTO singleBookingCreateDTO);
     }
 }

@@ -2,6 +2,7 @@
 using BadmintonBookingSystem.BusinessObject.Enum;
 using BadmintonBookingSystem.BusinessObject.Exceptions;
 using BadmintonBookingSystem.DataAccessLayer.Entities;
+using BadmintonBookingSystem.Repository.Repositories;
 using BadmintonBookingSystem.Repository.Repositories.Interface;
 using BadmintonBookingSystem.Service.Services.Interface;
 using Microsoft.AspNetCore.Http;
@@ -17,15 +18,17 @@ namespace BadmintonBookingSystem.Service.Services
         private readonly UserManager<UserEntity> _userManager;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IBookingDetailRepository _bookDetailRepository;
-        public BookingService(IBookingRepository bookingRepository, UserManager<UserEntity> userManager, IUnitOfWork unitOfWork, IBookingDetailRepository bookingDetailRepository)
+        private readonly ITimeSlotRepository _timeSlotRepository;
+        public BookingService(IBookingRepository bookingRepository, UserManager<UserEntity> userManager, IUnitOfWork unitOfWork, IBookingDetailRepository bookingDetailRepository, ITimeSlotRepository timeSlotRepository)
         {
             _bookingRepository = bookingRepository;
             _userManager = userManager;
             _unitOfWork = unitOfWork;
-            _bookDetailRepository = bookingDetailRepository;    
+            _bookDetailRepository = bookingDetailRepository;
+            _timeSlotRepository = timeSlotRepository;
         }
 
-        public async Task CreateBookingInSingleDay(string userId, SingleBookingCreateDTO singleBookingCreateDTO)
+        public async Task<BookingEntity> CreateBookingInSingleDay(string userId, SingleBookingCreateDTO singleBookingCreateDTO)
         {
             var user = await _userManager.FindByIdAsync(userId);
             if (user == null)
@@ -55,11 +58,14 @@ namespace BadmintonBookingSystem.Service.Services
                     BookingType = BookingType.Single,
                     CustomerId = user.Id,
                     FromDate = singleBookingCreateDTO.BookingDate,
-                    ToDate = singleBookingCreateDTO.BookingDate
+                    ToDate = singleBookingCreateDTO.BookingDate,
+                    Customer = user,
+                    
                 };
 
                 _bookingRepository.Add(booking);
 
+                //var bookingDetailList = new List<BookingDetailEntity>(); 
                 foreach (var timeSlotId in singleBookingCreateDTO.ListTimeSlotId)
                 {
                     var bookingDetail = new BookingDetailEntity
@@ -67,12 +73,18 @@ namespace BadmintonBookingSystem.Service.Services
                         BookingId = booking.Id,
                         DateOfWeek = singleBookingCreateDTO.BookingDate.DayOfWeek.ToString(),
                         TimeSlotId = timeSlotId,
-                        BookingDate = singleBookingCreateDTO.BookingDate
+                        TimeSlot = await _timeSlotRepository.GetOneAsync(timeSlotId),
+                        BookingDate = singleBookingCreateDTO.BookingDate,
+                        Booking = booking
+
                     };
                     _bookDetailRepository.Add(bookingDetail);
+                    //bookingDetailList.Add(bookingDetail);
                 }
+                //booking.BookingDetails = bookingDetailList;
                 await _unitOfWork.SaveChangesAsync();
                 await _unitOfWork.CommitAsync();
+                return booking;
             }
             catch (Exception ex)
             {
@@ -80,6 +92,7 @@ namespace BadmintonBookingSystem.Service.Services
                 throw ex;
             }
         }
+        
     }
     
 }
