@@ -121,7 +121,7 @@ namespace BadmintonBookingSystem.Service.Services
         public async Task<IEnumerable<BadmintonCenterEntity>> GetAllActiveBadmintonCentersAsync(int pageIndex, int size)
         {
             var badmintonCenter = await _badmintonCenterRepository.QueryHelper()
-                .Filter(c=>c.IsActive == true)
+                .Filter(c => c.IsActive == true)
                 .Include(x => x.Manager)
                 .Include(x => x.BadmintonCenterImages)
                 .GetPagingAsync(pageIndex, size);
@@ -198,6 +198,7 @@ namespace BadmintonBookingSystem.Service.Services
             badmintonCenter.Location = badmintonCenterEntity.Location;
             badmintonCenter.ManagerId = badmintonCenterEntity.ManagerId;
             badmintonCenter.OperatingTime = badmintonCenterEntity.OperatingTime;
+            badmintonCenter.ClosingTime = badmintonCenterEntity.ClosingTime;
             badmintonCenter.LastUpdatedTime = DateTimeOffset.UtcNow;
             
             if (newAvatar != null)

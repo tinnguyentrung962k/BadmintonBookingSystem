@@ -1,4 +1,5 @@
 ﻿using BadmintonBookingSystem.BusinessObject.Constants;
+using BadmintonBookingSystem.BusinessObject.DTOs.RequestDTOs;
 using BadmintonBookingSystem.BusinessObject.DTOs.ResponseDTOs;
 using BadmintonBookingSystem.BusinessObject.Exceptions;
 using BadmintonBookingSystem.DataAccessLayer.Entities;
@@ -157,6 +158,111 @@ namespace BadmintonBookingSystem.Service.Services
                 throw new NotFoundException("Không có người dùng nào trong danh sách");
             }
             return userList;
+        }
+        public async Task UpdateUser(string userId, string fullName, string phoneNumber) 
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+            {
+                throw new NotFoundException("Không tìm thấy người dùng!");
+            }
+
+            user.FullName = fullName;
+            user.PhoneNumber = phoneNumber;
+            var result = await _userManager.UpdateAsync(user);
+
+            if (!result.Succeeded)
+            {
+                throw new Exception("Cập nhật người dùng thất bại.");
+            }
+        }
+
+        public async Task DeactiveUser(string userId)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+            {
+                throw new NotFoundException("Không tìm thấy người dùng!");
+            }
+            var status = user.EmailConfirmed;
+            if (status == true)
+            {
+                user.EmailConfirmed = false;
+            }
+            else
+            {
+                user.EmailConfirmed = true;
+            }
+            var result = await _userManager.UpdateAsync(user);
+            if (!result.Succeeded)
+            {
+                throw new Exception("Cập nhật người dùng thất bại.");
+            }
+        }
+
+        public async Task<IEnumerable<UserEntity>> SearchGetUsersList(int pageIndex, int pageSize, SearchUserDTO searchUserDTO)
+        {
+            var allUser = await _userManager.GetUsersWithRoleWithoutPaginationAsync();
+            if (!string.IsNullOrEmpty(searchUserDTO.FullName))
+            {
+                allUser = allUser
+                    .Where(s => s.FullName.Contains(searchUserDTO.FullName, StringComparison.OrdinalIgnoreCase)).ToList();
+            }
+
+            if (!string.IsNullOrEmpty(searchUserDTO.Email))
+            {
+                allUser = allUser
+                    .Where(s => s.Email.Contains(searchUserDTO.Email, StringComparison.OrdinalIgnoreCase)).ToList();
+            }
+
+            if (!string.IsNullOrEmpty(searchUserDTO.PhoneNumber))
+            {
+                allUser = allUser
+                    .Where(s => !string.IsNullOrEmpty(s.PhoneNumber) && s.PhoneNumber.Contains(searchUserDTO.PhoneNumber, StringComparison.OrdinalIgnoreCase)).ToList();
+            }
+
+            var pagedUsers = await _userManager.GetPagingAsync(allUser,pageIndex,pageSize);
+            return pagedUsers;
+        }
+
+        public async Task<UserEntity> AddNewUser(UserEntity newUser, string password, string roleName)
+        {
+            var existUser = await _userManager.FindByEmailAsync(newUser.Email);
+            if (existUser != null)
+            {
+                throw new ExistedEmailException("Email này đã tồn tại.");
+            }
+
+            try
+            {
+                _unitOfWork.BeginTransaction();
+                newUser.UserName = newUser.Email;
+                newUser.EmailConfirmed = true;
+                var result = await _userManager.CreateAsync(newUser, password);
+                if (!result.Succeeded)
+                {
+                    throw new InvalidRegisterException("Thêm thất bại!");
+                }
+                await _userManager.AddToRoleAsync(newUser, roleName);
+                await _unitOfWork.SaveChangesAsync();
+                await _unitOfWork.CommitAsync();
+                return newUser;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error while register");
+                await _unitOfWork.RollbackAsync();
+                throw;
+            }
+        }
+        public async Task<IEnumerable<UserEntity>> GetUsersManager(int pageIndex, int pageSize)
+        {
+            var userManagers = await _userManager.GetUsersAsyncInASpecificRole(RoleConstants.MANAGER,pageIndex, pageSize);
+            if (!userManagers.Any())
+            {
+                throw new NotFoundException("Empty List!");
+            }
+            return userManagers;
         }
     }
 }

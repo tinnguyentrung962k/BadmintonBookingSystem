@@ -24,7 +24,7 @@ namespace BadmintonBookingSystem.Controllers
             _mapper = mapper;
         }
 
-        [HttpPost("api/bookings")]
+        [HttpPost("api/bookings/single-booking")]
         [Authorize(Roles = RoleConstants.CUSTOMER)]
         public async Task<ActionResult<ResponseBookingHeaderAndBookingDetail>> CreateBookingSingle(SingleBookingCreateDTO singleBookingCreateDTO)
         {
