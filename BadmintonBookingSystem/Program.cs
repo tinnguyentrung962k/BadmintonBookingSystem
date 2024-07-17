@@ -41,7 +41,7 @@ if (app.Environment.IsDevelopment())
 }
 
 // Seed identity data if needed
-//app.SeedIdentity();
+app.SeedIdentity();
 app.UseSecurityConfiguration();
 app.MapControllers();
 
