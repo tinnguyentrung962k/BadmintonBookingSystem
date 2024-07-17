@@ -61,6 +61,18 @@ namespace BadmintonBookingSystem.Configuration.AutoMapper
         private void BookingProfile() 
         {
             CreateMap<SingleBookingCreateDTO, BookingEntity>().ReverseMap();
+            CreateMap<BookingEntity, ResponseBookingHeaderDTO>()
+                .ForMember(c => c.CustomerId, opt => opt.MapFrom(c => c.Customer.Id))
+                .ForMember(c => c.CustomerName, opt => opt.MapFrom(c => c.Customer.FullName))
+                .ForMember(c => c.CustomerEmail, opt => opt.MapFrom(c => c.Customer.Email))
+                .ForMember(c => c.CustomerPhone, opt => opt.MapFrom(c => c.Customer.PhoneNumber));
+            CreateMap<BookingDetailEntity, ResponseBookingDetailDTO>()
+                .ForMember(c => c.StartTime, opt => opt.MapFrom(c => c.TimeSlot.StartTime))
+                .ForMember(c => c.EndTime, opt => opt.MapFrom(c => c.TimeSlot.EndTime));
+            CreateMap<BookingEntity, ResponseBookingHeaderAndBookingDetail>()
+                .ForMember(c=>c.BookingHeader, opt => opt.MapFrom(c => c))
+                .ForMember(c=>c.BookingDetails,opt => opt.MapFrom(c => c.BookingDetails));
+
         }
     }
 }
