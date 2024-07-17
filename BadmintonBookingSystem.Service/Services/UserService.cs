@@ -1,4 +1,5 @@
 ﻿using BadmintonBookingSystem.BusinessObject.Constants;
+using BadmintonBookingSystem.BusinessObject.DTOs.RequestDTOs;
 using BadmintonBookingSystem.BusinessObject.DTOs.ResponseDTOs;
 using BadmintonBookingSystem.BusinessObject.Exceptions;
 using BadmintonBookingSystem.DataAccessLayer.Entities;
@@ -157,6 +158,83 @@ namespace BadmintonBookingSystem.Service.Services
                 throw new NotFoundException("Không có người dùng nào trong danh sách");
             }
             return userList;
+        }
+        public async Task UpdateUser(string userId, string fullName, string phoneNumber) 
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+            {
+                throw new NotFoundException("Không tìm thấy người dùng!");
+            }
+
+            user.FullName = fullName;
+            user.PhoneNumber = phoneNumber;
+            var result = await _userManager.UpdateAsync(user);
+
+            if (!result.Succeeded)
+            {
+                throw new Exception("Cập nhật người dùng thất bại.");
+            }
+        }
+
+        public async Task DeactiveUser(string userId)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+            {
+                throw new NotFoundException("Không tìm thấy người dùng!");
+            }
+            var status = user.EmailConfirmed;
+            if (status == true)
+            {
+                user.EmailConfirmed = false;
+            }
+            else
+            {
+                user.EmailConfirmed = true;
+            }
+            var result = await _userManager.UpdateAsync(user);
+            if (!result.Succeeded)
+            {
+                throw new Exception("Cập nhật người dùng thất bại.");
+            }
+        }
+
+        public async Task<IEnumerable<UserEntity>> SearchGetUsersList(int pageIndex, int pageSize, string name, string email, string phoneNumber)
+        {
+            List<UserEntity> result = new List<UserEntity>();
+            var allUser = (await _userManager.Users.Include(it => it.UserRoles)
+                .ThenInclude(r => r.Role).ToListAsync());
+            if (name != null)
+            {
+                var getUserByName = allUser
+                    .Where(s => s.FullName.Contains(name, StringComparison.OrdinalIgnoreCase)).ToList();
+                result.AddRange(getUserByName);
+            }
+
+            if (email != null)
+            {
+                var getUserByEmail = allUser
+                    .Where(s => s.Email.Contains(email, StringComparison.OrdinalIgnoreCase)).ToList();
+                result.AddRange(getUserByEmail);
+            }
+
+            if (phoneNumber != null)
+            {
+                var getUserByPhoneNumber = allUser
+                    .Where(s => s.PhoneNumber != null && s.PhoneNumber.Contains(phoneNumber, StringComparison.OrdinalIgnoreCase)).ToList();
+                result.AddRange(getUserByPhoneNumber);
+            }
+            if (pageSize < 0 || pageIndex < 0)
+            {
+                pageIndex = 0;
+                pageSize = 0;
+            }
+            if (pageIndex != 0 || pageSize != 0)
+            {
+                return result.Skip(pageIndex - 1 * pageSize).Take(pageSize);
+            }
+            return result;
         }
     }
 }
