@@ -256,13 +256,16 @@ namespace BadmintonBookingSystem.Service.Services
         public async Task ToggleStatusBadmintonCenter(string centerId)
         {
             var center = await _badmintonCenterRepository.QueryHelper()
-                .Filter(c=>c.Id.Equals(centerId))
-                .Include(c=>c.Courts)
+                .Filter(c => c.Id.Equals(centerId))
+                .Include(c => c.Courts)
                 .GetOneAsync();
-            if (center == null) {
-                throw new NotFoundException("Badminton center not found !");
+
+            if (center == null)
+            {
+                throw new NotFoundException("Badminton center not found!");
             }
-            if (center.IsActive == true)
+
+            if (center.IsActive)
             {
                 center.IsActive = false;
                 if (center.Courts.Any())
@@ -274,10 +277,11 @@ namespace BadmintonBookingSystem.Service.Services
                     }
                 }
             }
-            if (center.IsActive == false)
+            else
             {
                 center.IsActive = true;
             }
+
             center.LastUpdatedTime = DateTime.UtcNow;
             _badmintonCenterRepository.Update(center);
             await _unitOfWork.SaveChangesAsync();
