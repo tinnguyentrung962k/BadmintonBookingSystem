@@ -48,6 +48,31 @@ namespace BadmintonBookingSystem.Controllers
             {
                 return StatusCode(500, "Server Error");
             }
+        }
+        [HttpPost("api/bookings/fixed-booking")]
+        [Authorize(Roles = RoleConstants.CUSTOMER)]
+        public async Task<ActionResult<ResponseBookingHeaderAndBookingDetail>> CreateBookingFixed(FixedBookingCreateDTO fixedBookingCreateDTO)
+        {
+            try
+            {
+                var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
+                var booking = _mapper.Map<BookingEntity>(await _bookingService.CreateBookingFixed(userId, fixedBookingCreateDTO));
+                var bookingResponse = _mapper.Map<ResponseBookingHeaderAndBookingDetail>(booking);
+                return StatusCode(201, bookingResponse);
+
+            }
+            catch (NotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (ConflictException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Server Error");
+            }
 
 
         }

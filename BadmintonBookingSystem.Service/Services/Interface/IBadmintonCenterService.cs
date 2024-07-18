@@ -18,5 +18,6 @@ namespace BadmintonBookingSystem.Service.Services.Interface
         Task<BadmintonCenterEntity> UpdateBadmintonInfo(BadmintonCenterEntity badmintonCenterEntity, string centerId, List<IFormFile>? newPicList, IFormFile? newAvatar);
         Task ToggleStatusBadmintonCenter(string centerId);
         Task<IEnumerable<BadmintonCenterEntity>> GetAllActiveBadmintonCentersAsync(int pageIndex, int size);
+        Task<IEnumerable<BadmintonCenterEntity>> GetAllBadmintonCenterByManagerIdAsync(string managerId);
     }
 }

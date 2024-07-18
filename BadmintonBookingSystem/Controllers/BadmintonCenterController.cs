@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using BadmintonBookingSystem.BusinessObject.Constants;
 using BadmintonBookingSystem.BusinessObject.DTOs.RequestDTOs;
 using BadmintonBookingSystem.BusinessObject.DTOs.ResponseDTOs;
 using BadmintonBookingSystem.BusinessObject.Exceptions;
@@ -33,6 +34,26 @@ namespace BadmintonBookingSystem.Controllers
                 return Ok(badmintonCenter);
             }
             catch (NotFoundException ex) 
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Server Error.");
+            }
+        }
+        [HttpGet]
+        [Authorize(Roles = RoleConstants.MANAGER)]
+        [Route("api/badminton-centers/manager")]
+        public async Task<ActionResult<List<ResponseBadmintonCenterDTO>>> GetAllBadmintonCentersByManager()
+        {
+            try
+            {
+                var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
+                var badmintonCenter = _mapper.Map<List<ResponseBadmintonCenterDTO>>(await _badmintonCenterService.GetAllBadmintonCenterByManagerIdAsync(userId));
+                return Ok(badmintonCenter);
+            }
+            catch (NotFoundException ex)
             {
                 return NotFound(ex.Message);
             }

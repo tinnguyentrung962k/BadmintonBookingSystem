@@ -65,13 +65,12 @@ namespace BadmintonBookingSystem.Service.Services
 
                 _bookingRepository.Add(booking);
 
-                //var bookingDetailList = new List<BookingDetailEntity>(); 
                 foreach (var timeSlotId in singleBookingCreateDTO.ListTimeSlotId)
                 {
                     var bookingDetail = new BookingDetailEntity
                     {
                         BookingId = booking.Id,
-                        DateOfWeek = singleBookingCreateDTO.BookingDate.DayOfWeek.ToString(),
+                        DayOfAWeek = (DayOfAWeek)singleBookingCreateDTO.BookingDate.DayOfWeek,
                         TimeSlotId = timeSlotId,
                         TimeSlot = await _timeSlotRepository.GetOneAsync(timeSlotId),
                         BookingDate = singleBookingCreateDTO.BookingDate,
@@ -79,9 +78,7 @@ namespace BadmintonBookingSystem.Service.Services
 
                     };
                     _bookDetailRepository.Add(bookingDetail);
-                    //bookingDetailList.Add(bookingDetail);
                 }
-                //booking.BookingDetails = bookingDetailList;
                 await _unitOfWork.SaveChangesAsync();
                 await _unitOfWork.CommitAsync();
                 return booking;
@@ -91,6 +88,84 @@ namespace BadmintonBookingSystem.Service.Services
                 await _unitOfWork.RollbackAsync();
                 throw ex;
             }
+        }
+        public async Task<BookingEntity> CreateBookingFixed(string userId, FixedBookingCreateDTO fixedBookingCreateDTO)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+            {
+                throw new NotFoundException("User Not Found!");
+            }
+
+            var bookingDates = new List<DateOnly>();
+            for (var date = fixedBookingCreateDTO.FromDate; date <= fixedBookingCreateDTO.ToDate; date = date.AddDays(1))
+            {
+                if (date.DayOfWeek == (DayOfWeek)(((int)fixedBookingCreateDTO.DayOfAWeek) % 7))
+                {
+                    bookingDates.Add(date);
+                }
+            }
+
+            foreach (var timeSlotId in fixedBookingCreateDTO.ListTimeSlotId)
+            {
+                var existedBookingDetail = await _bookDetailRepository.QueryHelper()
+                .Filter(bd => bd.TimeSlotId.Equals(timeSlotId)
+                && bd.BookingDate >= fixedBookingCreateDTO.FromDate 
+                && bd.BookingDate <= fixedBookingCreateDTO.ToDate
+                && bd.DayOfAWeek.Equals(fixedBookingCreateDTO.DayOfAWeek))
+                .Include(bd => bd.TimeSlot)
+                .GetOneAsync();
+
+                if (existedBookingDetail != null)
+                {
+                    var formatDate = existedBookingDetail.BookingDate.ToString("dd/MM/yyyy");
+                    throw new ConflictException($"Time slot from {existedBookingDetail.TimeSlot.StartTime} to {existedBookingDetail.TimeSlot.EndTime} on {formatDate} is booked !");
+                }
+                break;
+            }
+            try
+            {
+                _unitOfWork.BeginTransaction();
+                BookingEntity booking = new BookingEntity
+                {
+                    BookingType = BookingType.Single,
+                    CustomerId = user.Id,
+                    FromDate = fixedBookingCreateDTO.FromDate,
+                    ToDate = fixedBookingCreateDTO.ToDate,
+                    Customer = user,
+
+                };
+
+                _bookingRepository.Add(booking);
+
+                foreach (var timeSlotId in fixedBookingCreateDTO.ListTimeSlotId)
+                {
+                    foreach (var bookingDate in bookingDates)
+                    {
+                        var bookingDetail = new BookingDetailEntity
+                        {
+                            BookingId = booking.Id,
+                            DayOfAWeek = fixedBookingCreateDTO.DayOfAWeek,
+                            TimeSlotId = timeSlotId,
+                            TimeSlot = await _timeSlotRepository.GetOneAsync(timeSlotId),
+                            BookingDate = bookingDate,
+                            Booking = booking
+
+                        };
+                        _bookDetailRepository.Add(bookingDetail);
+                    }
+                        
+                }
+                await _unitOfWork.SaveChangesAsync();
+                await _unitOfWork.CommitAsync();
+                return booking;
+            }
+            catch (Exception ex)
+            {
+                await _unitOfWork.RollbackAsync();
+                throw ex;
+            }
+
         }
         
     }

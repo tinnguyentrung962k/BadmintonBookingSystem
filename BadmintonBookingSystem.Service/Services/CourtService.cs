@@ -161,5 +161,30 @@ namespace BadmintonBookingSystem.Service.Services
             await _unitOfWork.SaveChangesAsync();
             return chosenCourt;
         }
+
+        public async Task ToggleStatusCourt(string courtId)
+        {
+            var court = await _courtRepository.QueryHelper()
+                .Filter(c => c.Id.Equals(courtId))
+                .GetOneAsync();
+
+            if (court == null)
+            {
+                throw new NotFoundException("Badminton center not found!");
+            }
+
+            if (court.IsActive)
+            {
+                court.IsActive = false;
+            }
+            else
+            {
+                court.IsActive = true;
+            }
+
+            court.LastUpdatedTime = DateTime.UtcNow;
+            _courtRepository.Update(court);
+            await _unitOfWork.SaveChangesAsync();
+        }
     }
 }
