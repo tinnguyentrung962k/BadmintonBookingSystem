@@ -15,5 +15,6 @@ namespace BadmintonBookingSystem.Service.Services.Interface
         Task<CourtEntity> GetCourtById(string courtId);
         Task CreateNewCourt(CourtEntity entity, List<IFormFile> picList);
         Task<CourtEntity> UpdateCourt (CourtEntity entity,string courtId, List<IFormFile> newPicList);
+        Task ToggleStatusCourt(string courtId);
     }
 }

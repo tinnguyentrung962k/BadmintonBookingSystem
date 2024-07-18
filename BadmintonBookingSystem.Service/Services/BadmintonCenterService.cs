@@ -287,5 +287,18 @@ namespace BadmintonBookingSystem.Service.Services
             _badmintonCenterRepository.Update(center);
             await _unitOfWork.SaveChangesAsync();
         }
+
+        public async Task<IEnumerable<BadmintonCenterEntity>> GetAllBadmintonCenterByManagerIdAsync(string managerId)
+        {
+            var centerList = await _badmintonCenterRepository.QueryHelper()
+                .Filter(c => c.ManagerId.Equals(managerId))
+                .Include(c => c.Courts)
+                .GetAllAsync();
+            if (!centerList.Any())
+            {
+                throw new NotFoundException("Court Not Found!");
+            }
+            return centerList;
+        }
     }
 }

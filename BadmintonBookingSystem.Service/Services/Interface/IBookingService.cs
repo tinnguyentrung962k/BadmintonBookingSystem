@@ -12,5 +12,7 @@ namespace BadmintonBookingSystem.Service.Services.Interface
     public interface IBookingService
     {
         Task<BookingEntity>CreateBookingInSingleDay(string userId, SingleBookingCreateDTO singleBookingCreateDTO);
+        Task<BookingEntity> CreateBookingFixed(string userId, FixedBookingCreateDTO fixedBookingCreateDTO);
+
     }
 }
