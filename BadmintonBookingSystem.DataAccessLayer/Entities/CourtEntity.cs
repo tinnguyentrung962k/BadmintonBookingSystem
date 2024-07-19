@@ -18,6 +18,8 @@ namespace BadmintonBookingSystem.DataAccessLayer.Entities
         public string CourtName { get; set; }
         [Required]
         public string CenterId { get; set; }
+
+        public bool IsActive { get; set; } = true;
         
         [ForeignKey(nameof(CenterId))]
         public virtual BadmintonCenterEntity BadmintonCenter { get; set; }

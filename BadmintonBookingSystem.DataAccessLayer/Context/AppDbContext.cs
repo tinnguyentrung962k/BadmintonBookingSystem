@@ -25,10 +25,17 @@ namespace BadmintonBookingSystem.DataAccessLayer.Context
         public DbSet<CourtImage> CourtImages { get; set; }
         public DbSet<TimeSlotEntity> TimeSlots { get; set; }
         public DbSet<BookingEntity> Bookings { get; set; }
+        public DbSet<BookingDetailEntity> BookingDetails { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<BookingDetailEntity>()
+            .Property(u => u.DayOfAWeek)
+            .HasConversion(
+            v => v.ToString(),
+                v => (DayOfAWeek)Enum.Parse(typeof(DayOfAWeek), v));
 
             modelBuilder.Entity<BookingEntity>()
             .Property(u => u.BookingType)

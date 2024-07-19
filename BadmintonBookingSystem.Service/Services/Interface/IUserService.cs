@@ -1,4 +1,5 @@
-﻿using BadmintonBookingSystem.BusinessObject.DTOs.ResponseDTOs;
+﻿using BadmintonBookingSystem.BusinessObject.DTOs.RequestDTOs;
+using BadmintonBookingSystem.BusinessObject.DTOs.ResponseDTOs;
 using BadmintonBookingSystem.DataAccessLayer.Entities;
 using Microsoft.AspNetCore.Http;
 using System;
@@ -25,6 +26,12 @@ namespace BadmintonBookingSystem.Service.Services.Interface
         Task<UserEntity> GetUserWithId(string id);
 
         Task<IEnumerable<UserEntity>> GetUsersList(int pageIndex, int pageSize);
-        
+        Task<IEnumerable<UserEntity>> GetUsersManager(int pageIndex, int pageSize);
+        Task UpdateUser(string userId, string fullName, string phoneNumber);
+        Task DeactiveUser(string userId);
+        Task<IEnumerable<UserEntity>> SearchGetUsersList(int pageIndex, int pageSize, SearchUserDTO searchUserDTO);
+        Task<UserEntity> AddNewUser(UserEntity newUser, string password, string roleName);
+
+
     }
 }

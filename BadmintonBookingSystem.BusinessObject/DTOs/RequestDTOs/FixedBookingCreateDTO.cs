@@ -7,9 +7,12 @@ using System.Threading.Tasks;
 
 namespace BadmintonBookingSystem.BusinessObject.DTOs.RequestDTOs
 {
-    public class SingleBookingCreateDTO
+    public class FixedBookingCreateDTO
     {
         public List<string> ListTimeSlotId { get; set; }
-        public DateOnly BookingDate { get; set; }
+        public DateOnly FromDate { get; set; }
+        public DateOnly ToDate { get; set; }
+        public DayOfAWeek DayOfAWeek { get; set; }
+
     }
 }

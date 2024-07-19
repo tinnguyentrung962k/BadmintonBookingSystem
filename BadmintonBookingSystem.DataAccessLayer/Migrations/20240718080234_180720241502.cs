@@ -5,25 +5,24 @@
 namespace BadmintonBookingSystem.DataAccessLayer.Migrations
 {
     /// <inheritdoc />
-    public partial class _120720241543 : Migration
+    public partial class _180720241502 : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AddColumn<string>(
-                name: "imgAvatar",
-                table: "BadmintonCenter",
-                type: "text",
-                nullable: false,
-                defaultValue: "");
+            migrationBuilder.RenameColumn(
+                name: "DateOfWeek",
+                table: "BookingDetail",
+                newName: "DayOfAWeek");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropColumn(
-                name: "imgAvatar",
-                table: "BadmintonCenter");
+            migrationBuilder.RenameColumn(
+                name: "DayOfAWeek",
+                table: "BookingDetail",
+                newName: "DateOfWeek");
         }
     }
 }

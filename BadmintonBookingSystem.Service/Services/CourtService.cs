@@ -92,6 +92,25 @@ namespace BadmintonBookingSystem.Service.Services
             return courtList;
         }
 
+        public async Task<IEnumerable<CourtEntity>> GetAllActiveCourtsByCenterId(string centerId, int pageIndex, int size)
+        {
+            var chosenCenter = await _badmintonCenterRepository.GetOneAsync(centerId);
+            if (chosenCenter == null)
+            {
+                throw new NotFoundException("Chosen Badminton Center is not found");
+            }
+            var courtList = await _courtRepository.QueryHelper()
+                .Include(c => c.BadmintonCenter)
+                .Include(c => c.CourtImages)
+                .Filter(c => c.CenterId.Equals(centerId) && c.IsActive == true)
+                .GetPagingAsync(pageIndex, size);
+            if (!courtList.Any())
+            {
+                throw new NotFoundException("Empty List !");
+            }
+            return courtList;
+        }
+
         public async Task<CourtEntity> GetCourtById(string courtId)
         {
             var chosenCourt = await _courtRepository.QueryHelper()
@@ -141,6 +160,31 @@ namespace BadmintonBookingSystem.Service.Services
             _courtRepository.Update(chosenCourt);
             await _unitOfWork.SaveChangesAsync();
             return chosenCourt;
+        }
+
+        public async Task ToggleStatusCourt(string courtId)
+        {
+            var court = await _courtRepository.QueryHelper()
+                .Filter(c => c.Id.Equals(courtId))
+                .GetOneAsync();
+
+            if (court == null)
+            {
+                throw new NotFoundException("Badminton center not found!");
+            }
+
+            if (court.IsActive)
+            {
+                court.IsActive = false;
+            }
+            else
+            {
+                court.IsActive = true;
+            }
+
+            court.LastUpdatedTime = DateTime.UtcNow;
+            _courtRepository.Update(court);
+            await _unitOfWork.SaveChangesAsync();
         }
     }
 }
