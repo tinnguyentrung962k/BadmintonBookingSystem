@@ -130,25 +130,6 @@ namespace BadmintonBookingSystem.Service.Services
             user.RefreshToken = null;
             await _userManager.UpdateAsync(user);
         }
-        public async Task<UserEntity> GetUserByUserName(string name)
-        {
-            var user = await _userManager.FindByNameAsync(name);
-            return user;
-        }
-
-        public async Task<UserEntity> GetUserWithUserRolesById(string userId)
-        {
-            return await _userManager.Users
-                .Include(it => it.UserRoles)
-                .ThenInclude(r => r.Role)
-                .SingleOrDefaultAsync(it => it.Id == userId);
-        }
-
-        public async Task<UserEntity> GetUserWithId(string id)
-        {
-            var user = await _userManager.FindByIdAsync(id);
-            return user;
-        }
 
         public async Task<IEnumerable<UserEntity>> GetUsersList(int pageIndex, int pageSize)
         {
@@ -161,7 +142,7 @@ namespace BadmintonBookingSystem.Service.Services
         }
         public async Task<UserEntity> UpdateUser(string userId, UpdateUserDTO updateUserDTO) 
         {
-            var user = await _userManager.FindByIdAsync(userId);
+            var user = await _userManager.GetOneUserWithRoleAsync(userId);
             if (user == null)
             {
                 throw new NotFoundException("Không tìm thấy người dùng!");
@@ -211,7 +192,7 @@ namespace BadmintonBookingSystem.Service.Services
 
         public async Task<UserEntity> DeactiveUser(string userId)
         {
-            var user = await _userManager.FindByIdAsync(userId);
+            var user = await _userManager.GetOneUserWithRoleAsync(userId);
             if (user == null)
             {
                 throw new NotFoundException("Không tìm thấy người dùng!");
