@@ -159,7 +159,7 @@ namespace BadmintonBookingSystem.Service.Services
             }
             return userList;
         }
-        public async Task UpdateUser(string userId, string fullName, string phoneNumber) 
+        public async Task<UserEntity> UpdateUser(string userId, UpdateUserDTO updateUserDTO) 
         {
             var user = await _userManager.FindByIdAsync(userId);
             if (user == null)
@@ -167,17 +167,49 @@ namespace BadmintonBookingSystem.Service.Services
                 throw new NotFoundException("Không tìm thấy người dùng!");
             }
 
-            user.FullName = fullName;
-            user.PhoneNumber = phoneNumber;
+            user.FullName = updateUserDTO.FullName;
+            user.PhoneNumber = updateUserDTO.PhoneNumber;
+            if (!string.IsNullOrEmpty(updateUserDTO.Password))
+            {
+                var passwordHasher = new PasswordHasher<UserEntity>();
+                user.PasswordHash = passwordHasher.HashPassword(user, updateUserDTO.Password);
+            }
+
+            // Update user roles
+            var currentRoles = await _userManager.GetRolesAsync(user);
+            var removeRolesResult = await _userManager.RemoveFromRolesAsync(user, currentRoles);
+
+            if (!removeRolesResult.Succeeded)
+            {
+                throw new Exception("Xóa vai trò hiện tại thất bại.");
+            }
+
+            if (!string.IsNullOrEmpty(updateUserDTO.RoleId))
+            {
+                var role = await _roleManager.FindByIdAsync(updateUserDTO.RoleId);
+                if (role == null)
+                {
+                    throw new Exception($"Vai trò với ID {updateUserDTO.RoleId} không tồn tại.");
+                }
+
+                var addRoleResult = await _userManager.AddToRoleAsync(user, role.Name);
+                if (!addRoleResult.Succeeded)
+                {
+                    throw new Exception($"Thêm vai trò {role.Name} thất bại.");
+                }
+            }
+
             var result = await _userManager.UpdateAsync(user);
 
             if (!result.Succeeded)
             {
                 throw new Exception("Cập nhật người dùng thất bại.");
             }
+
+            return user;
         }
 
-        public async Task DeactiveUser(string userId)
+        public async Task<UserEntity> DeactiveUser(string userId)
         {
             var user = await _userManager.FindByIdAsync(userId);
             if (user == null)
@@ -198,6 +230,7 @@ namespace BadmintonBookingSystem.Service.Services
             {
                 throw new Exception("Cập nhật người dùng thất bại.");
             }
+            return user;
         }
 
         public async Task<IEnumerable<UserEntity>> SearchGetUsersList(int pageIndex, int pageSize, SearchUserDTO searchUserDTO)
