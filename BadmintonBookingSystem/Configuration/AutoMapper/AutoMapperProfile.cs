@@ -59,6 +59,8 @@ namespace BadmintonBookingSystem.Configuration.AutoMapper
                 .ForMember(rts => rts.EndTime, opt => opt.MapFrom(ts => ts.EndTime.ToString("HH:mm")))
                 .ForMember(rts => rts.CourtName, opt => opt.MapFrom(ts => ts.Court.CourtName));
             CreateMap<TimeSlotEntity, ResponseTimeSlotWithStatusDTO>()
+                .ForMember(rts => rts.StartTime, opt => opt.MapFrom(ts => ts.StartTime.ToString("HH:mm")))
+                .ForMember(rts => rts.EndTime, opt => opt.MapFrom(ts => ts.EndTime.ToString("HH:mm")))
                 .ForMember(rts => rts.CourtName, opt => opt.MapFrom(ts => ts.Court.CourtName));
 
         }
