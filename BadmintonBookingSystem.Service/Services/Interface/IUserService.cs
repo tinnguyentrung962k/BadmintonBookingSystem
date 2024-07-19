@@ -19,11 +19,6 @@ namespace BadmintonBookingSystem.Service.Services.Interface
         Task<string> Refresh(string refreshToken);
 
         Task Revoke(string userId);
-        Task<UserEntity> GetUserByUserName(string name);
-
-        Task<UserEntity> GetUserWithUserRolesById(string userId);
-
-        Task<UserEntity> GetUserWithId(string id);
 
         Task<IEnumerable<UserEntity>> GetUsersList(int pageIndex, int pageSize);
         Task<IEnumerable<UserEntity>> GetUsersManager(int pageIndex, int pageSize);

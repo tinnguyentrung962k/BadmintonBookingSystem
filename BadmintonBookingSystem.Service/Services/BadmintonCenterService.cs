@@ -36,20 +36,26 @@ namespace BadmintonBookingSystem.Service.Services
 
         public async Task CreateBadmintonCenter(BadmintonCenterEntity badmintonCenterEntity, List<IFormFile>? picList, IFormFile avatar)
         {
+            if (!string.IsNullOrEmpty(badmintonCenterEntity.ManagerId))
+            {
+                // Check if the manager exists in the database
+                var manager = await _userManager.FindByIdAsync(badmintonCenterEntity.ManagerId);
+                if (manager == null)
+                {
+                    throw new Exception("Manager not found"); // Handle appropriately
+                }
+                var existerCenter = await _badmintonCenterRepository.QueryHelper()
+                    .Filter(c => c.ManagerId.Equals(badmintonCenterEntity.ManagerId)).GetOneAsync();
+                if (existerCenter != null)
+                {
+                    throw new ConflictException($"This manager already has managed one badminton center name: {existerCenter.Name}");
+                }
+            }
             try
             {
                 _unitOfWork.BeginTransaction();
 
-                // Ensure the manager relationship is valid
-                if (!string.IsNullOrEmpty(badmintonCenterEntity.ManagerId))
-                {
-                    // Check if the manager exists in the database
-                    var manager = await _userManager.FindByIdAsync(badmintonCenterEntity.ManagerId);
-                    if (manager == null)
-                    {
-                        throw new Exception("Manager not found"); // Handle appropriately
-                    }
-                }
+                // Ensure the manager relationship is valid           
                 if (avatar != null)
                 {
                     var s3Object = new AwsS3Object();

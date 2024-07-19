@@ -109,6 +109,9 @@ namespace BadmintonBookingSystem.Controllers
                 var responseNewBc = _mapper.Map<ResponseBadmintonCenterDTO>(newBcEntity);
                 return CreatedAtAction(nameof(GetBadmintonCenterById), new { id = responseNewBc.Id }, responseNewBc);
             }
+            catch(ConflictException e) {
+                return BadRequest(e.Message);
+            }
             catch (Exception ex)
             {
                 return BadRequest("Created Failed !");

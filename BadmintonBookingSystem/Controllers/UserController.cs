@@ -102,7 +102,7 @@ namespace BadmintonBookingSystem.Controllers
         }
         [HttpGet]
         [Route("api/users/Search")]
-        public async Task<ActionResult> SearchUser([FromQuery]int pageIndex, int pageSize, [FromQuery] SearchUserDTO searchUser)
+        public async Task<ActionResult<List<ResponseUserDTO>>> SearchUser([FromQuery]int pageIndex, int pageSize, [FromQuery] SearchUserDTO searchUser)
         {
             try
             {
