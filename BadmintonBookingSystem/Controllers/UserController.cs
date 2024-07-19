@@ -66,12 +66,12 @@ namespace BadmintonBookingSystem.Controllers
         }
         [HttpPut]
         [Route("api/users/update/{userId}")]
-        public async Task<ActionResult> UpdateUser(string userId, [FromBody] ResponseUpdateUserDTO updateUserDto)
+        public async Task<ActionResult<ResponseUserDTO>> UpdateUser(string userId, [FromBody] UpdateUserDTO updateUserDto)
         {
             try
             {
-                await _userService.UpdateUser(userId, updateUserDto.FullName, updateUserDto.PhoneNumber);
-                return Ok();
+                var responseUser = _mapper.Map<ResponseUserDTO>(await _userService.UpdateUser(userId, updateUserDto));
+                return Ok(responseUser);
             }
             catch (NotFoundException ex)
             {
@@ -84,12 +84,12 @@ namespace BadmintonBookingSystem.Controllers
         }
         [HttpPut]
         [Route("api/users/deactive/{userId}")]
-        public async Task<ActionResult> DeactiveUser(string userId )
+        public async Task<ActionResult<ResponseUserDTO>> DeactiveUser(string userId )
         {
             try
             {
-                await _userService.DeactiveUser(userId);
-                return Ok();
+                var responseUser = _mapper.Map<ResponseUserDTO>(await _userService.DeactiveUser(userId));
+                return Ok(responseUser);
             }
             catch (NotFoundException ex)
             {
