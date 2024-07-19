@@ -44,18 +44,38 @@ namespace BadmintonBookingSystem.Service.Services
             }
         }
 
-        public async Task<IEnumerable<TimeSlotEntity>> GetAllTimeSlotsByCourtId(string courtId, int pageIndex, int pageSize)
+        public async Task<IEnumerable<TimeSlotEntity>> GetAllTimeSlotsByCourtId(string courtId)
         {
             var timeSlotList = await _timeSlotRepository.QueryHelper()
                 .Filter(ts => ts.CourtId.Equals(courtId))
                 .Include(ts => ts.Court)
-                .GetPagingAsync(pageIndex, pageSize);
+                .GetAllAsync();
             if (!timeSlotList.Any())
             {
                 throw new NotFoundException("Empty List !");
             }
             return timeSlotList;
         }
+
+        public async Task<IEnumerable<TimeSlotEntity>> GetAllAvalableTimeSlotsByCourtId(string courtId, DateOnly chosenDate)
+        {
+            var court = await _courtRepository.QueryHelper()
+                .Include(c => c.TimeSlots)
+                .Filter(c => c.Id.Equals(courtId))
+                .GetOneAsync();
+            var availableTimeSlots = await _timeSlotRepository.QueryHelper()
+                .Filter(ts => ts.CourtId.Equals(courtId) && !ts.BookingDetails.Any(bd => bd.BookingDate == chosenDate))
+                .Include(ts => ts.Court)
+                .GetAllAsync();
+            if (!availableTimeSlots.Any())
+            {
+                throw new NotFoundException("No available time slots found!");
+            }
+
+            return availableTimeSlots;
+        }
+
+
 
         public async Task<TimeSlotEntity> GetTimeSlotById(string id)
         {

@@ -36,16 +36,33 @@ namespace BadmintonBookingSystem.Controllers
         }
 
         [HttpGet("api/timeslots/court/{courtId}")]
-        public async Task<ActionResult<List<ResponseTimeSlotDTO>>> GetTimeSlotByCourtId([FromRoute] string courtId, [FromQuery] int pageIndex, int pageSize)
+        public async Task<ActionResult<List<ResponseTimeSlotDTO>>> GetTimeSlotByCourtId([FromRoute] string courtId)
         {
             try
             {
-                var responseTimeSlots = _mapper.Map<List<ResponseTimeSlotDTO>>(await _timeSlotService.GetAllTimeSlotsByCourtId(courtId, pageIndex, pageSize));
+                var responseTimeSlots = _mapper.Map<List<ResponseTimeSlotDTO>>(await _timeSlotService.GetAllTimeSlotsByCourtId(courtId));
                 return Ok(responseTimeSlots);
             }
             catch (NotFoundException ex)
             {
                 return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Server Error");
+            }
+        }
+        [HttpGet("api/timeslots-available/court/{courtId}")]
+        public async Task<ActionResult<List<ResponseTimeSlotDTO>>> GetAvailableTimeSlotByCourtId([FromRoute] string courtId, [FromQuery] DateOnly chosenDate)
+        {
+            try
+            {
+                var responseTimeSlots = _mapper.Map<List<ResponseTimeSlotDTO>>(await _timeSlotService.GetAllAvalableTimeSlotsByCourtId(courtId,chosenDate));
+                return Ok(responseTimeSlots);
+            }
+            catch (NotFoundException ex)
+            {
+                return NotFound("Not Available time slot found!");
             }
             catch (Exception ex)
             {
