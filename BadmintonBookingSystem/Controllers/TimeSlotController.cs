@@ -52,12 +52,12 @@ namespace BadmintonBookingSystem.Controllers
                 return StatusCode(500, "Server Error");
             }
         }
-        [HttpGet("api/timeslots-available/court/{courtId}")]
-        public async Task<ActionResult<List<ResponseTimeSlotDTO>>> GetAvailableTimeSlotByCourtId([FromRoute] string courtId, [FromQuery] DateOnly chosenDate)
+        [HttpGet("api/timeslots-table/court/{courtId}")]
+        public async Task<ActionResult<List<ResponseTimeSlotWithStatusDTO>>> GetAvailableAndNotAvailableTimeSlotByCourtId([FromRoute] string courtId, [FromQuery] DateOnly chosenDate)
         {
             try
             {
-                var responseTimeSlots = _mapper.Map<List<ResponseTimeSlotDTO>>(await _timeSlotService.GetAllAvalableTimeSlotsByCourtId(courtId,chosenDate));
+                var responseTimeSlots = await _timeSlotService.GetAvalableAndNotAvailableTimeSlotsByCourtId(courtId,chosenDate);
                 return Ok(responseTimeSlots);
             }
             catch (NotFoundException ex)
