@@ -13,6 +13,6 @@ namespace BadmintonBookingSystem.Service.Services.Interface
         Task<IEnumerable<TimeSlotEntity>> GetAllTimeSlotsByCourtId(string courtId);
         Task<TimeSlotEntity> CreateATimeSlot(TimeSlotEntity timeSlotEntity);
         Task<TimeSlotEntity> GetTimeSlotById(string id);
-        Task<IEnumerable<ResponseTimeSlotWithStatusDTO>> GetAvalableAndNotAvailableTimeSlotsByCourtId(string courtId, DateOnly chosenDate);
+        Task<List<ResponseTimeSlotWithStatusDTO>> GetAvalableAndNotAvailableTimeSlotsByCourtId(string courtId, DateOnly chosenDate);
     }
 }

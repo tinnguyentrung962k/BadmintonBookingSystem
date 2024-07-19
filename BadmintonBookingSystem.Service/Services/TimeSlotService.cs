@@ -61,7 +61,7 @@ namespace BadmintonBookingSystem.Service.Services
             return timeSlotList;
         }
 
-        public async Task<IEnumerable<ResponseTimeSlotWithStatusDTO>> GetAvalableAndNotAvailableTimeSlotsByCourtId(string courtId, DateOnly chosenDate)
+        public async Task<List<ResponseTimeSlotWithStatusDTO>> GetAvalableAndNotAvailableTimeSlotsByCourtId(string courtId, DateOnly chosenDate)
         {
             var court = await _courtRepository.QueryHelper()
            .Include(c => c.TimeSlots)
