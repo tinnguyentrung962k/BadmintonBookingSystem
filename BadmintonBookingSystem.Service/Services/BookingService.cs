@@ -19,13 +19,15 @@ namespace BadmintonBookingSystem.Service.Services
         private readonly IUnitOfWork _unitOfWork;
         private readonly IBookingDetailRepository _bookDetailRepository;
         private readonly ITimeSlotRepository _timeSlotRepository;
-        public BookingService(IBookingRepository bookingRepository, UserManager<UserEntity> userManager, IUnitOfWork unitOfWork, IBookingDetailRepository bookingDetailRepository, ITimeSlotRepository timeSlotRepository)
+        private readonly IBadmintonCenterRepository _badmintonCenterRepository;
+        public BookingService(IBookingRepository bookingRepository, UserManager<UserEntity> userManager, IUnitOfWork unitOfWork, IBookingDetailRepository bookingDetailRepository, ITimeSlotRepository timeSlotRepository, IBadmintonCenterRepository badmintonCenterRepository)
         {
             _bookingRepository = bookingRepository;
             _userManager = userManager;
             _unitOfWork = unitOfWork;
             _bookDetailRepository = bookingDetailRepository;
             _timeSlotRepository = timeSlotRepository;
+            _badmintonCenterRepository = badmintonCenterRepository;
         }
 
         public async Task<BookingEntity> CreateBookingInSingleDay(string userId, SingleBookingCreateDTO singleBookingCreateDTO)
@@ -74,8 +76,8 @@ namespace BadmintonBookingSystem.Service.Services
                         TimeSlotId = timeSlotId,
                         TimeSlot = await _timeSlotRepository.GetOneAsync(timeSlotId),
                         BookingDate = singleBookingCreateDTO.BookingDate,
-                        Booking = booking
-
+                        Booking = booking,
+                        ReservationStatus = ReservationStatus.NotCheckedIn
                     };
                     _bookDetailRepository.Add(bookingDetail);
                 }
@@ -149,7 +151,8 @@ namespace BadmintonBookingSystem.Service.Services
                             TimeSlotId = timeSlotId,
                             TimeSlot = await _timeSlotRepository.GetOneAsync(timeSlotId),
                             BookingDate = bookingDate,
-                            Booking = booking
+                            Booking = booking,
+                            ReservationStatus = ReservationStatus.NotCheckedIn
 
                         };
                         _bookDetailRepository.Add(bookingDetail);
@@ -167,7 +170,29 @@ namespace BadmintonBookingSystem.Service.Services
             }
 
         }
-        
+
+        public async Task<IEnumerable<BookingDetailEntity>> GetAllBookingOfCustomersByCenterId(string centerId, int pageIndex, int pageSize)
+        {
+            var center = await _badmintonCenterRepository.GetOneAsync(centerId);
+            if (center == null)
+            {
+                throw new Exception("Center not found");
+            }
+            var bookingDetails = await _bookDetailRepository.QueryHelper()
+                .Filter(c=>c.TimeSlot.Court.CenterId.Equals(centerId))
+                .Include(c => c.Booking.Customer)
+                .Include(c => c.TimeSlot.Court)
+                .Include(c => c.TimeSlot)
+                .OrderBy(c => c.OrderByDescending(c => c.BookingDate))
+                .GetPagingAsync(pageIndex, pageSize);
+
+            if (!bookingDetails.Any())
+            {
+                throw new NotFoundException("No bookings found for this center !");
+            }
+
+            return bookingDetails;
+        }
     }
     
 }

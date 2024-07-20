@@ -78,6 +78,15 @@ namespace BadmintonBookingSystem.Configuration.AutoMapper
             CreateMap<BookingEntity, ResponseBookingHeaderAndBookingDetail>()
                 .ForMember(c=>c.BookingHeader, opt => opt.MapFrom(c => c))
                 .ForMember(c=>c.BookingDetails,opt => opt.MapFrom(c => c.BookingDetails));
+            CreateMap<BookingDetailEntity, ResponseCourtReservationDTO>()
+                .ForMember(c => c.StartTime, opt => opt.MapFrom(c => c.TimeSlot.StartTime.ToString("HH:mm")))
+                .ForMember(c => c.EndTime, opt => opt.MapFrom(c => c.TimeSlot.EndTime.ToString("HH:mm")))
+                .ForMember(c => c.CustomerPhone, opt => opt.MapFrom(c => c.Booking.Customer.PhoneNumber))
+                .ForMember(c => c.CustomerEmail, opt => opt.MapFrom(c => c.Booking.Customer.Email))
+                .ForMember(c => c.CustomerName, opt => opt.MapFrom(c => c.Booking.Customer.FullName))
+                .ForMember(c => c.BookingDate, opt => opt.MapFrom(c => c.BookingDate))
+                .ForMember(c => c.CourtName, opt => opt.MapFrom(c => c.TimeSlot.Court.CourtName))
+                .ForMember(c => c.ReservationStatus, opt => opt.MapFrom(c => c.ReservationStatus.ToString()));
         }
         private void RoleProfile()
         {
