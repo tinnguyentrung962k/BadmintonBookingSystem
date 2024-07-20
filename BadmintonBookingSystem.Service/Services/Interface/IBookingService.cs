@@ -13,6 +13,7 @@ namespace BadmintonBookingSystem.Service.Services.Interface
     {
         Task<BookingEntity>CreateBookingInSingleDay(string userId, SingleBookingCreateDTO singleBookingCreateDTO);
         Task<BookingEntity> CreateBookingFixed(string userId, FixedBookingCreateDTO fixedBookingCreateDTO);
+        Task<IEnumerable<BookingDetailEntity>> GetAllBookingOfCustomersByCenterId(string centerId, int pageIndex, int pageSize);
 
     }
 }

@@ -76,5 +76,23 @@ namespace BadmintonBookingSystem.Controllers
 
 
         }
+
+        [HttpGet("api/bookings/court-reservation/center/{id}")]
+        public async Task<ActionResult<List<ResponseCourtReservationDTO>>> GetAllReservationsOfCenter([FromRoute] string id, [FromQuery] int pageIndex, int pageSize)
+        {
+            try
+            {
+                var bookingReservation = _mapper.Map<List<ResponseCourtReservationDTO>>(await _bookingService.GetAllBookingOfCustomersByCenterId(id, pageIndex, pageSize));
+                return Ok(bookingReservation);
+            }
+            catch (NotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Server Error");
+            }
+        }
     }
 }
