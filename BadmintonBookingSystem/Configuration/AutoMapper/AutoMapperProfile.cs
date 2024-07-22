@@ -74,7 +74,8 @@ namespace BadmintonBookingSystem.Configuration.AutoMapper
                 .ForMember(c => c.CustomerPhone, opt => opt.MapFrom(c => c.Customer.PhoneNumber));
             CreateMap<BookingDetailEntity, ResponseBookingDetailDTO>()
                 .ForMember(c => c.StartTime, opt => opt.MapFrom(c => c.TimeSlot.StartTime))
-                .ForMember(c => c.EndTime, opt => opt.MapFrom(c => c.TimeSlot.EndTime));
+                .ForMember(c => c.EndTime, opt => opt.MapFrom(c => c.TimeSlot.EndTime))
+                .ForMember(c => c.SlotPrice, opt => opt.MapFrom(c => c.TimeSlot.Price));
             CreateMap<BookingEntity, ResponseBookingHeaderAndBookingDetail>()
                 .ForMember(c=>c.BookingHeader, opt => opt.MapFrom(c => c))
                 .ForMember(c=>c.BookingDetails,opt => opt.MapFrom(c => c.BookingDetails));
