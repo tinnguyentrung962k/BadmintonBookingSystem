@@ -87,7 +87,8 @@ namespace BadmintonBookingSystem.Configuration.AutoMapper
                 .ForMember(c => c.CustomerName, opt => opt.MapFrom(c => c.Booking.Customer.FullName))
                 .ForMember(c => c.BookingDate, opt => opt.MapFrom(c => c.BookingDate))
                 .ForMember(c => c.CourtName, opt => opt.MapFrom(c => c.TimeSlot.Court.CourtName))
-                .ForMember(c => c.ReservationStatus, opt => opt.MapFrom(c => c.ReservationStatus.ToString()));
+                .ForMember(c => c.ReservationStatus, opt => opt.MapFrom(c => c.ReservationStatus.ToString()))
+                .ForMember(c => c.SlotPrice, opt => opt.MapFrom(c => c.TimeSlot.Price));
         }
         private void RoleProfile()
         {
