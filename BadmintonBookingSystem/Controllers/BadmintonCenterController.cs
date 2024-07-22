@@ -14,6 +14,7 @@ namespace BadmintonBookingSystem.Controllers
 {
     
     [ApiController]
+    
     public class BadmintonCenterController : ControllerBase
     {
         private readonly IBadmintonCenterService _badmintonCenterService;

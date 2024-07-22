@@ -13,6 +13,7 @@ namespace BadmintonBookingSystem.Controllers
 {
     
     [ApiController]
+    [AllowAnonymous]
     public class UserController : ControllerBase
     {
         private readonly IUserService _userService;
