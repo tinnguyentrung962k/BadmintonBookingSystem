@@ -83,12 +83,12 @@ namespace BadmintonBookingSystem.Controllers
 
         [HttpGet]
         [Route("api/search-badminton-centers")]
-        public async Task<ActionResult<List<ResponseSearchBadmintonCenterDTO>>> Search([FromQuery] SearchBadmintonCenterDTO searchBadmintonCenterDTO)
+        public async Task<ActionResult<List<ResponseSearchBadmintonCenterDTO>>> Search([FromQuery] SearchBadmintonCenterDTO searchBadmintonCenterDTO, [FromQuery] int pageIndex, int pageSize)
         {
             try
             {
                 var newBcEntity = _mapper.Map<BadmintonCenterEntity>(searchBadmintonCenterDTO);
-                var searchResult = await _badmintonCenterService.SearchBadmintonCentersAsync(newBcEntity);
+                var searchResult = await _badmintonCenterService.SearchBadmintonCentersAsync(newBcEntity,pageIndex,pageSize);
                 var responseNewBc = _mapper.Map<List<ResponseSearchBadmintonCenterDTO>>(searchResult);
                 return Ok(responseNewBc);
             }

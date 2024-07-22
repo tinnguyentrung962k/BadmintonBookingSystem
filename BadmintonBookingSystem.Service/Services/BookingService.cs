@@ -221,6 +221,54 @@ namespace BadmintonBookingSystem.Service.Services
 
             return bookingDetails;
         }
+
+        public async Task<IEnumerable<BookingDetailEntity>> SearchBookingOfCustomerByCenterId(string centerId, SearchBookingDTO searchBookingDTO, int pageIndex, int pageSize)
+        {
+            var center = await _badmintonCenterRepository.GetOneAsync(centerId);
+            if (center == null)
+            {
+                throw new Exception("Center not found");
+            }
+            var search = _bookDetailRepository.QueryHelper()
+                .OrderBy(c=>c.OrderByDescending(c=>c.BookingDate))
+                .Include(c => c.Booking.Customer)
+                .Include(c => c.TimeSlot.Court)
+                .Include(c => c.TimeSlot);
+            if (!string.IsNullOrEmpty(searchBookingDTO.BookingId))
+            {
+                search = search.Filter(bd => bd.BookingId.Contains(searchBookingDTO.BookingId));
+            }
+            if (!string.IsNullOrEmpty(searchBookingDTO.CustomerName))
+            {
+                search = search.Filter(bd => bd.Booking.Customer.FullName.ToLower().Contains(searchBookingDTO.CustomerName.ToLower()));
+            }
+
+            if (!string.IsNullOrEmpty(searchBookingDTO.CustomerPhone))
+            {
+                search = search.Filter(bd => bd.Booking.Customer.PhoneNumber.ToLower().Contains(searchBookingDTO.CustomerPhone.ToLower()));
+            }
+            if (!string.IsNullOrEmpty(searchBookingDTO.CustomerEmail))
+            {
+                search = search.Filter(bd => bd.Booking.Customer.Email.ToLower().Contains(searchBookingDTO.CustomerEmail.ToLower()));
+            }
+            if (searchBookingDTO.FromDate != default || searchBookingDTO.ToDate != default)
+            {
+                if (searchBookingDTO.FromDate != default)
+                {
+                    search = search.Filter(bd => bd.BookingDate >= searchBookingDTO.FromDate);
+                }
+                if (searchBookingDTO.ToDate != default)
+                {
+                    search = search.Filter(bd => bd.BookingDate <= searchBookingDTO.ToDate);
+                }
+            }
+            if (searchBookingDTO.FromDate != default && searchBookingDTO.ToDate != default)
+            {
+                search = search.Filter(bd => bd.BookingDate >= searchBookingDTO.FromDate && bd.BookingDate <= searchBookingDTO.ToDate);
+            }
+
+            return await search.GetPagingAsync(pageIndex,pageSize);
+        }
     }
     
 }
