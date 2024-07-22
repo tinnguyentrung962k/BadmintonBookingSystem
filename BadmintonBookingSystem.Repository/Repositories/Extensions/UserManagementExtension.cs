@@ -17,9 +17,13 @@ namespace BadmintonBookingSystem.Repository.Repositories.Extensions
         {
             return await userManager?.Users?.FirstOrDefaultAsync(u => u.RefreshToken.Equals(refreshToken));
         }
-        public static async Task<IEnumerable<UserEntity>> GetUsersAsync(this UserManager<UserEntity> userManager, int pageIndex = 1, int pageSize = 1, string roleName = RoleConstants.CUSTOMER)
+        public static async Task<IEnumerable<UserEntity>> GetUsersAsyncInASpecificRole(this UserManager<UserEntity> userManager, string roleName, int pageIndex = 1, int pageSize = 1)
         {
-            var userList = await userManager?.GetUsersInRoleAsync(roleName);
+            var userList = await userManager?.Users?
+                .Include(it => it.UserRoles)
+                .ThenInclude(r => r.Role)
+                .Where(user => user.UserRoles.Any(userRole => userRole.Role.Name == roleName))
+                .ToListAsync();
             pageIndex = pageIndex < 1 ? 0 : pageIndex - 1;
             pageSize = pageSize < 1 ? 10 : pageSize;
             var pagedUsers = userList.Skip(pageIndex * pageSize).Take(pageSize);
@@ -37,5 +41,32 @@ namespace BadmintonBookingSystem.Repository.Repositories.Extensions
             return pagedUsers;
 
         }
+
+        public static async Task<IEnumerable<UserEntity>> GetUsersWithRoleWithoutPaginationAsync(this UserManager<UserEntity> userManager)
+        {
+            var userList = await userManager?.Users?
+                .Include(it => it.UserRoles)
+                .ThenInclude(r => r.Role)
+                .ToListAsync();
+            return userList;
+        }
+
+        public static async Task<UserEntity> GetOneUserWithRoleAsync(this UserManager<UserEntity> userManager, string userId)
+        {
+            var user = await userManager?.Users?
+                .Include(it => it.UserRoles)
+                .ThenInclude(r => r.Role)
+                .FirstOrDefaultAsync(c => c.Id.Equals(userId));
+            return user;
+        }
+
+        public static async Task<IEnumerable<UserEntity>> GetPagingAsync(this UserManager<UserEntity> userManager, IEnumerable<UserEntity> userList, int pageIndex = 1, int pageSize = 1)
+        {
+            pageIndex = pageIndex < 1 ? 0 : pageIndex - 1;
+            pageSize = pageSize < 1 ? 10 : pageSize;
+            var pagedUsers = userList.Skip(pageIndex * pageSize).Take(pageSize);
+            return pagedUsers;
+        }
+
     }
 }

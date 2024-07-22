@@ -130,25 +130,6 @@ namespace BadmintonBookingSystem.Service.Services
             user.RefreshToken = null;
             await _userManager.UpdateAsync(user);
         }
-        public async Task<UserEntity> GetUserByUserName(string name)
-        {
-            var user = await _userManager.FindByNameAsync(name);
-            return user;
-        }
-
-        public async Task<UserEntity> GetUserWithUserRolesById(string userId)
-        {
-            return await _userManager.Users
-                .Include(it => it.UserRoles)
-                .ThenInclude(r => r.Role)
-                .SingleOrDefaultAsync(it => it.Id == userId);
-        }
-
-        public async Task<UserEntity> GetUserWithId(string id)
-        {
-            var user = await _userManager.FindByIdAsync(id);
-            return user;
-        }
 
         public async Task<IEnumerable<UserEntity>> GetUsersList(int pageIndex, int pageSize)
         {
@@ -159,27 +140,59 @@ namespace BadmintonBookingSystem.Service.Services
             }
             return userList;
         }
-        public async Task UpdateUser(string userId, string fullName, string phoneNumber) 
+        public async Task<UserEntity> UpdateUser(string userId, UpdateUserDTO updateUserDTO) 
         {
-            var user = await _userManager.FindByIdAsync(userId);
+            var user = await _userManager.GetOneUserWithRoleAsync(userId);
             if (user == null)
             {
                 throw new NotFoundException("Không tìm thấy người dùng!");
             }
 
-            user.FullName = fullName;
-            user.PhoneNumber = phoneNumber;
+            user.FullName = updateUserDTO.FullName;
+            user.PhoneNumber = updateUserDTO.PhoneNumber;
+            if (!string.IsNullOrEmpty(updateUserDTO.Password))
+            {
+                var passwordHasher = new PasswordHasher<UserEntity>();
+                user.PasswordHash = passwordHasher.HashPassword(user, updateUserDTO.Password);
+            }
+
+            // Update user roles
+            var currentRoles = await _userManager.GetRolesAsync(user);
+            var removeRolesResult = await _userManager.RemoveFromRolesAsync(user, currentRoles);
+
+            if (!removeRolesResult.Succeeded)
+            {
+                throw new Exception("Xóa vai trò hiện tại thất bại.");
+            }
+
+            if (!string.IsNullOrEmpty(updateUserDTO.RoleId))
+            {
+                var role = await _roleManager.FindByIdAsync(updateUserDTO.RoleId);
+                if (role == null)
+                {
+                    throw new Exception($"Vai trò với ID {updateUserDTO.RoleId} không tồn tại.");
+                }
+
+                var addRoleResult = await _userManager.AddToRoleAsync(user, role.Name);
+                if (!addRoleResult.Succeeded)
+                {
+                    throw new Exception($"Thêm vai trò {role.Name} thất bại.");
+                }
+            }
+
             var result = await _userManager.UpdateAsync(user);
 
             if (!result.Succeeded)
             {
                 throw new Exception("Cập nhật người dùng thất bại.");
             }
+
+            return user;
         }
 
-        public async Task DeactiveUser(string userId)
+        public async Task<UserEntity> DeactiveUser(string userId)
         {
-            var user = await _userManager.FindByIdAsync(userId);
+            var user = await _userManager.GetOneUserWithRoleAsync(userId);
             if (user == null)
             {
                 throw new NotFoundException("Không tìm thấy người dùng!");
@@ -198,43 +211,72 @@ namespace BadmintonBookingSystem.Service.Services
             {
                 throw new Exception("Cập nhật người dùng thất bại.");
             }
+            return user;
         }
 
-        public async Task<IEnumerable<UserEntity>> SearchGetUsersList(int pageIndex, int pageSize, string name, string email, string phoneNumber)
+        public async Task<IEnumerable<UserEntity>> SearchGetUsersList(int pageIndex, int pageSize, SearchUserDTO searchUserDTO)
         {
-            List<UserEntity> result = new List<UserEntity>();
-            var allUser = (await _userManager.Users.Include(it => it.UserRoles)
-                .ThenInclude(r => r.Role).ToListAsync());
-            if (name != null)
+            var allUser = await _userManager.GetUsersWithRoleWithoutPaginationAsync();
+            if (!string.IsNullOrEmpty(searchUserDTO.FullName))
             {
-                var getUserByName = allUser
-                    .Where(s => s.FullName.Contains(name, StringComparison.OrdinalIgnoreCase)).ToList();
-                result.AddRange(getUserByName);
+                allUser = allUser
+                    .Where(s => s.FullName.Contains(searchUserDTO.FullName, StringComparison.OrdinalIgnoreCase)).ToList();
             }
 
-            if (email != null)
+            if (!string.IsNullOrEmpty(searchUserDTO.Email))
             {
-                var getUserByEmail = allUser
-                    .Where(s => s.Email.Contains(email, StringComparison.OrdinalIgnoreCase)).ToList();
-                result.AddRange(getUserByEmail);
+                allUser = allUser
+                    .Where(s => s.Email.Contains(searchUserDTO.Email, StringComparison.OrdinalIgnoreCase)).ToList();
             }
 
-            if (phoneNumber != null)
+            if (!string.IsNullOrEmpty(searchUserDTO.PhoneNumber))
             {
-                var getUserByPhoneNumber = allUser
-                    .Where(s => s.PhoneNumber != null && s.PhoneNumber.Contains(phoneNumber, StringComparison.OrdinalIgnoreCase)).ToList();
-                result.AddRange(getUserByPhoneNumber);
+                allUser = allUser
+                    .Where(s => !string.IsNullOrEmpty(s.PhoneNumber) && s.PhoneNumber.Contains(searchUserDTO.PhoneNumber, StringComparison.OrdinalIgnoreCase)).ToList();
             }
-            if (pageSize < 0 || pageIndex < 0)
+
+            var pagedUsers = await _userManager.GetPagingAsync(allUser,pageIndex,pageSize);
+            return pagedUsers;
+        }
+
+        public async Task<UserEntity> AddNewUser(UserEntity newUser, string password, string roleName)
+        {
+            var existUser = await _userManager.FindByEmailAsync(newUser.Email);
+            if (existUser != null)
             {
-                pageIndex = 0;
-                pageSize = 0;
+                throw new ExistedEmailException("Email này đã tồn tại.");
             }
-            if (pageIndex != 0 || pageSize != 0)
+
+            try
             {
-                return result.Skip(pageIndex - 1 * pageSize).Take(pageSize);
+                _unitOfWork.BeginTransaction();
+                newUser.UserName = newUser.Email;
+                newUser.EmailConfirmed = true;
+                var result = await _userManager.CreateAsync(newUser, password);
+                if (!result.Succeeded)
+                {
+                    throw new InvalidRegisterException("Thêm thất bại!");
+                }
+                await _userManager.AddToRoleAsync(newUser, roleName);
+                await _unitOfWork.SaveChangesAsync();
+                await _unitOfWork.CommitAsync();
+                return newUser;
             }
-            return result;
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error while register");
+                await _unitOfWork.RollbackAsync();
+                throw;
+            }
+        }
+        public async Task<IEnumerable<UserEntity>> GetUsersManager(int pageIndex, int pageSize)
+        {
+            var userManagers = await _userManager.GetUsersAsyncInASpecificRole(RoleConstants.MANAGER,pageIndex, pageSize);
+            if (!userManagers.Any())
+            {
+                throw new NotFoundException("Empty List!");
+            }
+            return userManagers;
         }
     }
 }

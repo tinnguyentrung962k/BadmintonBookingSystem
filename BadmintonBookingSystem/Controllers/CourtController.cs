@@ -102,5 +102,21 @@ namespace BadmintonBookingSystem.Controllers
                 return BadRequest("Update Failed !");
             }
         }
+
+        [HttpPut("api/courts-toggle/{id}")]
+        public async Task<ActionResult<ResponseCourtDTO>> ToggleStatusCenter([FromRoute] string id)
+        {
+            try
+            {
+                await _courtService.ToggleStatusCourt(id);
+                var deactCourt = await _courtService.GetCourtById(id);
+                var deactCourtResponse = _mapper.Map<ResponseCourtDTO>(deactCourt);
+                return Ok(deactCourtResponse);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest("Update Failed !");
+            }
+        }
     }
 }

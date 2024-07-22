@@ -15,6 +15,7 @@ namespace BadmintonBookingSystem.Configuration.AutoMapper
             CourtProfile();
             TimeSlotProfile();
             BookingProfile();
+            RoleProfile();
         }
         private void BadmintonCenterProfile() {
             CreateMap<BadmintonCenterEntity, ResponseBadmintonCenterDTO>()
@@ -57,10 +58,42 @@ namespace BadmintonBookingSystem.Configuration.AutoMapper
                 .ForMember(rts => rts.StartTime, opt => opt.MapFrom(ts => ts.StartTime.ToString("HH:mm")))
                 .ForMember(rts => rts.EndTime, opt => opt.MapFrom(ts => ts.EndTime.ToString("HH:mm")))
                 .ForMember(rts => rts.CourtName, opt => opt.MapFrom(ts => ts.Court.CourtName));
+            CreateMap<TimeSlotEntity, ResponseTimeSlotWithStatusDTO>()
+                .ForMember(rts => rts.StartTime, opt => opt.MapFrom(ts => ts.StartTime.ToString("HH:mm")))
+                .ForMember(rts => rts.EndTime, opt => opt.MapFrom(ts => ts.EndTime.ToString("HH:mm")))
+                .ForMember(rts => rts.CourtName, opt => opt.MapFrom(ts => ts.Court.CourtName));
+
         }
         private void BookingProfile() 
         {
             CreateMap<SingleBookingCreateDTO, BookingEntity>().ReverseMap();
+            CreateMap<BookingEntity, ResponseBookingHeaderDTO>()
+                .ForMember(c => c.CustomerId, opt => opt.MapFrom(c => c.Customer.Id))
+                .ForMember(c => c.CustomerName, opt => opt.MapFrom(c => c.Customer.FullName))
+                .ForMember(c => c.CustomerEmail, opt => opt.MapFrom(c => c.Customer.Email))
+                .ForMember(c => c.CustomerPhone, opt => opt.MapFrom(c => c.Customer.PhoneNumber));
+            CreateMap<BookingDetailEntity, ResponseBookingDetailDTO>()
+                .ForMember(c => c.StartTime, opt => opt.MapFrom(c => c.TimeSlot.StartTime))
+                .ForMember(c => c.EndTime, opt => opt.MapFrom(c => c.TimeSlot.EndTime))
+                .ForMember(c => c.SlotPrice, opt => opt.MapFrom(c => c.TimeSlot.Price));
+            CreateMap<BookingEntity, ResponseBookingHeaderAndBookingDetail>()
+                .ForMember(c=>c.BookingHeader, opt => opt.MapFrom(c => c))
+                .ForMember(c=>c.BookingDetails,opt => opt.MapFrom(c => c.BookingDetails));
+            CreateMap<BookingDetailEntity, ResponseCourtReservationDTO>()
+                .ForMember(c => c.StartTime, opt => opt.MapFrom(c => c.TimeSlot.StartTime.ToString("HH:mm")))
+                .ForMember(c => c.EndTime, opt => opt.MapFrom(c => c.TimeSlot.EndTime.ToString("HH:mm")))
+                .ForMember(c => c.CustomerPhone, opt => opt.MapFrom(c => c.Booking.Customer.PhoneNumber))
+                .ForMember(c => c.CustomerEmail, opt => opt.MapFrom(c => c.Booking.Customer.Email))
+                .ForMember(c => c.CustomerName, opt => opt.MapFrom(c => c.Booking.Customer.FullName))
+                .ForMember(c => c.BookingDate, opt => opt.MapFrom(c => c.BookingDate))
+                .ForMember(c => c.CourtName, opt => opt.MapFrom(c => c.TimeSlot.Court.CourtName))
+                .ForMember(c => c.ReservationStatus, opt => opt.MapFrom(c => c.ReservationStatus.ToString()))
+                .ForMember(c => c.SlotPrice, opt => opt.MapFrom(c => c.TimeSlot.Price));
+        }
+        private void RoleProfile()
+        {
+            CreateMap<RoleEntity,RoleResponseDTO>()
+                .ForMember(c => c.RoleName, opt => opt.MapFrom(c=>c.Name));
         }
     }
 }

@@ -36,20 +36,26 @@ namespace BadmintonBookingSystem.Service.Services
 
         public async Task CreateBadmintonCenter(BadmintonCenterEntity badmintonCenterEntity, List<IFormFile>? picList, IFormFile avatar)
         {
+            if (!string.IsNullOrEmpty(badmintonCenterEntity.ManagerId))
+            {
+                // Check if the manager exists in the database
+                var manager = await _userManager.FindByIdAsync(badmintonCenterEntity.ManagerId);
+                if (manager == null)
+                {
+                    throw new Exception("Manager not found"); // Handle appropriately
+                }
+                var existerCenter = await _badmintonCenterRepository.QueryHelper()
+                    .Filter(c => c.ManagerId.Equals(badmintonCenterEntity.ManagerId)).GetOneAsync();
+                if (existerCenter != null)
+                {
+                    throw new ConflictException($"This manager already has managed one badminton center name: {existerCenter.Name}");
+                }
+            }
             try
             {
                 _unitOfWork.BeginTransaction();
 
-                // Ensure the manager relationship is valid
-                if (!string.IsNullOrEmpty(badmintonCenterEntity.ManagerId))
-                {
-                    // Check if the manager exists in the database
-                    var manager = await _userManager.FindByIdAsync(badmintonCenterEntity.ManagerId);
-                    if (manager == null)
-                    {
-                        throw new Exception("Manager not found"); // Handle appropriately
-                    }
-                }
+                // Ensure the manager relationship is valid           
                 if (avatar != null)
                 {
                     var s3Object = new AwsS3Object();
@@ -121,7 +127,7 @@ namespace BadmintonBookingSystem.Service.Services
         public async Task<IEnumerable<BadmintonCenterEntity>> GetAllActiveBadmintonCentersAsync(int pageIndex, int size)
         {
             var badmintonCenter = await _badmintonCenterRepository.QueryHelper()
-                .Filter(c=>c.IsActive == true)
+                .Filter(c => c.IsActive == true)
                 .Include(x => x.Manager)
                 .Include(x => x.BadmintonCenterImages)
                 .GetPagingAsync(pageIndex, size);
@@ -147,7 +153,7 @@ namespace BadmintonBookingSystem.Service.Services
             return chosenCenter;
         }
 
-        public async Task<IEnumerable<BadmintonCenterEntity>> SearchBadmintonCentersAsync(BadmintonCenterEntity searchBadmintonCenter)
+        public async Task<IEnumerable<BadmintonCenterEntity>> SearchBadmintonCentersAsync(BadmintonCenterEntity searchBadmintonCenter, int pageIndex, int pageSize)
         {
             var search =  _badmintonCenterRepository.QueryHelper().Filter(c => c.IsActive == true);
 
@@ -164,19 +170,19 @@ namespace BadmintonBookingSystem.Service.Services
             {
                 if (searchBadmintonCenter.OperatingTime != default)
                 {
-                    search = search.Filter(bc => bc.OperatingTime <= searchBadmintonCenter.OperatingTime);
+                    search = search.Filter(bc => bc.OperatingTime >= searchBadmintonCenter.OperatingTime);
                 }
                 if (searchBadmintonCenter.ClosingTime != default)
                 {
-                    search = search.Filter(bc => bc.ClosingTime >= searchBadmintonCenter.ClosingTime);
+                    search = search.Filter(bc => bc.ClosingTime <= searchBadmintonCenter.ClosingTime);
                 }
             }
             if (searchBadmintonCenter.OperatingTime != default && searchBadmintonCenter.ClosingTime != default)
             {
-                search = search.Filter(bc => bc.OperatingTime <= searchBadmintonCenter.OperatingTime && bc.ClosingTime >= searchBadmintonCenter.ClosingTime);
+                search = search.Filter(bc => bc.OperatingTime >= searchBadmintonCenter.OperatingTime && bc.ClosingTime <= searchBadmintonCenter.ClosingTime);
             }
 
-            return await search.GetAllAsync();
+            return await search.GetPagingAsync(pageIndex,pageSize);
         }
 
         public async Task<BadmintonCenterEntity> UpdateBadmintonInfo(BadmintonCenterEntity badmintonCenterEntity, string centerId, List<IFormFile>? newPicList, IFormFile? newAvatar)
@@ -198,6 +204,7 @@ namespace BadmintonBookingSystem.Service.Services
             badmintonCenter.Location = badmintonCenterEntity.Location;
             badmintonCenter.ManagerId = badmintonCenterEntity.ManagerId;
             badmintonCenter.OperatingTime = badmintonCenterEntity.OperatingTime;
+            badmintonCenter.ClosingTime = badmintonCenterEntity.ClosingTime;
             badmintonCenter.LastUpdatedTime = DateTimeOffset.UtcNow;
             
             if (newAvatar != null)
@@ -253,27 +260,51 @@ namespace BadmintonBookingSystem.Service.Services
             return badmintonCenter;
         }
 
-        public async Task DeactiveBadmintonCenter(string centerId)
+        public async Task ToggleStatusBadmintonCenter(string centerId)
         {
             var center = await _badmintonCenterRepository.QueryHelper()
-                .Filter(c=>c.Id.Equals(centerId))
-                .Include(c=>c.Courts)
+                .Filter(c => c.Id.Equals(centerId))
+                .Include(c => c.Courts)
                 .GetOneAsync();
-            if (center == null) {
-                throw new NotFoundException("Badminton center not found !");
-            }
-            center.IsActive = false;
-            center.LastUpdatedTime = DateTime.UtcNow;
-            _badmintonCenterRepository.Update(center);
-            if (center.Courts.Any())
+
+            if (center == null)
             {
-                foreach (var court in center.Courts)
+                throw new NotFoundException("Badminton center not found!");
+            }
+
+            if (center.IsActive)
+            {
+                center.IsActive = false;
+                if (center.Courts.Any())
                 {
-                    court.IsActive = false;
-                    _courtRepository.Update(court);
+                    foreach (var court in center.Courts)
+                    {
+                        court.IsActive = false;
+                        _courtRepository.Update(court);
+                    }
                 }
             }
+            else
+            {
+                center.IsActive = true;
+            }
+
+            center.LastUpdatedTime = DateTime.UtcNow;
+            _badmintonCenterRepository.Update(center);
             await _unitOfWork.SaveChangesAsync();
+        }
+
+        public async Task<IEnumerable<BadmintonCenterEntity>> GetAllBadmintonCenterByManagerIdAsync(string managerId)
+        {
+            var centerList = await _badmintonCenterRepository.QueryHelper()
+                .Filter(c => c.ManagerId.Equals(managerId))
+                .Include(c => c.Courts)
+                .GetAllAsync();
+            if (!centerList.Any())
+            {
+                throw new NotFoundException("Court Not Found!");
+            }
+            return centerList;
         }
     }
 }

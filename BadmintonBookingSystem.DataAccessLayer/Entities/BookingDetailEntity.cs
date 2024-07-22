@@ -1,4 +1,5 @@
-﻿using BadmintonBookingSystem.DataAccessLayer.Entities.BaseEntities;
+﻿using BadmintonBookingSystem.BusinessObject.Enum;
+using BadmintonBookingSystem.DataAccessLayer.Entities.BaseEntities;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -21,6 +22,7 @@ namespace BadmintonBookingSystem.DataAccessLayer.Entities
         public BookingEntity Booking { get; set;}
 
         public DateOnly BookingDate { get; set; }
-        public string DateOfWeek { get; set; }
+        public DayOfAWeek DayOfAWeek { get; set; }
+        public ReservationStatus ReservationStatus { get; set; }
     }
 }

@@ -31,6 +31,18 @@ namespace BadmintonBookingSystem.DataAccessLayer.Context
         {
             base.OnModelCreating(modelBuilder);
 
+            modelBuilder.Entity<BookingDetailEntity>()
+            .Property(u => u.ReservationStatus)
+            .HasConversion(
+            v => v.ToString(),
+                v => (ReservationStatus)Enum.Parse(typeof(ReservationStatus), v));
+
+            modelBuilder.Entity<BookingDetailEntity>()
+            .Property(u => u.DayOfAWeek)
+            .HasConversion(
+            v => v.ToString(),
+                v => (DayOfAWeek)Enum.Parse(typeof(DayOfAWeek), v));
+
             modelBuilder.Entity<BookingEntity>()
             .Property(u => u.BookingType)
             .HasConversion(
