@@ -47,7 +47,7 @@ namespace BadmintonBookingSystem.Service.Services
                 _configuration.GetValue<string>("SECRET_ISSUER") ?? _configuration["jwt:issuer"],
                 _configuration.GetValue<string>("SECRET_AUDIENCE") ?? _configuration["jwt:audience"],
                 claims,
-                expires: DateTime.UtcNow.AddSeconds(FIVE_MINUTES),
+                expires: DateTime.UtcNow.AddDays(1),
                 signingCredentials: credential);
 
             return tokenHandler.WriteToken(token);
