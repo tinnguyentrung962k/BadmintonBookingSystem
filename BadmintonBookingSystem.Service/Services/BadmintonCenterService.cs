@@ -153,7 +153,7 @@ namespace BadmintonBookingSystem.Service.Services
             return chosenCenter;
         }
 
-        public async Task<IEnumerable<BadmintonCenterEntity>> SearchBadmintonCentersAsync(BadmintonCenterEntity searchBadmintonCenter)
+        public async Task<IEnumerable<BadmintonCenterEntity>> SearchBadmintonCentersAsync(BadmintonCenterEntity searchBadmintonCenter, int pageIndex, int pageSize)
         {
             var search =  _badmintonCenterRepository.QueryHelper().Filter(c => c.IsActive == true);
 
@@ -170,19 +170,19 @@ namespace BadmintonBookingSystem.Service.Services
             {
                 if (searchBadmintonCenter.OperatingTime != default)
                 {
-                    search = search.Filter(bc => bc.OperatingTime <= searchBadmintonCenter.OperatingTime);
+                    search = search.Filter(bc => bc.OperatingTime >= searchBadmintonCenter.OperatingTime);
                 }
                 if (searchBadmintonCenter.ClosingTime != default)
                 {
-                    search = search.Filter(bc => bc.ClosingTime >= searchBadmintonCenter.ClosingTime);
+                    search = search.Filter(bc => bc.ClosingTime <= searchBadmintonCenter.ClosingTime);
                 }
             }
             if (searchBadmintonCenter.OperatingTime != default && searchBadmintonCenter.ClosingTime != default)
             {
-                search = search.Filter(bc => bc.OperatingTime <= searchBadmintonCenter.OperatingTime && bc.ClosingTime >= searchBadmintonCenter.ClosingTime);
+                search = search.Filter(bc => bc.OperatingTime >= searchBadmintonCenter.OperatingTime && bc.ClosingTime <= searchBadmintonCenter.ClosingTime);
             }
 
-            return await search.GetAllAsync();
+            return await search.GetPagingAsync(pageIndex,pageSize);
         }
 
         public async Task<BadmintonCenterEntity> UpdateBadmintonInfo(BadmintonCenterEntity badmintonCenterEntity, string centerId, List<IFormFile>? newPicList, IFormFile? newAvatar)
