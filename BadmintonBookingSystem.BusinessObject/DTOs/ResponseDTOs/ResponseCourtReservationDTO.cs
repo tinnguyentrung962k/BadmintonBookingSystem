@@ -16,6 +16,7 @@ namespace BadmintonBookingSystem.BusinessObject.DTOs.ResponseDTOs
         public string StartTime { get; set; }
         public string EndTime { get; set; }
         public string CourtName { get; set; }
+        public decimal SlotPrice { get; set; }
         public string ReservationStatus { get; set; }
 
     }
