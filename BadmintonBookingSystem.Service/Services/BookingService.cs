@@ -1,4 +1,5 @@
 ﻿using BadmintonBookingSystem.BusinessObject.DTOs.RequestDTOs;
+using BadmintonBookingSystem.BusinessObject.DTOs.ResponseDTOs;
 using BadmintonBookingSystem.BusinessObject.Enum;
 using BadmintonBookingSystem.BusinessObject.Exceptions;
 using BadmintonBookingSystem.DataAccessLayer.Entities;
@@ -230,7 +231,7 @@ namespace BadmintonBookingSystem.Service.Services
                 throw new Exception("Center not found");
             }
             var search = _bookDetailRepository.QueryHelper()
-                .OrderBy(c=>c.OrderByDescending(c=>c.BookingDate))
+                .OrderBy(c => c.OrderByDescending(c => c.BookingDate))
                 .Include(c => c.Booking.Customer)
                 .Include(c => c.TimeSlot.Court)
                 .Include(c => c.TimeSlot);
@@ -267,8 +268,54 @@ namespace BadmintonBookingSystem.Service.Services
                 search = search.Filter(bd => bd.BookingDate >= searchBookingDTO.FromDate && bd.BookingDate <= searchBookingDTO.ToDate);
             }
 
-            return await search.GetPagingAsync(pageIndex,pageSize);
+            return await search.GetPagingAsync(pageIndex, pageSize);
+        }
+        public async Task<List<ResponseBookingHeaderAndBookingDetail>> GetBookingDetailsByUserIdAsync(string userId)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+            {
+                throw new NotFoundException("User not found.");
+            }
+
+            var bookings = await _bookingRepository.QueryHelper()
+                .Filter(b => b.CustomerId == userId)
+                .Include(b => b.BookingDetails)
+                .Include(b => b.Customer)
+                .GetAllAsync();
+
+            var sortedBookings = bookings
+                .OrderByDescending(b => b.FromDate)
+                .ToList();
+
+            var bookingDetails = sortedBookings.Select(booking => new ResponseBookingHeaderAndBookingDetail
+            {
+                BookingHeader = new ResponseBookingHeaderDTO
+                {
+                    Id = booking.Id,
+                    CustomerId = booking.CustomerId,
+                    CustomerName = booking.Customer.FullName,
+                    CustomerEmail = booking.Customer.Email,
+                    CustomerPhone = booking.Customer.PhoneNumber,
+                    BookingType = booking.BookingType.ToString(),
+                    FromDate = booking.FromDate,
+                    ToDate = booking.ToDate,
+                    TotalPrice = booking.TotalPrice
+                },
+                BookingDetails = booking.BookingDetails.Select(bd => new ResponseBookingDetailDTO
+                {
+                    Id = bd.Id,
+                    BookingId = bd.BookingId,
+                    TimeSlotId = bd.TimeSlotId,
+                    StartTime = bd.TimeSlot.StartTime.ToString("HH:mm"),
+                    EndTime = bd.TimeSlot.EndTime.ToString("HH:mm"),
+                    BookingDate = bd.BookingDate,
+                    DayOfAWeek = bd.DayOfAWeek.ToString(),
+                    SlotPrice = bd.TimeSlot.Price
+                }).ToList()
+            }).ToList();
+
+            return bookingDetails;
         }
     }
-    
 }

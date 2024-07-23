@@ -1,4 +1,5 @@
 ﻿using BadmintonBookingSystem.BusinessObject.DTOs.RequestDTOs;
+using BadmintonBookingSystem.BusinessObject.DTOs.ResponseDTOs;
 using BadmintonBookingSystem.DataAccessLayer.Entities;
 using BadmintonBookingSystem.Repository.Repositories.Interface;
 using System;
@@ -15,6 +16,7 @@ namespace BadmintonBookingSystem.Service.Services.Interface
         Task<BookingEntity> CreateBookingFixed(string userId, FixedBookingCreateDTO fixedBookingCreateDTO);
         Task<IEnumerable<BookingDetailEntity>> GetAllBookingOfCustomersByCenterId(string centerId, int pageIndex, int pageSize);
         Task<IEnumerable<BookingDetailEntity>> SearchBookingOfCustomerByCenterId(string centerId, SearchBookingDTO searchBookingDTO, int pageIndex, int pageSize);
-
+        Task<List<ResponseBookingHeaderAndBookingDetail>> GetBookingDetailsByUserIdAsync(string userId);
     }
+}
 }

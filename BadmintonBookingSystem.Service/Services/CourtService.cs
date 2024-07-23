@@ -186,5 +186,42 @@ namespace BadmintonBookingSystem.Service.Services
             _courtRepository.Update(court);
             await _unitOfWork.SaveChangesAsync();
         }
+        public async Task<bool> ActivateCourtByCenterIdAsync(string centerId, bool isActive)
+        {
+            var courts = await _courtRepository.QueryHelper()
+                .Filter(c => c.CenterId.Equals(centerId))
+                .GetAllAsync();
+
+            if (courts == null || !courts.Any())
+            {
+                return false;
+            }
+
+            foreach (var court in courts)
+            {
+                court.IsActive = isActive;
+                court.LastUpdatedTime = DateTime.UtcNow;
+                _courtRepository.Update(court);
+            }
+
+            await _unitOfWork.SaveChangesAsync();
+            return true;
+        }
+        public async Task<List<CourtEntity>> GetCourtsByCenterIdAsync(string centerId)
+        {
+
+            var courts = await _courtRepository.QueryHelper()
+                .Filter(c => c.CenterId.Equals(centerId))
+                .GetAllAsync();
+
+
+            if (courts == null || !courts.Any())
+            {
+                throw new NotFoundException("No courts found for the given center ID.");
+            }
+
+
+            return (List<CourtEntity>)courts;
+        }
     }
 }
