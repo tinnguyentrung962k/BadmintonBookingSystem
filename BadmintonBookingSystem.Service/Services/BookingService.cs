@@ -207,7 +207,7 @@ namespace BadmintonBookingSystem.Service.Services
                 throw new Exception("Center not found");
             }
             var bookingDetails = await _bookDetailRepository.QueryHelper()
-                .Filter(c=>c.TimeSlot.Court.CenterId.Equals(centerId))
+                .Filter(c => c.TimeSlot.Court.CenterId.Equals(centerId))
                 .Include(c => c.Booking.Customer)
                 .Include(c => c.TimeSlot.Court)
                 .Include(c => c.TimeSlot)
@@ -230,7 +230,7 @@ namespace BadmintonBookingSystem.Service.Services
                 throw new Exception("Center not found");
             }
             var search = _bookDetailRepository.QueryHelper()
-                .OrderBy(c=>c.OrderByDescending(c=>c.BookingDate))
+                .OrderBy(c => c.OrderByDescending(c => c.BookingDate))
                 .Include(c => c.Booking.Customer)
                 .Include(c => c.TimeSlot.Court)
                 .Include(c => c.TimeSlot);
@@ -267,8 +267,88 @@ namespace BadmintonBookingSystem.Service.Services
                 search = search.Filter(bd => bd.BookingDate >= searchBookingDTO.FromDate && bd.BookingDate <= searchBookingDTO.ToDate);
             }
 
-            return await search.GetPagingAsync(pageIndex,pageSize);
+            return await search.GetPagingAsync(pageIndex, pageSize);
+        }
+        public async Task<BookingEntity> CreateBookingFlex(string userId, List<FlexBookingCreateDTO> flexBookingCreateDTOs)
+        {
+            // Validate user
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+            {
+                throw new NotFoundException("User Not Found!");
+            }
+
+            // Validate time slots for conflicts
+            foreach (var chosenTimeSlot in flexBookingCreateDTOs)
+            {
+                foreach (var timeSlotId in chosenTimeSlot.ListTimeSlotId)
+                {
+                    var existedBookingDetail = await _bookDetailRepository.QueryHelper()
+                        .Filter(bd => bd.TimeSlotId == timeSlotId
+                            && bd.BookingDate == chosenTimeSlot.BookingDate
+                            && bd.DayOfAWeek == (DayOfAWeek)chosenTimeSlot.BookingDate.DayOfWeek)
+                        .GetOneAsync(); // Using AnyAsync to improve performance
+
+                    if (existedBookingDetail != null)
+                    {
+                        var formatDate = existedBookingDetail.BookingDate.ToString("dd/MM/yyyy");
+                        throw new ConflictException($"Time slot from {existedBookingDetail.TimeSlot.StartTime} to {existedBookingDetail.TimeSlot.EndTime} on {formatDate} is booked!");
+                    }
+                }
+            }
+
+            try
+            {
+                _unitOfWork.BeginTransaction();
+
+                // Create BookingEntity
+                var bookingEntity = new BookingEntity
+                {
+                    CustomerId = userId,
+                    Customer = user,
+                    BookingType = BookingType.Flexible,
+                    FromDate = flexBookingCreateDTOs.Min(ts => ts.BookingDate),
+                    ToDate = flexBookingCreateDTOs.Max(ts => ts.BookingDate)
+                };
+
+                decimal totalPrice = 0;
+                foreach (var chosenTimeSlot in flexBookingCreateDTOs)
+                {
+                    foreach (var timeSlotId in chosenTimeSlot.ListTimeSlotId)
+                    {
+                        var timeSlot = await _timeSlotRepository.GetOneAsync(timeSlotId);
+                        if (timeSlot == null)
+                        {
+                            throw new NotFoundException($"TimeSlot with ID {timeSlotId} Not Found!");
+                        }
+
+                        var bookingDetailEntity = new BookingDetailEntity
+                        {
+                            TimeSlotId = timeSlotId,
+                            TimeSlot = timeSlot,
+                            BookingDate = chosenTimeSlot.BookingDate,
+                            DayOfAWeek = (DayOfAWeek)chosenTimeSlot.BookingDate.DayOfWeek,
+                            ReservationStatus = ReservationStatus.NotCheckedIn,
+                            Booking = bookingEntity
+                        };
+
+                        _bookDetailRepository.Add(bookingDetailEntity);
+                        totalPrice += timeSlot.Price;
+                    }
+                }
+
+                bookingEntity.TotalPrice = totalPrice;
+                _bookingRepository.Add(bookingEntity);
+                await _unitOfWork.SaveChangesAsync();
+                await _unitOfWork.CommitAsync();
+                return bookingEntity;
+            }
+            catch (Exception ex)
+            {
+                await _unitOfWork.RollbackAsync();
+                // Log exception if needed
+                throw; // Rethrow the original exception
+            }
         }
     }
-    
 }
