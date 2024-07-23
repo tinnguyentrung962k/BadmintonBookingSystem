@@ -197,7 +197,7 @@ namespace BadmintonBookingSystem.Controllers
             }
         }
 
-        [HttpGet("user/{userId}/details")]
+        [HttpGet("user/bookingdetails/{userId}")]
         public async Task<ActionResult<List<ResponseBookingHeaderAndBookingDetail>>> GetBookingDetailsByUserId(string userId)
         {
             if (string.IsNullOrEmpty(userId))
