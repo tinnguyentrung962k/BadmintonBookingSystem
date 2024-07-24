@@ -11,6 +11,8 @@ namespace BadmintonBookingSystem.Service.Services.Interface
     public interface ITimeSlotService
     {
         Task<IEnumerable<TimeSlotEntity>> GetAllTimeSlotsByCourtId(string courtId);
+        Task<IEnumerable<TimeSlotEntity>> GetAllActiveTimeSlotsByCourtId(string courtId);
+        Task ToggleStatusOfTimeSlot (string timeSlotId);
         Task<TimeSlotEntity> CreateATimeSlot(TimeSlotEntity timeSlotEntity);
         Task<TimeSlotEntity> GetTimeSlotById(string id);
         Task<List<ResponseTimeSlotWithStatusDTO>> GetAvalableAndNotAvailableTimeSlotsByCourtId(string courtId, DateOnly chosenDate);

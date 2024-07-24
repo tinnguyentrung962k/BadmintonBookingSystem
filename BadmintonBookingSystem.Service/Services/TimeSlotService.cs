@@ -6,6 +6,7 @@ using BadmintonBookingSystem.Repository.Repositories.Interface;
 using BadmintonBookingSystem.Service.Services.Interface;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -27,6 +28,17 @@ namespace BadmintonBookingSystem.Service.Services
         }
         public async Task<TimeSlotEntity> CreateATimeSlot(TimeSlotEntity timeSlotEntity)
         {
+            var overlappingTimeSlots = await _timeSlotRepository.QueryHelper()
+            .Filter(ts => ts.CourtId == timeSlotEntity.CourtId &&
+                          ((ts.StartTime <= timeSlotEntity.StartTime && ts.EndTime > timeSlotEntity.StartTime) ||
+                           (ts.StartTime < timeSlotEntity.EndTime && ts.EndTime >= timeSlotEntity.EndTime) ||
+                           (ts.StartTime >= timeSlotEntity.StartTime && ts.EndTime <= timeSlotEntity.EndTime)))
+            .GetAllAsync();
+
+            if (overlappingTimeSlots.Any())
+            {
+                throw new ValidationException("The time slot overlaps with an existing time slot.");
+            }
             try
             {
                 _unitOfWork.BeginTransaction();
@@ -36,6 +48,7 @@ namespace BadmintonBookingSystem.Service.Services
                     throw new NotFoundException("Court is not found!");
                 }
                 timeSlotEntity.Court = court;
+                timeSlotEntity.IsActive = true;
                 _timeSlotRepository.Add(timeSlotEntity);
                 await _unitOfWork.SaveChangesAsync();
                 await _unitOfWork.CommitAsync();
@@ -46,6 +59,11 @@ namespace BadmintonBookingSystem.Service.Services
                 await _unitOfWork.RollbackAsync();
                 throw new Exception("Failed to create time slot", ex);
             }
+        }
+
+        public Task<IEnumerable<TimeSlotEntity>> GetAllActiveTimeSlotsByCourtId(string courtId)
+        {
+            throw new NotImplementedException();
         }
 
         public async Task<IEnumerable<TimeSlotEntity>> GetAllTimeSlotsByCourtId(string courtId)
@@ -69,12 +87,12 @@ namespace BadmintonBookingSystem.Service.Services
            .GetOneAsync();
 
             var availableTimeSlots = await _timeSlotRepository.QueryHelper()
-                .Filter(ts => ts.CourtId.Equals(courtId) && !ts.BookingDetails.Any(bd => bd.BookingDate == chosenDate))
+                .Filter(ts => ts.CourtId.Equals(courtId) && !ts.BookingDetails.Any(bd => bd.BookingDate == chosenDate) && ts.IsActive == true)
                 .Include(ts => ts.Court)
                 .GetAllAsync();
 
             var bookedTimeSlots = await _timeSlotRepository.QueryHelper()
-                .Filter(ts => ts.CourtId.Equals(courtId) && ts.BookingDetails.Any(bd => bd.BookingDate == chosenDate))
+                .Filter(ts => ts.CourtId.Equals(courtId) && ts.BookingDetails.Any(bd => bd.BookingDate == chosenDate) && ts.IsActive == true)
                 .Include(ts => ts.Court)
                 .GetAllAsync();
 
@@ -109,6 +127,27 @@ namespace BadmintonBookingSystem.Service.Services
                 throw new NotFoundException("Slot Not Found!");
             }
             return timeSlot;
+        }
+
+        public async Task ToggleStatusOfTimeSlot(string timeSlotId)
+        {
+            var timeSlot = await _timeSlotRepository.GetOneAsync(timeSlotId);
+            if (timeSlot == null)
+            {
+                throw new NotFoundException("Time slot not found");
+            }
+            if (timeSlot.IsActive)
+            {
+                timeSlot.IsActive = false;
+            }
+            else
+            {
+                timeSlot.IsActive = true;
+            }
+
+            timeSlot.LastUpdatedTime = DateTime.UtcNow;
+            _timeSlotRepository.Update(timeSlot);
+            await _unitOfWork.SaveChangesAsync();
         }
     }
 }

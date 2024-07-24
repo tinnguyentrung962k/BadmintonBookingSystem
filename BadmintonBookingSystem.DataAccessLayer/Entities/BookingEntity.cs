@@ -20,6 +20,7 @@ namespace BadmintonBookingSystem.DataAccessLayer.Entities
         public DateOnly FromDate { get; set; }
         public DateOnly ToDate { get; set; }
         public decimal TotalPrice { get; set; }
+        public PaymentStatus PaymentStatus { get; set; }
         public IEnumerable<BookingDetailEntity> BookingDetails { get; set; }
         
 

@@ -3,6 +3,7 @@ using BadmintonBookingSystem.BusinessObject.DTOs.RequestDTOs;
 using BadmintonBookingSystem.BusinessObject.DTOs.ResponseDTOs;
 using BadmintonBookingSystem.BusinessObject.Exceptions;
 using BadmintonBookingSystem.DataAccessLayer.Entities;
+using BadmintonBookingSystem.Service.Services;
 using BadmintonBookingSystem.Service.Services.Interface;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -87,6 +88,22 @@ namespace BadmintonBookingSystem.Controllers
                 return StatusCode(500, "Server Error");
             }
 
+        }
+
+        [HttpPut("api/timeslot-toggle/{id}")]
+        public async Task<ActionResult<ResponseTimeSlotDTO>> ToggleStatusCourt([FromRoute] string id)
+        {
+            try
+            {
+                await _timeSlotService.ToggleStatusOfTimeSlot(id);
+                var deactTimeSlot = await _timeSlotService.GetTimeSlotById(id);
+                var deactTimeSlotResponse = _mapper.Map<ResponseTimeSlotDTO>(deactTimeSlot);
+                return Ok(deactTimeSlotResponse);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest("Update Failed !");
+            }
         }
 
 
