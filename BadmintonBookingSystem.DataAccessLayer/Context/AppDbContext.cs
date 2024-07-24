@@ -49,6 +49,11 @@ namespace BadmintonBookingSystem.DataAccessLayer.Context
             v => v.ToString(),
                 v => (BookingType)Enum.Parse(typeof(BookingType), v));
 
+            modelBuilder.Entity<BookingEntity>()
+            .Property(u => u.PaymentStatus)
+            .HasConversion(
+            v => v.ToString(),
+                v => (PaymentStatus)Enum.Parse(typeof(PaymentStatus), v));
 
             modelBuilder.Entity<UserRoleEntity>(userRole =>
             {

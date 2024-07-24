@@ -1,4 +1,5 @@
-﻿using BadmintonBookingSystem.DataAccessLayer.Entities;
+﻿using BadmintonBookingSystem.BusinessObject.Enum;
+using BadmintonBookingSystem.DataAccessLayer.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,5 +11,6 @@ namespace BadmintonBookingSystem.Repository.Repositories.Interface
     public interface IBookingRepository : IGenericRepository<BookingEntity,string>
     {
         Task<IEnumerable<BookingEntity>> GetAUserBookings(string userId, int pageIndex, int pageSize);
+        Task<IEnumerable<BookingEntity>> FilterStatusForAUserBookings(string userId, PaymentStatus? paymentStatus, int pageIndex, int pageSize);
     }
 }

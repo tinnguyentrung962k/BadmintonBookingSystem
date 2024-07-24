@@ -2,6 +2,7 @@
 using BadmintonBookingSystem.BusinessObject.Constants;
 using BadmintonBookingSystem.BusinessObject.DTOs.RequestDTOs;
 using BadmintonBookingSystem.BusinessObject.DTOs.ResponseDTOs;
+using BadmintonBookingSystem.BusinessObject.Enum;
 using BadmintonBookingSystem.BusinessObject.Exceptions;
 using BadmintonBookingSystem.DataAccessLayer.Entities;
 using BadmintonBookingSystem.Service.Services.Interface;
@@ -129,6 +130,27 @@ namespace BadmintonBookingSystem.Controllers
             {
                 var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
                 var bookingReservation = _mapper.Map<List<ResponseBookingHeaderAndBookingDetail>>(await _bookingService.GetAllBookingOfCustomerByUserId(userId, pageIndex, pageSize));
+                return Ok(bookingReservation);
+            }
+            catch (NotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Server Error");
+            }
+        }
+
+        [HttpGet("api/bookings/filter-user-bookings")]
+        [Authorize(Roles = RoleConstants.CUSTOMER)]
+
+        public async Task<ActionResult<List<ResponseBookingHeaderAndBookingDetail>>> FilterStatusBookingOrderAndDetailsOfUser([FromQuery]PaymentStatus? paymentStatus,int pageIndex, int pageSize)
+        {
+            try
+            {
+                var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
+                var bookingReservation = _mapper.Map<List<ResponseBookingHeaderAndBookingDetail>>(await _bookingService.FilterStatusBookingOfCustomerByUserId(userId, paymentStatus, pageIndex, pageSize));
                 return Ok(bookingReservation);
             }
             catch (NotFoundException ex)
