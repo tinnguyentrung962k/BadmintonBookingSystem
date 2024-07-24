@@ -6,6 +6,7 @@ using BadmintonBookingSystem.Repository.Repositories.Interface;
 using BadmintonBookingSystem.Service.Services.Interface;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -27,6 +28,17 @@ namespace BadmintonBookingSystem.Service.Services
         }
         public async Task<TimeSlotEntity> CreateATimeSlot(TimeSlotEntity timeSlotEntity)
         {
+            var overlappingTimeSlots = await _timeSlotRepository.QueryHelper()
+            .Filter(ts => ts.CourtId == timeSlotEntity.CourtId &&
+                          ((ts.StartTime <= timeSlotEntity.StartTime && ts.EndTime > timeSlotEntity.StartTime) ||
+                           (ts.StartTime < timeSlotEntity.EndTime && ts.EndTime >= timeSlotEntity.EndTime) ||
+                           (ts.StartTime >= timeSlotEntity.StartTime && ts.EndTime <= timeSlotEntity.EndTime)))
+            .GetAllAsync();
+
+            if (overlappingTimeSlots.Any())
+            {
+                throw new ValidationException("The time slot overlaps with an existing time slot.");
+            }
             try
             {
                 _unitOfWork.BeginTransaction();
