@@ -22,7 +22,6 @@ namespace BadmintonBookingSystem.Repository.Repositories
         public async Task<IEnumerable<BookingEntity>> FilterStatusForAUserBookings(string userId, PaymentStatus? paymentStatus, int pageIndex, int pageSize)
         {
             var query = _appDbContext.Bookings.Where(c => c.CustomerId.Equals(userId));
-                ;
             if (paymentStatus != null)
             {
                 query = query.Where(c => c.PaymentStatus == paymentStatus);
