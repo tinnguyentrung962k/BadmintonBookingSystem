@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using BadmintonBookingSystem.BusinessObject.DTOs.ResponseDTOs;
+using BadmintonBookingSystem.BusinessObject.Enum;
 using BadmintonBookingSystem.BusinessObject.Exceptions;
 using BadmintonBookingSystem.DataAccessLayer.Entities;
 using BadmintonBookingSystem.Repository.Repositories.Interface;
@@ -82,17 +83,17 @@ namespace BadmintonBookingSystem.Service.Services
         public async Task<List<ResponseTimeSlotWithStatusDTO>> GetAvalableAndNotAvailableTimeSlotsByCourtId(string courtId, DateOnly chosenDate)
         {
             var court = await _courtRepository.QueryHelper()
-           .Include(c => c.TimeSlots)
-           .Filter(c => c.Id.Equals(courtId))
-           .GetOneAsync();
+                .Include(c => c.TimeSlots)
+                .Filter(c => c.Id.Equals(courtId))
+                .GetOneAsync();
 
             var availableTimeSlots = await _timeSlotRepository.QueryHelper()
-                .Filter(ts => ts.CourtId.Equals(courtId) && !ts.BookingDetails.Any(bd => bd.BookingDate == chosenDate) && ts.IsActive == true)
+                .Filter(ts => ts.CourtId.Equals(courtId) && !ts.BookingDetails.Any(bd => bd.BookingDate == chosenDate && (bd.ReservationStatus == ReservationStatus.NotCheckedIn || bd.ReservationStatus == ReservationStatus.Completed)) && ts.IsActive == true)
                 .Include(ts => ts.Court)
                 .GetAllAsync();
 
             var bookedTimeSlots = await _timeSlotRepository.QueryHelper()
-                .Filter(ts => ts.CourtId.Equals(courtId) && ts.BookingDetails.Any(bd => bd.BookingDate == chosenDate) && ts.IsActive == true)
+                .Filter(ts => ts.CourtId.Equals(courtId) && ts.BookingDetails.Any(bd => bd.BookingDate == chosenDate && (bd.ReservationStatus == ReservationStatus.NotCheckedIn || bd.ReservationStatus == ReservationStatus.Completed)) && ts.IsActive == true)
                 .Include(ts => ts.Court)
                 .GetAllAsync();
 
@@ -107,12 +108,15 @@ namespace BadmintonBookingSystem.Service.Services
             {
                 slot.isBooked = true;
             }
+
             List<ResponseTimeSlotWithStatusDTO> timeSlotList = new List<ResponseTimeSlotWithStatusDTO>();
             timeSlotList.AddRange(availableTimeSlotDtos);
             timeSlotList.AddRange(bookedTimeSlotDtos);
-            var sortedTimeSlotList = timeSlotList.OrderBy(c=>c.StartTime).ToList();
+            var sortedTimeSlotList = timeSlotList.OrderBy(c => c.StartTime).ToList();
+
             return sortedTimeSlotList;
         }
+
 
 
 
