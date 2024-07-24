@@ -16,6 +16,7 @@ namespace BadmintonBookingSystem.Service.Services.Interface
         Task<BookingEntity> CreateBookingFlex(string userId, List<FlexBookingCreateDTO> flexBookingCreateDTOs);
         Task<IEnumerable<BookingDetailEntity>> GetAllBookingOfCustomersByCenterId(string centerId, int pageIndex, int pageSize);
         Task<IEnumerable<BookingDetailEntity>> SearchBookingOfCustomerByCenterId(string centerId, SearchBookingDTO searchBookingDTO, int pageIndex, int pageSize);
+        Task<IEnumerable<BookingEntity>> GetAllBookingOfCustomerByUserId(string userId, int pageIndex, int pageSize);
 
     }
 }
