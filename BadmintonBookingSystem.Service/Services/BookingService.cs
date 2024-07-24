@@ -76,7 +76,8 @@ namespace BadmintonBookingSystem.Service.Services
                     FromDate = singleBookingCreateDTO.BookingDate,
                     ToDate = singleBookingCreateDTO.BookingDate,
                     Customer = user,
-                    TotalPrice = totalPrice
+                    TotalPrice = totalPrice,
+                    PaymentStatus = PaymentStatus.NotPaid
                 };
 
                 _bookingRepository.Add(booking);
@@ -165,6 +166,7 @@ namespace BadmintonBookingSystem.Service.Services
                     FromDate = fixedBookingCreateDTO.FromDate,
                     ToDate = fixedBookingCreateDTO.ToDate,
                     Customer = user,
+                    PaymentStatus = PaymentStatus.NotPaid,
                     TotalPrice = totalPrice // Assuming BookingEntity has a TotalPrice property
                 };
 
@@ -308,7 +310,8 @@ namespace BadmintonBookingSystem.Service.Services
                     Customer = user,
                     BookingType = BookingType.Flexible,
                     FromDate = flexBookingCreateDTOs.Min(ts => ts.BookingDate),
-                    ToDate = flexBookingCreateDTOs.Max(ts => ts.BookingDate)
+                    ToDate = flexBookingCreateDTOs.Max(ts => ts.BookingDate),
+                    PaymentStatus = PaymentStatus.NotPaid
                 };
 
                 decimal totalPrice = 0;
@@ -367,6 +370,23 @@ namespace BadmintonBookingSystem.Service.Services
 
             return bookingOrders;
 
+        }
+
+        public async Task<IEnumerable<BookingEntity>> FilterStatusBookingOfCustomerByUserId(string userId, PaymentStatus? paymentStatus, int pageIndex, int pageSize)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+            {
+                throw new NotFoundException("No user found");
+            }
+            var bookingOrders = await _bookingRepository.FilterStatusForAUserBookings(userId, paymentStatus, pageIndex, pageSize);
+
+            if (!bookingOrders.Any())
+            {
+                throw new NotFoundException("No booking found !");
+            }
+
+            return bookingOrders;
         }
     }
 }
