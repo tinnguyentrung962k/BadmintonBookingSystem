@@ -27,9 +27,11 @@ namespace BadmintonBookingSystem.Repository.Repositories
                 query = query.Where(c => c.PaymentStatus == paymentStatus);
             }
             var userBookings = await query
-                .Include(c => c.Customer)                    
+                .Include(c => c.Customer)
                 .Include(c => c.BookingDetails)
                 .ThenInclude(d => d.TimeSlot)
+                .ThenInclude(d => d.Court)
+                .ThenInclude(d => d.BadmintonCenter)
                 .OrderByDescending(c => c.CreatedTime).ToListAsync();
 
             pageIndex = pageIndex < 1 ? 0 : pageIndex - 1;
@@ -44,6 +46,8 @@ namespace BadmintonBookingSystem.Repository.Repositories
                 .Include(c => c.Customer)
                 .Include(c => c.BookingDetails)
                 .ThenInclude(d => d.TimeSlot)
+                .ThenInclude(d => d.Court)
+                .ThenInclude(d => d.BadmintonCenter)
                 .FirstOrDefaultAsync();
             return userBooking;
         }
@@ -54,6 +58,9 @@ namespace BadmintonBookingSystem.Repository.Repositories
                 .Include(c=>c.Customer)
                 .Include(c => c.BookingDetails)
                 .ThenInclude(d => d.TimeSlot)
+                .ThenInclude(d=> d.Court)
+                .ThenInclude(d =>d.BadmintonCenter)
+                
                 .OrderByDescending(c => c.CreatedTime).ToListAsync();
             
             pageIndex = pageIndex < 1 ? 0 : pageIndex - 1;

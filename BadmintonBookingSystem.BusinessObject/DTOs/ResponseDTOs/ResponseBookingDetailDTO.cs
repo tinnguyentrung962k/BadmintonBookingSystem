@@ -11,6 +11,8 @@ namespace BadmintonBookingSystem.BusinessObject.DTOs.ResponseDTOs
         public string Id { get; set; }
         public string BookingId { get; set; }
         public string TimeSlotId { get; set; }
+        public string CourtName { get; set; }
+        public string CenterName { get; set; }
         public string StartTime { get; set; }
         public string EndTime { get; set; }
         public DateOnly BookingDate { get; set; }
