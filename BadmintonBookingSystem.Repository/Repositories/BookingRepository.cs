@@ -38,6 +38,16 @@ namespace BadmintonBookingSystem.Repository.Repositories
             return pagedBookings;
         }
 
+        public async Task<BookingEntity> GetABookingById(string id)
+        {
+            var userBooking = await _appDbContext.Bookings.Where(c=>c.Id.Equals(id))
+                .Include(c => c.Customer)
+                .Include(c => c.BookingDetails)
+                .ThenInclude(d => d.TimeSlot)
+                .FirstOrDefaultAsync();
+            return userBooking;
+        }
+
         public async Task<IEnumerable<BookingEntity>> GetAUserBookings(string userId, int pageIndex, int pageSize)
         {
             var userBookings = await _appDbContext.Bookings.Where(c => c.CustomerId.Equals(userId))

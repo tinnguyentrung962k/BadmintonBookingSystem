@@ -388,5 +388,15 @@ namespace BadmintonBookingSystem.Service.Services
 
             return bookingOrders;
         }
+
+        public async Task<BookingEntity> GetBookingById(string id)
+        {
+            var chosenBooking = await _bookingRepository.GetABookingById(id);
+            if (chosenBooking is null)
+            {
+                throw new NotFoundException("Bookings not found !");
+            }
+            return chosenBooking;
+        }
     }
 }

@@ -12,5 +12,6 @@ namespace BadmintonBookingSystem.Repository.Repositories.Interface
     {
         Task<IEnumerable<BookingEntity>> GetAUserBookings(string userId, int pageIndex, int pageSize);
         Task<IEnumerable<BookingEntity>> FilterStatusForAUserBookings(string userId, PaymentStatus? paymentStatus, int pageIndex, int pageSize);
+        Task<BookingEntity> GetABookingById(string id);
     }
 }

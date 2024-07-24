@@ -141,6 +141,25 @@ namespace BadmintonBookingSystem.Controllers
                 return StatusCode(500, "Server Error");
             }
         }
+        [HttpGet("api/bookings/user-booking/{id}")]
+        [Authorize(Roles = RoleConstants.CUSTOMER)]
+
+        public async Task<ActionResult<ResponseBookingHeaderAndBookingDetail>> GetBookingOrderAndDetailsOfUserById([FromRoute] string id)
+        {
+            try
+            {
+                var bookingReservation = _mapper.Map<ResponseBookingHeaderAndBookingDetail>(await _bookingService.GetBookingById(id));
+                return Ok(bookingReservation);
+            }
+            catch (NotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Server Error");
+            }
+        }
 
         [HttpGet("api/bookings/filter-user-bookings")]
         [Authorize(Roles = RoleConstants.CUSTOMER)]
