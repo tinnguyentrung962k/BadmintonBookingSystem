@@ -212,6 +212,7 @@ namespace BadmintonBookingSystem.Service.Services
                 .Filter(c => c.TimeSlot.Court.CenterId.Equals(centerId))
                 .Include(c => c.Booking.Customer)
                 .Include(c => c.TimeSlot.Court)
+                .Include(c=>c.TimeSlot.Court.BadmintonCenter)
                 .Include(c => c.TimeSlot)
                 .OrderBy(c => c.OrderByDescending(c => c.BookingDate))
                 .GetPagingAsync(pageIndex, pageSize);
@@ -229,12 +230,14 @@ namespace BadmintonBookingSystem.Service.Services
             var center = await _badmintonCenterRepository.GetOneAsync(centerId);
             if (center == null)
             {
-                throw new Exception("Center not found");
+                throw new NotFoundException("Center not found");
             }
             var search = _bookDetailRepository.QueryHelper()
+                .Filter(c => c.TimeSlot.Court.CenterId.Equals(centerId))
                 .OrderBy(c => c.OrderByDescending(c => c.BookingDate))
                 .Include(c => c.Booking.Customer)
                 .Include(c => c.TimeSlot.Court)
+                .Include(c => c.TimeSlot.Court.BadmintonCenter)
                 .Include(c => c.TimeSlot);
             if (!string.IsNullOrEmpty(searchBookingDTO.BookingId))
             {
