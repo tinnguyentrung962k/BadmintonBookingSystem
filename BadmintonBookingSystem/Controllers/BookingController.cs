@@ -120,7 +120,25 @@ namespace BadmintonBookingSystem.Controllers
                 return StatusCode(500, "Server Error");
             }
         }
-        
+        [HttpDelete("api/bookings/booking-detail/{id}")]
+        public async Task<ActionResult<ResponseBookingDetailDTO>> CancelBookingDetail([FromRoute] string id)
+        {
+            try
+            {
+                var bookingReservation = _mapper.Map<ResponseBookingDetailDTO>(await _bookingService.CancelBookingDetail(id));
+                return Ok(bookingReservation);
+            }
+            catch (NotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Server Error");
+            }
+        }
+
+
         [HttpGet("api/bookings/user-bookings")]
         [Authorize(Roles = RoleConstants.CUSTOMER)]
 
@@ -149,6 +167,25 @@ namespace BadmintonBookingSystem.Controllers
             try
             {
                 var bookingReservation = _mapper.Map<ResponseBookingHeaderAndBookingDetail>(await _bookingService.GetBookingById(id));
+                return Ok(bookingReservation);
+            }
+            catch (NotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Server Error");
+            }
+        }
+        [HttpDelete("api/bookings/user-booking/{id}")]
+        [Authorize(Roles = RoleConstants.CUSTOMER)]
+
+        public async Task<ActionResult<ResponseBookingHeaderAndBookingDetail>> CancelBookingOrder([FromRoute] string id)
+        {
+            try
+            {
+                var bookingReservation = _mapper.Map<ResponseBookingHeaderAndBookingDetail>(await _bookingService.CancelBooking(id));
                 return Ok(bookingReservation);
             }
             catch (NotFoundException ex)

@@ -401,5 +401,62 @@ namespace BadmintonBookingSystem.Service.Services
             }
             return chosenBooking;
         }
+
+        public async Task<BookingEntity> CancelBooking(string bookingId)
+        {
+            var chosenBooking = await _bookingRepository.GetABookingById(bookingId);
+            if (chosenBooking is null)
+            {
+                throw new NotFoundException("No booking found");
+            }
+            try
+            {
+                chosenBooking.PaymentStatus = PaymentStatus.Cancel;
+                var bookingDetails = await _bookDetailRepository.QueryHelper()
+                    .Filter(c => c.BookingId.Equals(bookingId))
+                    .GetAllAsync();
+                foreach (var bookingDetail in bookingDetails)
+                {
+                    bookingDetail.ReservationStatus = ReservationStatus.Cancelled;
+                    _bookDetailRepository.Update(bookingDetail);
+                }
+                _bookingRepository.Update(chosenBooking);
+                await _unitOfWork.SaveChangesAsync();
+                return chosenBooking;
+            }
+            catch (Exception ex)
+            {
+                await _unitOfWork.RollbackAsync();
+                throw ex;
+            }
+        }
+
+        public async Task<BookingDetailEntity> CancelBookingDetail(string bookingDetailId)
+        {
+            var chosenBookingDetail = await _bookDetailRepository.QueryHelper()
+                .Filter(c => c.Id.Equals(bookingDetailId))
+                .Include(c => c.Booking.Customer)
+                .Include(c => c.TimeSlot.Court)
+                .Include(c => c.TimeSlot.Court.BadmintonCenter)
+                .Include(c => c.TimeSlot).GetOneAsync();
+            if (chosenBookingDetail == null)
+            {
+                throw new NotFoundException("No booking detail found");
+            }
+            try
+            {
+                chosenBookingDetail.ReservationStatus = ReservationStatus.Cancelled;
+                _bookDetailRepository.Update(chosenBookingDetail);
+                await _unitOfWork.SaveChangesAsync();
+                return chosenBookingDetail;
+            }
+            catch (Exception ex)
+            {
+                await _unitOfWork.RollbackAsync();
+                throw ex;
+            }
+            
+
+        }
     }
 }

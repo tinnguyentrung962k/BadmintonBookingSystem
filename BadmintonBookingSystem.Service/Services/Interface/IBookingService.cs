@@ -20,6 +20,8 @@ namespace BadmintonBookingSystem.Service.Services.Interface
         Task<IEnumerable<BookingEntity>> GetAllBookingOfCustomerByUserId(string userId, int pageIndex, int pageSize);
         Task<IEnumerable<BookingEntity>> FilterStatusBookingOfCustomerByUserId(string userId, PaymentStatus? paymentStatus, int pageIndex, int pageSize);
         Task<BookingEntity> GetBookingById(string id);
+        Task<BookingEntity> CancelBooking(string bookingId);
+        Task<BookingDetailEntity> CancelBookingDetail(string bookingDetailId);
 
     }
 }
