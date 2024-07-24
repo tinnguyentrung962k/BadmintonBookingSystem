@@ -121,6 +121,8 @@ namespace BadmintonBookingSystem.Controllers
         }
         
         [HttpGet("api/bookings/user-bookings")]
+        [Authorize(Roles = RoleConstants.CUSTOMER)]
+
         public async Task<ActionResult<List<ResponseBookingHeaderAndBookingDetail>>> GetBookingOrderAndDetailsOfUser([FromQuery] int pageIndex, int pageSize)
         {
             try
