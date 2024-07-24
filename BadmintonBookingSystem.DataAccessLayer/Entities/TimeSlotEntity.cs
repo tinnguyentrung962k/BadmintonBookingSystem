@@ -16,6 +16,7 @@ namespace BadmintonBookingSystem.DataAccessLayer.Entities
         public TimeOnly StartTime { get; set; }
         public TimeOnly EndTime { get; set; }
         public decimal Price { get; set; } 
+        public bool IsActive { get; set; }
 
         [ForeignKey(nameof(CourtId))]
         public CourtEntity Court { get; set; }
