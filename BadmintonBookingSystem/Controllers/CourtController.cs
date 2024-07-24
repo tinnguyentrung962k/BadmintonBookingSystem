@@ -104,7 +104,7 @@ namespace BadmintonBookingSystem.Controllers
         }
 
         [HttpPut("api/courts-toggle/{id}")]
-        public async Task<ActionResult<ResponseCourtDTO>> ToggleStatusCenter([FromRoute] string id)
+        public async Task<ActionResult<ResponseCourtDTO>> ToggleStatusCourt([FromRoute] string id)
         {
             try
             {

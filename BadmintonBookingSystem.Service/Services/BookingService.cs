@@ -350,5 +350,23 @@ namespace BadmintonBookingSystem.Service.Services
                 throw; // Rethrow the original exception
             }
         }
+
+        public async Task<IEnumerable<BookingEntity>> GetAllBookingOfCustomerByUserId(string userId, int pageIndex, int pageSize)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+            {
+                throw new NotFoundException("No user found");
+            }
+            var bookingOrders = await _bookingRepository.GetAUserBookings(userId,pageIndex,pageSize);
+
+            if (!bookingOrders.Any())
+            {
+                throw new NotFoundException("No booking found !");
+            }
+
+            return bookingOrders;
+
+        }
     }
 }

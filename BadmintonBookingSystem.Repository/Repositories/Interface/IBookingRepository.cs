@@ -9,5 +9,6 @@ namespace BadmintonBookingSystem.Repository.Repositories.Interface
 {
     public interface IBookingRepository : IGenericRepository<BookingEntity,string>
     {
+        Task<IEnumerable<BookingEntity>> GetAUserBookings(string userId, int pageIndex, int pageSize);
     }
 }
