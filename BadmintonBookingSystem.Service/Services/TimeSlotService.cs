@@ -88,12 +88,12 @@ namespace BadmintonBookingSystem.Service.Services
                 .GetOneAsync();
 
             var availableTimeSlots = await _timeSlotRepository.QueryHelper()
-                .Filter(ts => ts.CourtId.Equals(courtId) && !ts.BookingDetails.Any(bd => bd.BookingDate == chosenDate && (bd.ReservationStatus == ReservationStatus.NotCheckedIn || bd.ReservationStatus == ReservationStatus.Completed)) && ts.IsActive == true)
+                .Filter(ts => ts.CourtId.Equals(courtId) && !ts.BookingDetails.Any(bd => bd.BookingDate == chosenDate && (bd.ReservationStatus == ReservationStatus.NotCheckedIn || bd.ReservationStatus == ReservationStatus.Completed || bd.ReservationStatus == ReservationStatus.CheckedIn)) && ts.IsActive == true)
                 .Include(ts => ts.Court)
                 .GetAllAsync();
 
             var bookedTimeSlots = await _timeSlotRepository.QueryHelper()
-                .Filter(ts => ts.CourtId.Equals(courtId) && ts.BookingDetails.Any(bd => bd.BookingDate == chosenDate && (bd.ReservationStatus == ReservationStatus.NotCheckedIn || bd.ReservationStatus == ReservationStatus.Completed)) && ts.IsActive == true)
+                .Filter(ts => ts.CourtId.Equals(courtId) && ts.BookingDetails.Any(bd => bd.BookingDate == chosenDate && (bd.ReservationStatus == ReservationStatus.NotCheckedIn || bd.ReservationStatus == ReservationStatus.Completed || bd.ReservationStatus == ReservationStatus.CheckedIn)) && ts.IsActive == true)
                 .Include(ts => ts.Court)
                 .GetAllAsync();
 
