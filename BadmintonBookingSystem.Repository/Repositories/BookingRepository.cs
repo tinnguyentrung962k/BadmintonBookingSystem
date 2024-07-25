@@ -68,5 +68,9 @@ namespace BadmintonBookingSystem.Repository.Repositories
             var pagedBookings = userBookings.Skip(pageIndex * pageSize).Take(pageSize);
             return pagedBookings;
         }
+        public async Task<bool> ExistsAsync(long bookingCode)
+        {
+            return await _context.Bookings.AnyAsync(b => b.BookingCode == bookingCode);
+        }
     }
 }
