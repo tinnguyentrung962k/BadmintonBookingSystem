@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using BadmintonBookingSystem.BusinessObject.Constants;
 using BadmintonBookingSystem.BusinessObject.DTOs.RequestDTOs;
 using BadmintonBookingSystem.BusinessObject.DTOs.ResponseDTOs;
 using BadmintonBookingSystem.BusinessObject.Exceptions;
@@ -30,6 +31,7 @@ namespace BadmintonBookingSystem.Controllers
 
         [HttpGet]
         [Route("api/users")]
+        [Authorize(Roles = RoleConstants.ADMIN)]
         public async Task<ActionResult<List<ResponseUserDTO>>> GetAllUsers(int pageIndex, int pageSize) 
         {
             try
@@ -48,6 +50,7 @@ namespace BadmintonBookingSystem.Controllers
         }
         [HttpGet]
         [Route("api/users/managers")]
+        [Authorize(Roles = RoleConstants.ADMIN)]
         public async Task<ActionResult<List<ResponseUserDTO>>> GetAllUsersManager(int pageIndex, int pageSize)
         {
             try
@@ -66,6 +69,7 @@ namespace BadmintonBookingSystem.Controllers
         }
         [HttpPut]
         [Route("api/users/update/{userId}")]
+        [Authorize(Roles = RoleConstants.ADMIN)]
         public async Task<ActionResult<ResponseUserDTO>> UpdateUser(string userId, [FromBody] UpdateUserDTO updateUserDto)
         {
             try
@@ -84,6 +88,7 @@ namespace BadmintonBookingSystem.Controllers
         }
         [HttpPut]
         [Route("api/users/deactive/{userId}")]
+        [Authorize(Roles = RoleConstants.ADMIN)]
         public async Task<ActionResult<ResponseUserDTO>> DeactiveUser(string userId )
         {
             try
@@ -102,6 +107,7 @@ namespace BadmintonBookingSystem.Controllers
         }
         [HttpGet]
         [Route("api/users/Search")]
+        [Authorize(Roles = RoleConstants.ADMIN)]
         public async Task<ActionResult<List<ResponseUserDTO>>> SearchUser([FromQuery]int pageIndex, int pageSize, [FromQuery] SearchUserDTO searchUser)
         {
             try
@@ -125,6 +131,7 @@ namespace BadmintonBookingSystem.Controllers
         }
         [HttpPost]
         [Route("api/users/add")]
+        [Authorize(Roles = RoleConstants.ADMIN)]
         public async Task<IActionResult> AddNewUser([FromBody] UserCreateDTO userCreateDTO)
         {
             try
@@ -144,6 +151,7 @@ namespace BadmintonBookingSystem.Controllers
         }
         [HttpGet]
         [Route("api/roles")]
+        [Authorize(Roles = RoleConstants.ADMIN)]
         public async Task<ActionResult<List<RoleResponseDTO>>> GetAllRoles()
         {
             try

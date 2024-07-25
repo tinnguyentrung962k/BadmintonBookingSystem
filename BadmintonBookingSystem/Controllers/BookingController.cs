@@ -108,6 +108,7 @@ namespace BadmintonBookingSystem.Controllers
         }
 
         [HttpGet("api/bookings/court-reservation/center/{id}")]
+        [Authorize(Roles = RoleConstants.MANAGER)]
         public async Task<ActionResult<List<ResponseCourtReservationDTO>>> GetAllReservationsOfCenter([FromRoute] string id, [FromQuery] int pageIndex, int pageSize)
         {
             try
@@ -125,6 +126,7 @@ namespace BadmintonBookingSystem.Controllers
             }
         }
         [HttpDelete("api/bookings/booking-detail/{id}")]
+        [Authorize(Roles = RoleConstants.MANAGER + "," + RoleConstants.CUSTOMER)]
         public async Task<ActionResult<ResponseBookingDetailDTO>> CancelBookingDetail([FromRoute] string id)
         {
             try
@@ -224,6 +226,7 @@ namespace BadmintonBookingSystem.Controllers
         }
 
         [HttpGet("api/bookings/search-court-reservation/center/{id}")]
+        [Authorize(Roles = RoleConstants.MANAGER)]
         public async Task<ActionResult<List<ResponseCourtReservationDTO>>> SearchReservationsOfCenter([FromRoute] string id, [FromQuery]SearchBookingDTO searchBookingDTO, [FromQuery] int pageIndex, int pageSize)
         {
             try

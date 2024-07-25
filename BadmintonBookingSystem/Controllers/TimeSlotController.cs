@@ -1,10 +1,12 @@
 ﻿using AutoMapper;
+using BadmintonBookingSystem.BusinessObject.Constants;
 using BadmintonBookingSystem.BusinessObject.DTOs.RequestDTOs;
 using BadmintonBookingSystem.BusinessObject.DTOs.ResponseDTOs;
 using BadmintonBookingSystem.BusinessObject.Exceptions;
 using BadmintonBookingSystem.DataAccessLayer.Entities;
 using BadmintonBookingSystem.Service.Services;
 using BadmintonBookingSystem.Service.Services.Interface;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -23,6 +25,7 @@ namespace BadmintonBookingSystem.Controllers
         }
 
         [HttpPost("api/timeslots")]
+        [Authorize(Roles = RoleConstants.MANAGER)]
         public async Task<ActionResult<ResponseTimeSlotDTO>> CreateTimeSlot(TimeSlotCreateDTO timeSlotCreateDTO)
         {
             try
@@ -91,7 +94,8 @@ namespace BadmintonBookingSystem.Controllers
         }
 
         [HttpPut("api/timeslot-toggle/{id}")]
-        public async Task<ActionResult<ResponseTimeSlotDTO>> ToggleStatusCourt([FromRoute] string id)
+        [Authorize(Roles = RoleConstants.MANAGER)]
+        public async Task<ActionResult<ResponseTimeSlotDTO>> ToggleStatusTimeSlot([FromRoute] string id)
         {
             try
             {

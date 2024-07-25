@@ -1,10 +1,12 @@
 ﻿using AutoMapper;
+using BadmintonBookingSystem.BusinessObject.Constants;
 using BadmintonBookingSystem.BusinessObject.DTOs.RequestDTOs;
 using BadmintonBookingSystem.BusinessObject.DTOs.ResponseDTOs;
 using BadmintonBookingSystem.BusinessObject.Exceptions;
 using BadmintonBookingSystem.DataAccessLayer.Entities;
 using BadmintonBookingSystem.Service.Services;
 using BadmintonBookingSystem.Service.Services.Interface;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -21,6 +23,7 @@ namespace BadmintonBookingSystem.Controllers
             _mapper = mapper;
         }
         [HttpGet("api/courts/center/{centerId}")]
+        [Authorize(Roles = RoleConstants.MANAGER)]
         public async Task<ActionResult<List<ResponseCourtDTO>>> GetAllCourtsByCenterId([FromRoute] string centerId,[FromQuery] int pageIndex, int size)
         {
             try
@@ -38,6 +41,7 @@ namespace BadmintonBookingSystem.Controllers
             }
         }
         [HttpGet("api/courts-active/center/{centerId}")]
+        [Authorize(Roles = RoleConstants.CUSTOMER)]
         public async Task<ActionResult<List<ResponseCourtDTO>>> GetAllActiveCourtsByCenterId([FromRoute] string centerId, [FromQuery] int pageIndex, int size)
         {
             try
@@ -73,6 +77,7 @@ namespace BadmintonBookingSystem.Controllers
             }
         }
         [HttpPost("api/courts")]
+        [Authorize(Roles = RoleConstants.MANAGER)]
         public async Task<ActionResult<ResponseCourtDTO>> CreateCourt([FromForm] CourtCreateDTO courtCreateDTO)
         {
             try
@@ -88,6 +93,7 @@ namespace BadmintonBookingSystem.Controllers
             }
         }
         [HttpPut("api/courts/{id}")]
+        [Authorize(Roles = RoleConstants.MANAGER)]
         public async Task<ActionResult<ResponseCourtDTO>> EditCourt([FromForm] CourtUpdateDTO courtUpdateDTO, [FromRoute] string id)
         {
             try
@@ -104,6 +110,7 @@ namespace BadmintonBookingSystem.Controllers
         }
 
         [HttpPut("api/courts-toggle/{id}")]
+        [Authorize(Roles = RoleConstants.MANAGER)]
         public async Task<ActionResult<ResponseCourtDTO>> ToggleStatusCourt([FromRoute] string id)
         {
             try

@@ -25,6 +25,7 @@ namespace BadmintonBookingSystem.Controllers
             _mapper = mapper;
         }
         [HttpGet]
+        [Authorize(Roles = RoleConstants.ADMIN)]
         [Route("api/badminton-centers")]
         public async Task<ActionResult<List<ResponseBadmintonCenterDTO>>> GetAllBadmintonCenters([FromQuery]int pageIndex, int size) 
         {
@@ -64,6 +65,7 @@ namespace BadmintonBookingSystem.Controllers
         }
         [HttpGet]
         [Route("api/badminton-centers-active")]
+        [Authorize(Roles = RoleConstants.CUSTOMER)]
         public async Task<ActionResult<List<ResponseBadmintonCenterDTO>>> GetAllActiveBadmintonCenters([FromQuery] int pageIndex, int size)
         {
             try
@@ -100,6 +102,7 @@ namespace BadmintonBookingSystem.Controllers
 
         [HttpPost]
         [Route("api/badminton-centers")]
+        [Authorize(Roles = RoleConstants.ADMIN)]
         public async Task<ActionResult<ResponseBadmintonCenterDTO>> CreateBadmintonCenter([FromForm]BadmintonCenterCreateDTO badmintonCenterCreateDTO)
         {
             try
@@ -135,6 +138,7 @@ namespace BadmintonBookingSystem.Controllers
             }
         }
         [HttpPut("api/badminton-centers/{id}")]
+        [Authorize(Roles = RoleConstants.ADMIN)]
         public async Task<ActionResult<ResponseBadmintonCenterDTO>> EditBadmintonCenter([FromForm] BadmintonUpdateDTO badmintonUpdateDTO, [FromRoute] string id)
         {
             try
@@ -154,6 +158,7 @@ namespace BadmintonBookingSystem.Controllers
             }
         }
         [HttpPut("api/badminton-centers-toggle/{id}")]
+        [Authorize(Roles = RoleConstants.ADMIN)]
         public async Task<ActionResult<ResponseBadmintonCenterDTO>> ToggleStatusCenter([FromRoute] string id)
         {
             try
