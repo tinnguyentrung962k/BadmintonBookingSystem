@@ -140,9 +140,13 @@ namespace BadmintonBookingSystem.Controllers
             try
             {
                 var badmintonCenter = await _badmintonCenterService.GetBadmintonCenterByIdAsync(id);
-                var badmintonToUpdate = await _badmintonCenterService.UpdateBadmintonInfo(_mapper.Map<BadmintonCenterEntity>(badmintonUpdateDTO), id,badmintonUpdateDTO.ImageFiles,badmintonUpdateDTO.ImgAvatar);
+                var badmintonToUpdate = await _badmintonCenterService.UpdateBadmintonInfo(_mapper.Map<BadmintonCenterEntity>(badmintonUpdateDTO), id, badmintonUpdateDTO.ImageFiles, badmintonUpdateDTO.ImgAvatar);
                 var updatedCenter = _mapper.Map<ResponseBadmintonCenterDTO>(badmintonToUpdate);
                 return Ok(updatedCenter);
+            }
+            catch (ConflictException ex)
+            {
+                return BadRequest(ex.Message);
             }
             catch (Exception ex)
             {
