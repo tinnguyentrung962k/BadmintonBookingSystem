@@ -25,7 +25,6 @@ namespace BadmintonBookingSystem.Controllers
         }
 
         [HttpPost("api/timeslots")]
-        [Authorize(Roles = RoleConstants.MANAGER)]
         public async Task<ActionResult<ResponseTimeSlotDTO>> CreateTimeSlot(TimeSlotCreateDTO timeSlotCreateDTO)
         {
             try
@@ -94,7 +93,6 @@ namespace BadmintonBookingSystem.Controllers
         }
 
         [HttpPut("api/timeslot-toggle/{id}")]
-        [Authorize(Roles = RoleConstants.MANAGER)]
         public async Task<ActionResult<ResponseTimeSlotDTO>> ToggleStatusTimeSlot([FromRoute] string id)
         {
             try
