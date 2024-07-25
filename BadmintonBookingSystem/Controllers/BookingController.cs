@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+﻿using Amazon.S3.Model;
+using AutoMapper;
 using BadmintonBookingSystem.BusinessObject.Constants;
 using BadmintonBookingSystem.BusinessObject.DTOs.RequestDTOs;
 using BadmintonBookingSystem.BusinessObject.DTOs.ResponseDTOs;
@@ -9,6 +10,7 @@ using BadmintonBookingSystem.Service.Services.Interface;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
 using System.Collections.Generic;
 using System.Security.Claims;
 
@@ -19,10 +21,12 @@ namespace BadmintonBookingSystem.Controllers
     {
         private readonly IBookingService _bookingService;
         private readonly IMapper _mapper;
-        public BookingController(IBookingService bookingService, IMapper mapper)
+        private readonly IPaymentService _paymentService;
+        public BookingController(IBookingService bookingService, IMapper mapper, IPaymentService paymentService)
         {
             _bookingService = bookingService;
             _mapper = mapper;
+            _paymentService = paymentService;
         }
 
         [HttpPost("api/bookings/single-booking")]
@@ -236,5 +240,151 @@ namespace BadmintonBookingSystem.Controllers
                 return StatusCode(500, "Server Error");
             }
         }
+        [HttpPost("api/bookings/payment/{id}")]
+        public async Task<IActionResult> PaymentProccessing([FromRoute] string id)
+        {
+            try
+            {
+                var paymentUrl = await _paymentService.PaymentWithPayOs(id);
+                return Ok(paymentUrl);
+            }
+            catch (NotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Server Error");
+            }
+        }
+        [HttpGet("status/{bookingId}")]
+        public async Task<IActionResult> GetPaymentStatus(string bookingId)
+        {
+            try
+            {
+                var paymentStatus = await _paymentService.GetPaymentStatus(bookingId);
+                return Ok(paymentStatus);
+            }
+            catch (NotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
+
+        [HttpGet("/api/payment/cancel")]
+        public async Task<IActionResult> HandleCancel([FromQuery] PaymentResponse paymentResponse)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(new ResponseModel<object>
+                {
+                    IsSuccess = false,
+                    Message = "Invalid request data.",
+                    Data = null
+                });
+            }
+
+            BookingEntity order;
+            try
+            {
+                order = await _bookingService.GetBookingByOrderCode(paymentResponse.OrderCode);
+                if (order == null)
+                {
+                    return NotFound(new ResponseModel<object>
+                    {
+                        IsSuccess = false,
+                        Message = "Order not found.",
+                        Data = null
+                    });
+                }
+
+                // Attempt to cancel the booking
+                await _bookingService.CancelBooking(order.Id);
+            }
+            catch (NotFoundException)
+            {
+                return NotFound(new ResponseModel<object>
+                {
+                    IsSuccess = false,
+                    Message = "Order not found.",
+                    Data = null
+                });
+            }
+            catch (Exception ex)
+            {
+                // Log the exception if needed
+                return StatusCode(500, new ResponseModel<object>
+                {
+                    IsSuccess = false,
+                    Message = "Failed to update order status.",
+                    Data = null
+                });
+            }
+
+            var redirectUrl = "http://localhost:3000/booking_cancel";
+            return Redirect(redirectUrl);
+        }
+
+        [HttpGet("/api/payment/return")]
+        public async Task<IActionResult> HandleReturn([FromQuery] PaymentResponse paymentResponse)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(new ResponseModel<object>
+                {
+                    IsSuccess = false,
+                    Message = "Invalid request data.",
+                    Data = null
+                });
+            }
+
+            BookingEntity order;
+            try
+            {
+                order = await _bookingService.GetBookingByOrderCode(paymentResponse.OrderCode);
+                if (order == null)
+                {
+                    return NotFound(new ResponseModel<object>
+                    {
+                        IsSuccess = false,
+                        Message = "Order not found.",
+                        Data = null
+                    });
+                }
+
+                // Attempt to cancel the booking
+                await _bookingService.CompleteBooking(order.Id);
+            }
+            catch (NotFoundException)
+            {
+                return NotFound(new ResponseModel<object>
+                {
+                    IsSuccess = false,
+                    Message = "Order not found.",
+                    Data = null
+                });
+            }
+            catch (Exception ex)
+            {
+                // Log the exception if needed
+                return StatusCode(500, new ResponseModel<object>
+                {
+                    IsSuccess = false,
+                    Message = "Failed to update order status.",
+                    Data = null
+                });
+            }
+            var redirectUrl = "http://localhost:3000/booking_success";
+            return Redirect(redirectUrl);
+        }
+
+
+
+
+
     }
 }

@@ -29,7 +29,21 @@ namespace BadmintonBookingSystem.Service.Services
             _timeSlotRepository = timeSlotRepository;
             _badmintonCenterRepository = badmintonCenterRepository;
         }
-
+        public long GenerateUniqueBookingCode()
+        {
+            long bookingCode;
+            var bookings = _bookingRepository.GetAllAsync().Result;
+            var numberOfBooking = bookings.Count();
+            if (numberOfBooking == 0)
+            {
+                bookingCode = 1;
+            }
+            else
+            {
+                bookingCode = numberOfBooking + 1;
+            }
+            return bookingCode;
+        }
         public async Task<BookingEntity> CreateBookingInSingleDay(string userId, SingleBookingCreateDTO singleBookingCreateDTO)
         {
             var user = await _userManager.FindByIdAsync(userId);
@@ -71,6 +85,7 @@ namespace BadmintonBookingSystem.Service.Services
 
                 BookingEntity booking = new BookingEntity
                 {
+                    BookingCode = GenerateUniqueBookingCode(),
                     BookingType = BookingType.Single,
                     CustomerId = user.Id,
                     FromDate = singleBookingCreateDTO.BookingDate,
@@ -161,6 +176,7 @@ namespace BadmintonBookingSystem.Service.Services
 
                 BookingEntity booking = new BookingEntity
                 {
+                    BookingCode = GenerateUniqueBookingCode(),
                     BookingType = BookingType.Fixed,
                     CustomerId = user.Id,
                     FromDate = fixedBookingCreateDTO.FromDate,
@@ -309,6 +325,7 @@ namespace BadmintonBookingSystem.Service.Services
                 // Create BookingEntity
                 var bookingEntity = new BookingEntity
                 {
+                    BookingCode = GenerateUniqueBookingCode(),
                     CustomerId = userId,
                     Customer = user,
                     BookingType = BookingType.Flexible,
@@ -430,6 +447,29 @@ namespace BadmintonBookingSystem.Service.Services
                 throw ex;
             }
         }
+        public async Task<BookingEntity> CompleteBooking(string bookingId)
+        {
+            var chosenBooking = await _bookingRepository.GetABookingById(bookingId);
+            if (chosenBooking is null)
+            {
+                throw new NotFoundException("No booking found");
+            }
+            try
+            {
+                chosenBooking.PaymentStatus = PaymentStatus.Completed;
+                var bookingDetails = await _bookDetailRepository.QueryHelper()
+                    .Filter(c => c.BookingId.Equals(bookingId))
+                    .GetAllAsync();
+                _bookingRepository.Update(chosenBooking);
+                await _unitOfWork.SaveChangesAsync();
+                return chosenBooking;
+            }
+            catch (Exception ex)
+            {
+                await _unitOfWork.RollbackAsync();
+                throw ex;
+            }
+        }
 
         public async Task<BookingDetailEntity> CancelBookingDetail(string bookingDetailId)
         {
@@ -457,6 +497,18 @@ namespace BadmintonBookingSystem.Service.Services
             }
             
 
+        }
+
+        public async Task<BookingEntity> GetBookingByOrderCode(long orderCode)
+        {
+            var chosenBooking = await _bookingRepository.QueryHelper()
+                .Filter(c=>c.BookingCode == orderCode)
+                .GetOneAsync();
+            if (chosenBooking == null)
+            {
+                throw new NotFoundException("Booking not found");
+            }
+            return chosenBooking;
         }
     }
 }
