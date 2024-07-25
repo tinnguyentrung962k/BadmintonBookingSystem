@@ -56,7 +56,7 @@ namespace BadmintonBookingSystem.Service.Services
             foreach (var timeSlotId in singleBookingCreateDTO.ListTimeSlotId)
             {
                 var existedBookingDetail = await _bookDetailRepository.QueryHelper()
-                    .Filter(bd => bd.TimeSlotId.Equals(timeSlotId) && bd.BookingDate.Equals(singleBookingCreateDTO.BookingDate))
+                    .Filter(bd => bd.TimeSlotId.Equals(timeSlotId) && bd.BookingDate.Equals(singleBookingCreateDTO.BookingDate) && bd.ReservationStatus != ReservationStatus.Cancelled)
                     .Include(bd => bd.TimeSlot)
                     .GetOneAsync();
 
@@ -146,7 +146,7 @@ namespace BadmintonBookingSystem.Service.Services
                     var existedBookingDetail = await _bookDetailRepository.QueryHelper()
                         .Filter(bd => bd.TimeSlotId.Equals(timeSlotId)
                             && bd.BookingDate.Equals(bookingDate)
-                            && bd.DayOfAWeek.Equals(fixedBookingCreateDTO.DayOfAWeek))
+                            && bd.DayOfAWeek.Equals(fixedBookingCreateDTO.DayOfAWeek) && bd.ReservationStatus != ReservationStatus.Cancelled)
                         .Include(bd => bd.TimeSlot)
                         .GetOneAsync();
 
@@ -308,7 +308,7 @@ namespace BadmintonBookingSystem.Service.Services
                     var existedBookingDetail = await _bookDetailRepository.QueryHelper()
                         .Filter(bd => bd.TimeSlotId == timeSlotId
                             && bd.BookingDate == chosenTimeSlot.BookingDate
-                            && bd.DayOfAWeek == (DayOfAWeek)chosenTimeSlot.BookingDate.DayOfWeek)
+                            && bd.DayOfAWeek == (DayOfAWeek)chosenTimeSlot.BookingDate.DayOfWeek && bd.ReservationStatus != ReservationStatus.Cancelled)
                         .GetOneAsync(); // Using AnyAsync to improve performance
 
                     if (existedBookingDetail != null)
