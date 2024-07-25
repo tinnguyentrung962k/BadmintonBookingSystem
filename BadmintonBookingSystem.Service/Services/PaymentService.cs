@@ -115,22 +115,6 @@ namespace BadmintonBookingSystem.Service.Services
             long orderCodeLong = booking.BookingCode;
 
             var paymentStatus = await _payOS.getPaymentLinkInformation(orderCodeLong);
-            if (paymentStatus == null)
-            {
-                throw new Exception("Failed to retrieve payment status");
-            }
-
-            // Process payment status (e.g., update booking status)
-            if (paymentStatus.status == "PAID")
-            {
-                booking.PaymentStatus = PaymentStatus.Completed;
-                await _unitOfWork.SaveChangesAsync();
-            }
-            else if (paymentStatus.status == "CANCELLED")
-            {
-                booking.PaymentStatus = PaymentStatus.Cancel;
-                await _unitOfWork.SaveChangesAsync();
-            }
 
             return paymentStatus;
         }
