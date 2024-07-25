@@ -31,17 +31,18 @@ namespace BadmintonBookingSystem.Service.Services
         }
         public long GenerateUniqueBookingCode()
         {
+            var random = new Random();
             long bookingCode;
-            var bookings = _bookingRepository.GetAllAsync().Result;
-            var numberOfBooking = bookings.Count();
-            if (numberOfBooking == 0)
+
+            // Generate a random number with a desired number of digits, e.g., 6 digits
+            bookingCode = random.Next(100000, 999999);
+
+            // Ensure the booking code is unique
+            while (_bookingRepository.ExistsAsync(bookingCode).Result)
             {
-                bookingCode = 1;
+                bookingCode = random.Next(100000, 999999);
             }
-            else
-            {
-                bookingCode = numberOfBooking + 1;
-            }
+
             return bookingCode;
         }
         public async Task<BookingEntity> CreateBookingInSingleDay(string userId, SingleBookingCreateDTO singleBookingCreateDTO)
