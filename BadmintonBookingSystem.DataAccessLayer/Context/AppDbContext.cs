@@ -30,7 +30,11 @@ namespace BadmintonBookingSystem.DataAccessLayer.Context
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-
+            
+            modelBuilder.Entity<BookingEntity>()
+            .HasIndex(b => b.BookingCode)
+            .IsUnique();
+            
             modelBuilder.Entity<BookingDetailEntity>()
             .Property(u => u.ReservationStatus)
             .HasConversion(

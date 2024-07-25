@@ -12,6 +12,7 @@ namespace BadmintonBookingSystem.DataAccessLayer.Entities
     [Table("Booking")]
     public class BookingEntity : BaseAuditEntity<string>
     {
+        public long BookingCode { get; set; }
         public string CustomerId { get; set; }
         
         [ForeignKey(nameof(CustomerId))]
@@ -22,6 +23,8 @@ namespace BadmintonBookingSystem.DataAccessLayer.Entities
         public decimal TotalPrice { get; set; }
         public PaymentStatus PaymentStatus { get; set; }
         public IEnumerable<BookingDetailEntity> BookingDetails { get; set; }
+
+         
         
 
     }
