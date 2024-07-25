@@ -19,6 +19,7 @@ namespace BadmintonBookingSystem.BusinessObject.DTOs.ResponseDTOs
         public DateOnly ToDate { get; set; }
         public decimal TotalPrice { get; set; }
         public string PaymentStatus { get; set; }
+        public long BookingCode { get; set; }
 
     }
 }

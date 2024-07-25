@@ -76,7 +76,7 @@ namespace BadmintonBookingSystem.Service.Services
                 bookings.Add(item);
             }
 
-            string content = $"{user.FullName} - " + DateTime.Now.ToString();
+            string content = $"{user.FullName} - {booking.BookingCode}";
             int expiredAt = (int)(DateTimeOffset.UtcNow.ToUnixTimeSeconds() + (60 * 5)); // 5 minutes from now
 
             long orderCodeLong = booking.BookingCode; // or use ConvertGuidToLong or ConvertGuidToLongUsingBase64
