@@ -256,10 +256,6 @@ namespace BadmintonBookingSystem.Service.Services
                 .Include(c => c.TimeSlot.Court)
                 .Include(c => c.TimeSlot.Court.BadmintonCenter)
                 .Include(c => c.TimeSlot);
-            if (!string.IsNullOrEmpty(searchBookingDTO.BookingId))
-            {
-                search = search.Filter(bd => bd.BookingId.Contains(searchBookingDTO.BookingId));
-            }
             if (!string.IsNullOrEmpty(searchBookingDTO.CustomerName))
             {
                 search = search.Filter(bd => bd.Booking.Customer.FullName.ToLower().Contains(searchBookingDTO.CustomerName.ToLower()));
