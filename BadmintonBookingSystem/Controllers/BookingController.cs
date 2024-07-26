@@ -141,6 +141,23 @@ namespace BadmintonBookingSystem.Controllers
                 return StatusCode(500, "Server Error");
             }
         }
+        [HttpPut("api/bookings/reservation/booking-detail/{id}")]
+        public async Task<ActionResult<ResponseBookingDetailDTO>> UpdateStatusBookingDetail([FromRoute] string id, [FromQuery] ReservationStatus status)
+        {
+            try
+            {
+                var bookingReservation = _mapper.Map<ResponseBookingDetailDTO>(await _bookingService.UpdateStatusReservation(id,status));
+                return Ok(bookingReservation);
+            }
+            catch (NotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Server Error");
+            }
+        }
 
 
         [HttpGet("api/bookings/user-bookings")]
@@ -203,7 +220,6 @@ namespace BadmintonBookingSystem.Controllers
         }
 
         [HttpGet("api/bookings/filter-user-bookings")]
-        [Authorize(Roles = RoleConstants.CUSTOMER)]
 
         public async Task<ActionResult<List<ResponseBookingHeaderAndBookingDetail>>> FilterStatusBookingOrderAndDetailsOfUser([FromQuery]PaymentStatus? paymentStatus,int pageIndex, int pageSize)
         {

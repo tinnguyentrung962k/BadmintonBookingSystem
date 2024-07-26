@@ -35,6 +35,7 @@ namespace BadmintonBookingSystem.Service.Services
         private readonly IConfiguration _configuration;
         private readonly UserManager<UserEntity> _userManager;
         private readonly PayOsSetting payOSSetting;
+        private readonly string _websiteDomain;
         private PayOS _payOS;
         public PaymentService(IUnitOfWork unitOfWork, IBookingService bookingService, IConfiguration configuration, UserManager<UserEntity> userManager)
         {
@@ -49,6 +50,8 @@ namespace BadmintonBookingSystem.Service.Services
                 ChecksumKey = _configuration.GetValue<string>("PayOSChecksumKey")
             };
             _payOS = new PayOS(payOSSetting.ClientId, payOSSetting.ApiKey, payOSSetting.ChecksumKey);
+            _websiteDomain = _configuration.GetValue<string>("WebSiteDomain");
+
         }
         public async Task<string> PaymentWithPayOs(string bookingId)
         {
@@ -76,7 +79,7 @@ namespace BadmintonBookingSystem.Service.Services
                 bookings.Add(item);
             }
 
-            string content = $"{user.FullName} - " + DateTime.Now.ToString();
+            string content = $"{user.FullName} - {booking.BookingCode}";
             int expiredAt = (int)(DateTimeOffset.UtcNow.ToUnixTimeSeconds() + (60 * 5)); // 5 minutes from now
 
             long orderCodeLong = booking.BookingCode; // or use ConvertGuidToLong or ConvertGuidToLongUsingBase64
@@ -86,8 +89,8 @@ namespace BadmintonBookingSystem.Service.Services
                 (int)booking.TotalPrice,
                 content,
                 bookings,
-                "https://localhost:7138/api/payment/cancel",
-                "https://localhost:7138/api/payment/return",
+                $"{_websiteDomain}/api/payment/cancel",
+                $"{_websiteDomain}/api/payment/return",
                 null,
                 user.FullName,
                 user.Email,

@@ -197,7 +197,14 @@ namespace BadmintonBookingSystem.Service.Services
                 {
                     throw new Exception("Manager not found"); // Handle appropriately
                 }
+                var existingManagedCenter = await _badmintonCenterRepository
+                .QueryHelper().Filter(c => c.ManagerId == badmintonCenterEntity.ManagerId && c.Id != centerId).GetOneAsync();
+                if (existingManagedCenter != null)
+                {
+                    throw new ConflictException("The manager is already managing another center"); // Handle appropriately
+                }
             }
+
 
             // Update basic details
             badmintonCenter.Name = badmintonCenterEntity.Name;

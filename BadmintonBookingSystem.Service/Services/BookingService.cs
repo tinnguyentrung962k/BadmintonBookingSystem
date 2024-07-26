@@ -56,7 +56,7 @@ namespace BadmintonBookingSystem.Service.Services
             foreach (var timeSlotId in singleBookingCreateDTO.ListTimeSlotId)
             {
                 var existedBookingDetail = await _bookDetailRepository.QueryHelper()
-                    .Filter(bd => bd.TimeSlotId.Equals(timeSlotId) && bd.BookingDate.Equals(singleBookingCreateDTO.BookingDate))
+                    .Filter(bd => bd.TimeSlotId.Equals(timeSlotId) && bd.BookingDate.Equals(singleBookingCreateDTO.BookingDate) && bd.ReservationStatus != ReservationStatus.Cancelled)
                     .Include(bd => bd.TimeSlot)
                     .GetOneAsync();
 
@@ -146,7 +146,7 @@ namespace BadmintonBookingSystem.Service.Services
                     var existedBookingDetail = await _bookDetailRepository.QueryHelper()
                         .Filter(bd => bd.TimeSlotId.Equals(timeSlotId)
                             && bd.BookingDate.Equals(bookingDate)
-                            && bd.DayOfAWeek.Equals(fixedBookingCreateDTO.DayOfAWeek))
+                            && bd.DayOfAWeek.Equals(fixedBookingCreateDTO.DayOfAWeek) && bd.ReservationStatus != ReservationStatus.Cancelled)
                         .Include(bd => bd.TimeSlot)
                         .GetOneAsync();
 
@@ -256,10 +256,6 @@ namespace BadmintonBookingSystem.Service.Services
                 .Include(c => c.TimeSlot.Court)
                 .Include(c => c.TimeSlot.Court.BadmintonCenter)
                 .Include(c => c.TimeSlot);
-            if (!string.IsNullOrEmpty(searchBookingDTO.BookingId))
-            {
-                search = search.Filter(bd => bd.BookingId.Contains(searchBookingDTO.BookingId));
-            }
             if (!string.IsNullOrEmpty(searchBookingDTO.CustomerName))
             {
                 search = search.Filter(bd => bd.Booking.Customer.FullName.ToLower().Contains(searchBookingDTO.CustomerName.ToLower()));
@@ -308,7 +304,7 @@ namespace BadmintonBookingSystem.Service.Services
                     var existedBookingDetail = await _bookDetailRepository.QueryHelper()
                         .Filter(bd => bd.TimeSlotId == timeSlotId
                             && bd.BookingDate == chosenTimeSlot.BookingDate
-                            && bd.DayOfAWeek == (DayOfAWeek)chosenTimeSlot.BookingDate.DayOfWeek)
+                            && bd.DayOfAWeek == (DayOfAWeek)chosenTimeSlot.BookingDate.DayOfWeek && bd.ReservationStatus != ReservationStatus.Cancelled)
                         .GetOneAsync(); // Using AnyAsync to improve performance
 
                     if (existedBookingDetail != null)
@@ -510,6 +506,32 @@ namespace BadmintonBookingSystem.Service.Services
                 throw new NotFoundException("Booking not found");
             }
             return chosenBooking;
+        }
+
+        public async Task<BookingDetailEntity> UpdateStatusReservation(string bookingDetailId, ReservationStatus status)
+        {
+            var chosenBookingDetail = await _bookDetailRepository.QueryHelper()
+                .Filter(c => c.Id.Equals(bookingDetailId))
+                .Include(c => c.Booking.Customer)
+                .Include(c => c.TimeSlot.Court)
+                .Include(c => c.TimeSlot.Court.BadmintonCenter)
+                .Include(c => c.TimeSlot).GetOneAsync();
+            if (chosenBookingDetail == null)
+            {
+                throw new NotFoundException("No booking detail found");
+            }
+            try {
+                chosenBookingDetail.ReservationStatus = status;
+                _bookDetailRepository.Update(chosenBookingDetail);
+                await _unitOfWork.SaveChangesAsync();
+                return chosenBookingDetail;
+            }
+            catch (Exception ex)
+            {
+                await _unitOfWork.RollbackAsync();
+                throw ex;
+            }
+
         }
     }
 }

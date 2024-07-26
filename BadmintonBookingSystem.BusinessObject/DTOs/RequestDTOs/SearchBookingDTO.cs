@@ -8,7 +8,6 @@ namespace BadmintonBookingSystem.BusinessObject.DTOs.RequestDTOs
 {
     public class SearchBookingDTO
     {
-        public string? BookingId { get; set; }
         public string? CustomerName { get; set; }
         public string? CustomerEmail { get; set; }
         public string? CustomerPhone { get; set; }
