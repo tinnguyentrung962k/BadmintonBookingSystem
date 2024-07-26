@@ -511,5 +511,31 @@ namespace BadmintonBookingSystem.Service.Services
             }
             return chosenBooking;
         }
+
+        public async Task<BookingDetailEntity> UpdateStatusReservation(string bookingDetailId, ReservationStatus status)
+        {
+            var chosenBookingDetail = await _bookDetailRepository.QueryHelper()
+                .Filter(c => c.Id.Equals(bookingDetailId))
+                .Include(c => c.Booking.Customer)
+                .Include(c => c.TimeSlot.Court)
+                .Include(c => c.TimeSlot.Court.BadmintonCenter)
+                .Include(c => c.TimeSlot).GetOneAsync();
+            if (chosenBookingDetail == null)
+            {
+                throw new NotFoundException("No booking detail found");
+            }
+            try {
+                chosenBookingDetail.ReservationStatus = status;
+                _bookDetailRepository.Update(chosenBookingDetail);
+                await _unitOfWork.SaveChangesAsync();
+                return chosenBookingDetail;
+            }
+            catch (Exception ex)
+            {
+                await _unitOfWork.RollbackAsync();
+                throw ex;
+            }
+
+        }
     }
 }

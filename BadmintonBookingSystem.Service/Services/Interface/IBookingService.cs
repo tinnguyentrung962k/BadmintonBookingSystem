@@ -24,5 +24,6 @@ namespace BadmintonBookingSystem.Service.Services.Interface
         Task<BookingEntity> CompleteBooking(string bookingId);
         Task<BookingDetailEntity> CancelBookingDetail(string bookingDetailId);
         Task<BookingEntity> GetBookingByOrderCode(long orderCode);
+        Task<BookingDetailEntity> UpdateStatusReservation(string bookingDetailId, ReservationStatus status);
     }
 }
